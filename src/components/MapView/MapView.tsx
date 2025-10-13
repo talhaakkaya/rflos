@@ -24,6 +24,7 @@ interface MapViewProps {
   segmentDistances: { fromId: string; toId: string; distance: number }[];
   losFromId?: string;
   losToId?: string;
+  hideLabels: boolean;
 }
 
 export default function MapView({
@@ -33,7 +34,8 @@ export default function MapView({
   selectedLine,
   segmentDistances,
   losFromId,
-  losToId
+  losToId,
+  hideLabels
 }: MapViewProps) {
   // Calculate center from all points
   const center: [number, number] = points.length > 0
@@ -145,7 +147,7 @@ export default function MapView({
         })}
 
         {/* Render segment distance labels */}
-        {segmentDistances.map(seg => {
+        {!hideLabels && segmentDistances.map(seg => {
           const fromPoint = points.find(p => p.id === seg.fromId);
           const toPoint = points.find(p => p.id === seg.toId);
           if (fromPoint && toPoint) {

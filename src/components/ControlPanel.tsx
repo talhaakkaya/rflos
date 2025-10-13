@@ -12,6 +12,8 @@ interface ControlPanelProps {
   onReset: () => void;
   onImportJSON: (jsonText: string) => void;
   onToggleVisibility: () => void;
+  hideLabels: boolean;
+  onToggleLabels: () => void;
   isLoading: boolean;
 }
 
@@ -24,6 +26,8 @@ export default function ControlPanel({
   onReset,
   onImportJSON,
   onToggleVisibility,
+  hideLabels,
+  onToggleLabels,
   isLoading
 }: ControlPanelProps) {
   const { position, isDragging, handleMouseDown } = useDraggable({ x: 50, y: 20 });
@@ -50,6 +54,16 @@ export default function ControlPanel({
       <div className="panel-header" style={{ cursor: 'grab' }}>
         <h2>RF Path Analysis</h2>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            className="btn-toggle-labels"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleLabels();
+            }}
+            title={hideLabels ? "Show distance labels" : "Hide distance labels"}
+          >
+            {hideLabels ? '👁️' : '🏷️'}
+          </button>
           <button
             className="btn-reset"
             onClick={(e) => {
