@@ -34,5 +34,5 @@ jobs:
       - name: Publish the script to Bunny
         uses: "BunnyWay/actions/deploy-script@main"
         with:
-          script_id: 47044
+          script_id: 47045
           file: "dist/index.html"
