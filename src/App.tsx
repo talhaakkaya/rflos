@@ -1,129 +1,152 @@
 import { useState } from 'react';
 import ControlPanel from './components/ControlPanel';
-import MapView from './components/MapView';
+import MapView from './components/MapView/MapView';
 import LOSPanel from './components/LOSPanel';
-import {
-  calculateDistance,
-  generatePathPoints,
-  fetchElevationData,
-  calculateLineOfSight,
-} from './hooks/usePathCalculation';
-import type { LineOfSightResult } from './hooks/usePathCalculation';
+import { calculateDistance } from './hooks/usePathCalculation';
+import { useLOSCalculation } from './hooks/useLOSCalculation';
+import type { Point, PathResult, SegmentDistance } from './types';
 import './App.css';
 
-interface PathResult {
-  distance: number;
-  elevations: number[];
-  distances: number[];
-  los: LineOfSightResult;
-  height1: number;
-  height2: number;
-}
-
 function App() {
-  const [lat1, setLat1] = useState<string>('41.038702');
-  const [lon1, setLon1] = useState<string>('28.881802');
-  const [lat2, setLat2] = useState<string>('41.115365');
-  const [lon2, setLon2] = useState<string>('29.053646');
-  const [height1, setHeight1] = useState<string>('10');
-  const [height2, setHeight2] = useState<string>('10');
-  const [name1, setName1] = useState<string>('Point A');
-  const [name2, setName2] = useState<string>('Point B');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [points, setPoints] = useState<Point[]>([
+    { id: '1', lat: 41.038702, lon: 28.881802, name: 'Point A', height: 10 },
+    { id: '2', lat: 41.115365, lon: 29.053646, name: 'Point B', height: 10 },
+  ]);
+
+  const [losFromId, setLosFromId] = useState<string>('1');
+  const [losToId, setLosToId] = useState<string>('2');
+  const [selectedLine, setSelectedLine] = useState<{ fromId: string; toId: string } | null>(null);
   const [result, setResult] = useState<PathResult | null>(null);
+  const [segmentDistances, setSegmentDistances] = useState<SegmentDistance[]>([]);
+
+  const { calculateLOS, isLoading } = useLOSCalculation(points);
+
+  // Calculate distances between all pairs of points
+  const calculateSegmentDistances = () => {
+    const distances: SegmentDistance[] = [];
+    for (let i = 0; i < points.length; i++) {
+      for (let j = i + 1; j < points.length; j++) {
+        const distance = calculateDistance(
+          points[i].lat,
+          points[i].lon,
+          points[j].lat,
+          points[j].lon
+        );
+        distances.push({
+          fromId: points[i].id,
+          toId: points[j].id,
+          distance
+        });
+      }
+    }
+    setSegmentDistances(distances);
+  };
+
+  const handlePointDrag = (id: string, lat: number, lng: number) => {
+    setPoints(points.map(p =>
+      p.id === id ? { ...p, lat, lon: lng } : p
+    ));
+    setResult(null);
+    setSegmentDistances([]);
+    setSelectedLine(null);
+  };
+
+  const handleLineClick = async (fromId: string, toId: string) => {
+    setSelectedLine({ fromId, toId });
+    setLosFromId(fromId);
+    setLosToId(toId);
+
+    // Automatically calculate LOS for the clicked line
+    await calculateLOS(
+      fromId,
+      toId,
+      (result) => {
+        setResult(result);
+        calculateSegmentDistances();
+      },
+      (error) => {
+        alert('Error calculating path: ' + error);
+      }
+    );
+  };
 
   const handleCalculate = async () => {
-    const lat1Val = parseFloat(lat1);
-    const lon1Val = parseFloat(lon1);
-    const lat2Val = parseFloat(lat2);
-    const lon2Val = parseFloat(lon2);
-    const height1Val = parseFloat(height1) || 0;
-    const height2Val = parseFloat(height2) || 0;
+    // Use the selected line if available, otherwise use the current losFromId/losToId
+    const fromId = selectedLine?.fromId || losFromId;
+    const toId = selectedLine?.toId || losToId;
 
-    if (isNaN(lat1Val) || isNaN(lon1Val) || isNaN(lat2Val) || isNaN(lon2Val)) {
-      alert('Please enter valid coordinates');
+    await calculateLOS(
+      fromId,
+      toId,
+      (result) => {
+        setResult(result);
+        calculateSegmentDistances();
+      },
+      (error) => {
+        alert('Error calculating path: ' + error);
+      }
+    );
+  };
+
+  const handlePointUpdate = (id: string, updates: Partial<Point>) => {
+    setPoints(points.map(p =>
+      p.id === id ? { ...p, ...updates } : p
+    ));
+  };
+
+  const handleAddPoint = () => {
+    const lastPoint = points[points.length - 1];
+    const newId = (Math.max(...points.map(p => parseInt(p.id))) + 1).toString();
+    const newPoint: Point = {
+      id: newId,
+      lat: lastPoint.lat + 0.01,
+      lon: lastPoint.lon + 0.01,
+      name: `Point ${String.fromCharCode(65 + points.length)}`,
+      height: 10
+    };
+    setPoints([...points, newPoint]);
+    setResult(null);
+    setSegmentDistances([]);
+  };
+
+  const handleRemovePoint = (id: string) => {
+    if (points.length <= 2) {
+      alert('You need at least 2 points');
       return;
     }
 
-    setIsLoading(true);
+    const remainingPoints = points.filter(p => p.id !== id);
+    setPoints(remainingPoints);
 
-    try {
-      // Calculate distance
-      const distance = calculateDistance(lat1Val, lon1Val, lat2Val, lon2Val);
-
-      // Generate path points
-      const pathPoints = generatePathPoints(lat1Val, lon1Val, lat2Val, lon2Val, 50);
-
-      // Fetch elevation data
-      const elevations = await fetchElevationData(pathPoints);
-
-      // Calculate distances for each point
-      const distances = pathPoints.map((p) =>
-        calculateDistance(lat1Val, lon1Val, p.lat, p.lon)
-      );
-
-      // Calculate line of sight
-      const los = calculateLineOfSight(distances, elevations, height1Val, height2Val);
-
-      setResult({
-        distance,
-        elevations,
-        distances,
-        los,
-        height1: height1Val,
-        height2: height2Val
-      });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      alert('Error calculating path: ' + errorMessage);
-    } finally {
-      setIsLoading(false);
+    // Update LOS selection if removed point was selected
+    if (losFromId === id || losToId === id) {
+      // Reset both to first two points if removed point was involved
+      setLosFromId(remainingPoints[0].id);
+      setLosToId(remainingPoints[1].id);
     }
-  };
 
-  const handlePoint1Drag = (lat: number, lng: number) => {
-    setLat1(lat.toFixed(6));
-    setLon1(lng.toFixed(6));
-    setResult(null); // Clear results when marker is moved
-  };
-
-  const handlePoint2Drag = (lat: number, lng: number) => {
-    setLat2(lat.toFixed(6));
-    setLon2(lng.toFixed(6));
-    setResult(null); // Clear results when marker is moved
+    setResult(null);
+    setSegmentDistances([]);
+    setSelectedLine(null);
   };
 
   return (
     <div className="app">
       <MapView
-        lat1={parseFloat(lat1)}
-        lon1={parseFloat(lon1)}
-        lat2={parseFloat(lat2)}
-        lon2={parseFloat(lon2)}
-        name1={name1}
-        name2={name2}
-        onPoint1Drag={handlePoint1Drag}
-        onPoint2Drag={handlePoint2Drag}
-        distance={result?.distance}
+        points={points}
+        onPointDrag={handlePointDrag}
+        onLineClick={handleLineClick}
+        selectedLine={selectedLine}
+        segmentDistances={segmentDistances}
+        losFromId={result ? losFromId : undefined}
+        losToId={result ? losToId : undefined}
       />
 
       <ControlPanel
-        lat1={lat1}
-        lon1={lon1}
-        lat2={lat2}
-        lon2={lon2}
-        height1={height1}
-        height2={height2}
-        name1={name1}
-        name2={name2}
-        onLat1Change={setLat1}
-        onLon1Change={setLon1}
-        onLat2Change={setLat2}
-        onLon2Change={setLon2}
-        onHeight1Change={setHeight1}
-        onHeight2Change={setHeight2}
-        onName1Change={setName1}
-        onName2Change={setName2}
+        points={points}
+        onPointUpdate={handlePointUpdate}
+        onAddPoint={handleAddPoint}
+        onRemovePoint={handleRemovePoint}
         onCalculate={handleCalculate}
         isLoading={isLoading}
       />

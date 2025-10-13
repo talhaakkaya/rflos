@@ -1,18 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
-import type { LineOfSightResult } from '../hooks/usePathCalculation';
+import type { PathResult } from '../types';
 import './LOSPanel.css';
 
 Chart.register(...registerables);
-
-interface PathResult {
-  distance: number;
-  elevations: number[];
-  distances: number[];
-  los: LineOfSightResult;
-  height1: number;
-  height2: number;
-}
 
 interface LOSPanelProps {
   result: PathResult | null;
@@ -104,7 +95,7 @@ export default function LOSPanel({ result }: LOSPanelProps) {
 
   if (!result) return null;
 
-  const { distance, elevations, los, height1, height2 } = result;
+  const { distance, elevations, los, height1, height2, name1, name2 } = result;
 
   return (
     <div className="los-panel">
@@ -117,11 +108,11 @@ export default function LOSPanel({ result }: LOSPanelProps) {
 
       <div className="los-info">
         <div className="los-detail">
-          <strong>Point A</strong> elevation: {elevations[0].toFixed(1)} m
+          <strong>{name1}</strong> elevation: {elevations[0].toFixed(1)} m
           {height1 > 0 && ` (+${height1}m antenna = ${(elevations[0] + height1).toFixed(1)}m)`}
         </div>
         <div className="los-detail">
-          <strong>Point B</strong> elevation: {elevations[elevations.length - 1].toFixed(1)} m
+          <strong>{name2}</strong> elevation: {elevations[elevations.length - 1].toFixed(1)} m
           {height2 > 0 && ` (+${height2}m antenna = ${(elevations[elevations.length - 1] + height2).toFixed(1)}m)`}
         </div>
         <div className="los-detail">

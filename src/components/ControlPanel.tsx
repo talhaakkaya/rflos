@@ -1,79 +1,34 @@
-import { useRef, useState, useEffect } from 'react';
 import './ControlPanel.css';
+import type { Point } from '../types';
+import { useDraggable } from '../hooks/useDraggable';
 
 interface ControlPanelProps {
-  lat1: string;
-  lon1: string;
-  lat2: string;
-  lon2: string;
-  height1: string;
-  height2: string;
-  name1: string;
-  name2: string;
-  onLat1Change: (value: string) => void;
-  onLon1Change: (value: string) => void;
-  onLat2Change: (value: string) => void;
-  onLon2Change: (value: string) => void;
-  onHeight1Change: (value: string) => void;
-  onHeight2Change: (value: string) => void;
-  onName1Change: (value: string) => void;
-  onName2Change: (value: string) => void;
+  points: Point[];
+  onPointUpdate: (id: string, updates: Partial<Point>) => void;
+  onAddPoint: () => void;
+  onRemovePoint: (id: string) => void;
   onCalculate: () => void;
   isLoading: boolean;
 }
 
 export default function ControlPanel({
-  lat1, lon1, lat2, lon2, height1, height2, name1, name2,
-  onLat1Change, onLon1Change, onLat2Change, onLon2Change,
-  onHeight1Change, onHeight2Change, onName1Change, onName2Change,
-  onCalculate, isLoading
+  points,
+  onPointUpdate,
+  onAddPoint,
+  onRemovePoint,
+  onCalculate,
+  isLoading
 }: ControlPanelProps) {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState({ x: 20, y: 20 });
-  const dragStart = useRef({ x: 0, y: 0 });
+  const { position, isDragging, handleMouseDown } = useDraggable();
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
-
-      const deltaX = e.clientX - dragStart.current.x;
-      const deltaY = e.clientY - dragStart.current.y;
-
-      setPosition(prev => ({
-        x: prev.x + deltaX,
-        y: prev.y + deltaY
-      }));
-
-      dragStart.current = { x: e.clientX, y: e.clientY };
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    }
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging]);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handlePanelMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('.panel-header')) {
-      setIsDragging(true);
-      dragStart.current = { x: e.clientX, y: e.clientY };
-      e.preventDefault();
+      handleMouseDown(e);
     }
   };
 
   return (
     <div
-      ref={panelRef}
       className="control-panel"
       style={{
         position: 'absolute',
@@ -81,89 +36,81 @@ export default function ControlPanel({
         top: `${position.y}px`,
         cursor: isDragging ? 'grabbing' : 'auto'
       }}
-      onMouseDown={handleMouseDown}
+      onMouseDown={handlePanelMouseDown}
     >
       <div className="panel-header" style={{ cursor: 'grab' }}>
         <h2>RF Path Analysis</h2>
         <span className="drag-hint">⋮⋮</span>
       </div>
 
-      <div className="input-group">
-        <label>Point A (Start)</label>
-        <input
-          type="text"
-          placeholder="Name"
-          value={name1}
-          onChange={(e) => onName1Change(e.target.value)}
-          className="name-input"
-          maxLength={30}
-        />
-        <div className="input-row">
-          <input
-            type="number"
-            placeholder="Latitude"
-            step="any"
-            value={lat1}
-            onChange={(e) => onLat1Change(e.target.value)}
-          />
-          <input
-            type="number"
-            placeholder="Longitude"
-            step="any"
-            value={lon1}
-            onChange={(e) => onLon1Change(e.target.value)}
-          />
+      {/* Points List */}
+      <div className="points-section">
+        <div className="section-header">
+          <h3>Points</h3>
+          <button className="btn-small btn-add" onClick={onAddPoint}>
+            + Add Point
+          </button>
         </div>
-      </div>
 
-      <div className="input-group">
-        <label>Point B (End)</label>
-        <input
-          type="text"
-          placeholder="Name"
-          value={name2}
-          onChange={(e) => onName2Change(e.target.value)}
-          className="name-input"
-          maxLength={30}
-        />
-        <div className="input-row">
-          <input
-            type="number"
-            placeholder="Latitude"
-            step="any"
-            value={lat2}
-            onChange={(e) => onLat2Change(e.target.value)}
-          />
-          <input
-            type="number"
-            placeholder="Longitude"
-            step="any"
-            value={lon2}
-            onChange={(e) => onLon2Change(e.target.value)}
-          />
-        </div>
-      </div>
+        {points.map((point, index) => (
+          <div key={point.id} className="point-item">
+            <div className="point-header">
+              <span className={`point-badge ${index === 0 ? 'badge-red' : 'badge-blue'}`}>
+                {point.name}
+              </span>
+              {points.length > 2 && (
+                <button
+                  className="btn-remove"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemovePoint(point.id);
+                  }}
+                  title="Remove point"
+                >
+                  ×
+                </button>
+              )}
+            </div>
 
-      <div className="input-group">
-        <label>Antenna Heights (meters)</label>
-        <div className="input-row">
-          <input
-            type="number"
-            className="small-input"
-            placeholder="Point A"
-            value={height1}
-            onChange={(e) => onHeight1Change(e.target.value)}
-            min="0"
-          />
-          <input
-            type="number"
-            className="small-input"
-            placeholder="Point B"
-            value={height2}
-            onChange={(e) => onHeight2Change(e.target.value)}
-            min="0"
-          />
-        </div>
+            <input
+              type="text"
+              placeholder="Name"
+              value={point.name}
+              onChange={(e) => onPointUpdate(point.id, { name: e.target.value })}
+              className="name-input"
+              maxLength={30}
+            />
+
+            <div className="input-row">
+              <input
+                type="number"
+                placeholder="Latitude"
+                step="any"
+                value={point.lat}
+                onChange={(e) => onPointUpdate(point.id, { lat: parseFloat(e.target.value) || 0 })}
+              />
+              <input
+                type="number"
+                placeholder="Longitude"
+                step="any"
+                value={point.lon}
+                onChange={(e) => onPointUpdate(point.id, { lon: parseFloat(e.target.value) || 0 })}
+              />
+            </div>
+
+            <div className="height-input-row">
+              <label>Height (m):</label>
+              <input
+                type="number"
+                placeholder="Height"
+                value={point.height}
+                onChange={(e) => onPointUpdate(point.id, { height: parseFloat(e.target.value) || 0 })}
+                min="0"
+                className="small-input"
+              />
+            </div>
+          </div>
+        ))}
       </div>
 
       <button

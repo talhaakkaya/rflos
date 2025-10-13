@@ -21,10 +21,35 @@
   border: none;
 }
 
+.distance-label-clickable {
+  cursor: pointer !important;
+  transition: all 0.2s;
+}
+
+.distance-label-clickable:hover {
+  background: rgba(51, 136, 255, 1);
+  transform: scale(1.1);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+}
+
+.distance-label-selected {
+  background: rgba(255, 0, 0, 0.9) !important;
+  font-weight: bold;
+}
+
+.distance-label-selected:hover {
+  background: rgba(255, 0, 0, 1) !important;
+}
+
 .marker-name-label {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+}
+
+/* Make polylines clickable */
+.leaflet-interactive {
+  cursor: pointer !important;
 }
 
 .marker-name {
