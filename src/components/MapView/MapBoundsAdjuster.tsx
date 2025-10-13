@@ -13,7 +13,7 @@ export default function MapBoundsAdjuster({ points }: MapBoundsAdjusterProps) {
   useEffect(() => {
     if (points.length > 0) {
       const bounds = L.latLngBounds(points.map(p => [p.lat, p.lon]));
-      map.fitBounds(bounds, { padding: [50, 50] });
+      map.fitBounds(bounds, { padding: [100, 100], maxZoom: 13 });
     }
   }, [map, points]);
 
