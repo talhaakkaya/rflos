@@ -71,7 +71,9 @@ export default function LOSPanel({ result }: LOSPanelProps) {
             },
             ticks: {
               callback: function(value: string | number): string {
-                const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                // Get the actual label (distance) from the chart data
+                const label = this.getLabelForValue(value as number);
+                const numValue = typeof label === 'string' ? parseFloat(label) : label;
                 return numValue.toFixed(1);
               }
             }
