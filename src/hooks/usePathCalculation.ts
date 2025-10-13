@@ -77,7 +77,7 @@ export async function fetchElevationData(points: PathPoint[]): Promise<number[]>
   }
 }
 
-// Calculate line of sight
+// Calculate line of sight with Earth's curvature
 export function calculateLineOfSight(
   distances: number[],
   elevations: number[],
@@ -88,11 +88,26 @@ export function calculateLineOfSight(
   const losLine: number[] = [];
   const startElev = elevations[0] + height1;
   const endElev = elevations[n-1] + height2;
+  const totalDistance = distances[n-1];
 
-  // Calculate LOS line
+  // Earth's effective radius for RF propagation (4/3 rule for atmospheric refraction)
+  const earthRadius = 6371 * 4 / 3; // km
+
+  // Calculate LOS line with Earth's curvature
   for (let i = 0; i < n; i++) {
     const fraction = i / (n - 1);
-    losLine.push(startElev + (endElev - startElev) * fraction);
+
+    // Straight-line elevation at this point
+    const straightLineElev = startElev + (endElev - startElev) * fraction;
+
+    // Earth's curvature offset: h = d1 * d2 / (2 * R)
+    // where d1 is distance from start, d2 is distance from end
+    const d1 = distances[i];
+    const d2 = totalDistance - d1;
+    const curvatureOffset = (d1 * d2) / (2 * earthRadius);
+
+    // Subtract curvature (line curves down from Earth's surface)
+    losLine.push(straightLineElev - curvatureOffset);
   }
 
   // Check for obstructions

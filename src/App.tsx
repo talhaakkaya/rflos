@@ -52,6 +52,19 @@ function App() {
   };
 
   const handleLineClick = async (fromId: string, toId: string) => {
+    // Check if clicking the already selected line - deselect it
+    const isAlreadySelected = selectedLine &&
+      ((selectedLine.fromId === fromId && selectedLine.toId === toId) ||
+       (selectedLine.fromId === toId && selectedLine.toId === fromId));
+
+    if (isAlreadySelected) {
+      // Deselect: clear selection and results
+      setSelectedLine(null);
+      setResult(null);
+      return;
+    }
+
+    // Select new line
     setSelectedLine({ fromId, toId });
     setLosFromId(fromId);
     setLosToId(toId);
