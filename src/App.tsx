@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ControlPanel from './components/ControlPanel';
 import MapView from './components/MapView/MapView';
 import LOSPanel from './components/LOSPanel';
@@ -27,6 +27,27 @@ function App() {
   const [segmentDistances, setSegmentDistances] = useState<SegmentDistance[]>([]);
 
   const { calculateLOS, isLoading } = useLOSCalculation(points);
+  const hasCalculatedOnMount = useRef(false);
+
+  // Auto-calculate LOS on mount with saved losFromId and losToId
+  useEffect(() => {
+    if (!hasCalculatedOnMount.current && losFromId && losToId) {
+      hasCalculatedOnMount.current = true;
+
+      // Trigger calculation for the saved points
+      calculateLOS(
+        losFromId,
+        losToId,
+        (result) => {
+          setResult(result);
+          calculateSegmentDistances();
+        },
+        (error) => {
+          console.error('Auto-calculation failed:', error);
+        }
+      );
+    }
+  }, [losFromId, losToId, calculateLOS]);
 
   // Calculate distances between all pairs of points
   const calculateSegmentDistances = () => {

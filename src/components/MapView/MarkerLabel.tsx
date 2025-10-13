@@ -19,8 +19,8 @@ export default function MarkerLabel({ lat, lon, name, color }: MarkerLabelProps)
       icon: L.divIcon({
         className: 'marker-name-label',
         html: `<div class="marker-name marker-name-${color}">${name}</div>`,
-        iconSize: [120, 20],
-        iconAnchor: [60, 70]
+        iconSize: [80, 20],
+        iconAnchor: [40, 70]
       })
     });
 
