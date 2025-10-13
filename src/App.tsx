@@ -10,7 +10,7 @@ import './App.css';
 function App() {
   const [points, setPoints] = useState<Point[]>([
     { id: '1', lat: 41.038702, lon: 28.881802, name: 'Point A', height: 10 },
-    { id: '2', lat: 41.0369, lon: 28.9864, name: 'Point B', height: 10 },
+    { id: '2', lat: 41.0600, lon: 28.9850, name: 'Point B', height: 10 },
   ]);
 
   const [losFromId, setLosFromId] = useState<string>('1');
