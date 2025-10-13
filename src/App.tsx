@@ -210,6 +210,39 @@ function App() {
     window.history.replaceState({}, '', window.location.pathname);
   };
 
+  const handleImportJSON = (jsonText: string) => {
+    try {
+      const data = JSON.parse(jsonText);
+      const importedPoints: Point[] = [];
+
+      // Handle single object or array
+      const items = Array.isArray(data) ? data : [data];
+
+      items.forEach((item, index) => {
+        if (item.latitude && item.longitude) {
+          const newId = (Math.max(...points.map(p => parseInt(p.id)), 0) + index + 1).toString();
+          importedPoints.push({
+            id: newId,
+            lat: parseFloat(item.latitude),
+            lon: parseFloat(item.longitude),
+            name: item.callsign || item.name || `Point ${String.fromCharCode(65 + points.length + index)}`,
+            height: item.height || 10
+          });
+        }
+      });
+
+      if (importedPoints.length > 0) {
+        setPoints([...points, ...importedPoints]);
+        alert(`Imported ${importedPoints.length} point(s)`);
+      } else {
+        alert('No valid points found in JSON');
+      }
+    } catch (error) {
+      alert('Invalid JSON format');
+      console.error('Import error:', error);
+    }
+  };
+
   return (
     <div className="app">
       <MapView
@@ -230,6 +263,7 @@ function App() {
           onRemovePoint={handleRemovePoint}
           onCalculate={handleCalculate}
           onReset={handleReset}
+          onImportJSON={handleImportJSON}
           onToggleVisibility={() => setIsPanelVisible(false)}
           isLoading={isLoading}
         />

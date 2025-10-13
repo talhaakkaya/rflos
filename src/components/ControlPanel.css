@@ -266,6 +266,15 @@
   background: #218838;
 }
 
+.btn-import {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-import:hover {
+  background: #138496;
+}
+
 .point-item {
   background: #f8f9fa;
   border: 1px solid #dee2e6;
@@ -398,6 +407,32 @@
   outline: none;
   border-color: #3388ff;
   box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
+}
+
+/* Import Dialog */
+.import-dialog {
+  background: #e7f3ff;
+  border: 2px solid #17a2b8;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.import-dialog textarea {
+  width: 100%;
+  padding: 8px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.import-dialog textarea:focus {
+  outline: none;
+  border-color: #17a2b8;
+  box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);
 }
 
 /* Responsive design for small screens */

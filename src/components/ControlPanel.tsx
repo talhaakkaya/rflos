@@ -1,6 +1,7 @@
 import './ControlPanel.css';
 import type { Point } from '../types';
 import { useDraggable } from '../hooks/useDraggable';
+import { useState } from 'react';
 
 interface ControlPanelProps {
   points: Point[];
@@ -9,6 +10,7 @@ interface ControlPanelProps {
   onRemovePoint: (id: string) => void;
   onCalculate: () => void;
   onReset: () => void;
+  onImportJSON: (jsonText: string) => void;
   onToggleVisibility: () => void;
   isLoading: boolean;
 }
@@ -20,10 +22,13 @@ export default function ControlPanel({
   onRemovePoint,
   onCalculate,
   onReset,
+  onImportJSON,
   onToggleVisibility,
   isLoading
 }: ControlPanelProps) {
   const { position, isDragging, handleMouseDown } = useDraggable({ x: 50, y: 20 });
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [importText, setImportText] = useState('');
 
   const handlePanelMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('.panel-header')) {
@@ -72,10 +77,48 @@ export default function ControlPanel({
       <div className="points-section">
         <div className="section-header">
           <h3>Points</h3>
-          <button className="btn-small btn-add" onClick={onAddPoint}>
-            + Add Point
-          </button>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            <button className="btn-small btn-import" onClick={() => setShowImportDialog(true)}>
+              📥 Import JSON
+            </button>
+            <button className="btn-small btn-add" onClick={onAddPoint}>
+              + Add Point
+            </button>
+          </div>
         </div>
+
+        {/* Import JSON Dialog */}
+        {showImportDialog && (
+          <div className="import-dialog">
+            <textarea
+              placeholder='Paste JSON here, e.g.:&#10;{"callsign": "ta1val", "latitude": 40.90, "longitude": 29.123}&#10;or an array of objects'
+              value={importText}
+              onChange={(e) => setImportText(e.target.value)}
+              rows={6}
+            />
+            <div style={{ display: 'flex', gap: '5px', marginTop: '5px' }}>
+              <button
+                className="btn-small btn-import"
+                onClick={() => {
+                  onImportJSON(importText);
+                  setImportText('');
+                  setShowImportDialog(false);
+                }}
+              >
+                Import
+              </button>
+              <button
+                className="btn-small"
+                onClick={() => {
+                  setImportText('');
+                  setShowImportDialog(false);
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
         {points.map((point, index) => (
           <div key={point.id} className="point-item">
