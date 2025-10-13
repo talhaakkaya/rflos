@@ -1,0 +1,177 @@
+.control-panel {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 350px;
+  max-width: calc(100vw - 40px);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  padding: 20px;
+  z-index: 1000;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  cursor: move;
+  box-sizing: border-box;
+}
+
+/* Smooth scrolling for the panel */
+.control-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.control-panel::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.control-panel::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.control-panel::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #3388ff;
+  cursor: grab;
+}
+
+.panel-header:active {
+  cursor: grabbing;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.drag-hint {
+  color: #999;
+  font-size: 18px;
+  font-weight: bold;
+  user-select: none;
+}
+
+.input-group {
+  margin-bottom: 15px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+  font-size: 13px;
+  overflow-wrap: break-word;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.input-row input {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Courier New', monospace;
+  transition: border-color 0.2s;
+}
+
+.input-row input:focus {
+  outline: none;
+  border-color: #3388ff;
+  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
+}
+
+.input-row input::placeholder {
+  color: #aaa;
+  font-size: 13px;
+}
+
+/* Remove spinner arrows from number inputs */
+.input-row input[type="number"]::-webkit-inner-spin-button,
+.input-row input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input-row input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.small-input {
+  flex: 1 !important;
+  min-width: 0 !important;
+  padding: 10px !important;
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: #3388ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn:hover:not(:disabled) {
+  background: #2277ee;
+}
+
+.btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.loading {
+  text-align: center;
+  padding: 10px;
+  color: #666;
+  font-style: italic;
+  font-size: 13px;
+  overflow-wrap: break-word;
+}
+
+/* Responsive design for small screens */
+@media (max-width: 768px) {
+  .control-panel {
+    width: 300px;
+    max-width: calc(100vw - 20px);
+    top: 10px;
+    left: 10px;
+    padding: 15px;
+  }
+
+  .input-row input {
+    font-size: 13px;
+    padding: 8px;
+  }
+
+  .panel-header h2 {
+    font-size: 16px;
+  }
+}

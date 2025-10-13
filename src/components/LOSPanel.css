@@ -1,0 +1,133 @@
+.los-panel {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 400px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 40px);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  padding: 15px;
+  z-index: 1000;
+  font-family: Arial, sans-serif;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Smooth scrolling for the panel */
+.los-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.los-panel::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.los-panel::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.los-panel::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.los-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.los-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.los-status {
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.los-clear {
+  background: #d4edda;
+  color: #155724;
+}
+
+.los-blocked {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.los-info {
+  margin-bottom: 12px;
+  font-size: 13px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.los-detail {
+  margin: 4px 0;
+  color: #555;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.chart-container {
+  position: relative;
+  height: 200px;
+  width: 100%;
+  min-height: 150px;
+  overflow: hidden;
+}
+
+.chart-container canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* Responsive design for small screens */
+@media (max-width: 768px) {
+  .los-panel {
+    width: 300px;
+    max-width: calc(100vw - 20px);
+    bottom: 10px;
+    right: 10px;
+    padding: 12px;
+  }
+
+  .los-header h3 {
+    font-size: 14px;
+  }
+
+  .los-info {
+    font-size: 12px;
+  }
+
+  .chart-container {
+    height: 150px;
+    min-height: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .los-panel {
+    left: 10px;
+    right: 10px;
+    width: auto;
+  }
+
+  .control-panel {
+    left: 10px;
+    right: 10px;
+    width: auto;
+  }
+}
