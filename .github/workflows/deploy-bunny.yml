@@ -27,11 +27,11 @@ jobs:
 
     - name: Deploy to Bunny CDN
       env:
-        BUNNY_STORAGE_ZONE_NAME: ${{ secrets.BUNNY_STORAGE_ZONE_NAME }}
-        BUNNY_STORAGE_API_KEY: ${{ secrets.BUNNY_STORAGE_API_KEY }}
-        BUNNY_STORAGE_REGION: ${{ secrets.BUNNY_STORAGE_REGION }}
-        BUNNY_PULL_ZONE_ID: ${{ secrets.BUNNY_PULL_ZONE_ID }}
-        BUNNY_ACCOUNT_API_KEY: ${{ secrets.BUNNY_ACCOUNT_API_KEY }}
+        BUNNY_STORAGE_ZONE_NAME: ${{ secrets.STORAGE_ZONE_NAME }}
+        BUNNY_STORAGE_API_KEY: ${{ secrets.STORAGE_API_KEY }}
+        BUNNY_STORAGE_REGION: ${{ secrets.STORAGE_REGION }}
+        BUNNY_PULL_ZONE_ID: ${{ secrets.PULL_ZONE_ID }}
+        BUNNY_ACCOUNT_API_KEY: ${{ secrets.ACCOUNT_API_KEY }}
       run: |
         # Create the deploy script
         cat > deploy.sh << 'EOF'
