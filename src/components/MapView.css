@@ -20,3 +20,36 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
   border: none;
 }
+
+.marker-name-label {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.marker-name {
+  background: rgba(255, 255, 255, 0.95);
+  color: #fff;
+  border: 2px solid #3388ff;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 13px;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  pointer-events: none;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.marker-name-red {
+  background: #e74c3c;
+  border-color: #c0392b;
+}
+
+.marker-name-blue {
+  background: #3388ff;
+  border-color: #2277ee;
+}

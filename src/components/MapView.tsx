@@ -27,6 +27,39 @@ const blueIcon = new L.Icon({
   popupAnchor: [1, -34]
 });
 
+// Marker name label component
+interface MarkerLabelProps {
+  lat: number;
+  lon: number;
+  name: string;
+  color: 'red' | 'blue';
+}
+
+function MarkerLabel({ lat, lon, name, color }: MarkerLabelProps) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!name) return;
+
+    const nameMarker = L.marker([lat, lon], {
+      icon: L.divIcon({
+        className: 'marker-name-label',
+        html: `<div class="marker-name marker-name-${color}">${name}</div>`,
+        iconSize: [120, 20],
+        iconAnchor: [60, 70]
+      })
+    });
+
+    nameMarker.addTo(map);
+
+    return () => {
+      map.removeLayer(nameMarker);
+    };
+  }, [map, lat, lon, name, color]);
+
+  return null;
+}
+
 // Distance label component
 interface DistanceLabelProps {
   lat1: number;
@@ -122,13 +155,15 @@ interface MapViewProps {
   lon1: number;
   lat2: number;
   lon2: number;
+  name1: string;
+  name2: string;
   onPoint1Drag: (lat: number, lng: number) => void;
   onPoint2Drag: (lat: number, lng: number) => void;
   distance?: number;
 }
 
 export default function MapView({
-  lat1, lon1, lat2, lon2,
+  lat1, lon1, lat2, lon2, name1, name2,
   onPoint1Drag, onPoint2Drag,
   distance
 }: MapViewProps) {
@@ -167,6 +202,9 @@ export default function MapView({
           icon={blueIcon}
           onDragEnd={onPoint2Drag}
         />
+
+        <MarkerLabel lat={lat1} lon={lon1} name={name1} color="red" />
+        <MarkerLabel lat={lat2} lon={lon2} name={name2} color="blue" />
 
         {distance && (
           <DistanceLabel

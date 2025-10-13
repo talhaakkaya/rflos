@@ -27,6 +27,8 @@ function App() {
   const [lon2, setLon2] = useState<string>('29.053646');
   const [height1, setHeight1] = useState<string>('10');
   const [height2, setHeight2] = useState<string>('10');
+  const [name1, setName1] = useState<string>('Point A');
+  const [name2, setName2] = useState<string>('Point B');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [result, setResult] = useState<PathResult | null>(null);
 
@@ -82,11 +84,13 @@ function App() {
   const handlePoint1Drag = (lat: number, lng: number) => {
     setLat1(lat.toFixed(6));
     setLon1(lng.toFixed(6));
+    setResult(null); // Clear results when marker is moved
   };
 
   const handlePoint2Drag = (lat: number, lng: number) => {
     setLat2(lat.toFixed(6));
     setLon2(lng.toFixed(6));
+    setResult(null); // Clear results when marker is moved
   };
 
   return (
@@ -96,6 +100,8 @@ function App() {
         lon1={parseFloat(lon1)}
         lat2={parseFloat(lat2)}
         lon2={parseFloat(lon2)}
+        name1={name1}
+        name2={name2}
         onPoint1Drag={handlePoint1Drag}
         onPoint2Drag={handlePoint2Drag}
         distance={result?.distance}
@@ -108,12 +114,16 @@ function App() {
         lon2={lon2}
         height1={height1}
         height2={height2}
+        name1={name1}
+        name2={name2}
         onLat1Change={setLat1}
         onLon1Change={setLon1}
         onLat2Change={setLat2}
         onLon2Change={setLon2}
         onHeight1Change={setHeight1}
         onHeight2Change={setHeight2}
+        onName1Change={setName1}
+        onName2Change={setName2}
         onCalculate={handleCalculate}
         isLoading={isLoading}
       />

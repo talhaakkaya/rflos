@@ -8,20 +8,24 @@ interface ControlPanelProps {
   lon2: string;
   height1: string;
   height2: string;
+  name1: string;
+  name2: string;
   onLat1Change: (value: string) => void;
   onLon1Change: (value: string) => void;
   onLat2Change: (value: string) => void;
   onLon2Change: (value: string) => void;
   onHeight1Change: (value: string) => void;
   onHeight2Change: (value: string) => void;
+  onName1Change: (value: string) => void;
+  onName2Change: (value: string) => void;
   onCalculate: () => void;
   isLoading: boolean;
 }
 
 export default function ControlPanel({
-  lat1, lon1, lat2, lon2, height1, height2,
+  lat1, lon1, lat2, lon2, height1, height2, name1, name2,
   onLat1Change, onLon1Change, onLat2Change, onLon2Change,
-  onHeight1Change, onHeight2Change,
+  onHeight1Change, onHeight2Change, onName1Change, onName2Change,
   onCalculate, isLoading
 }: ControlPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -86,6 +90,14 @@ export default function ControlPanel({
 
       <div className="input-group">
         <label>Point A (Start)</label>
+        <input
+          type="text"
+          placeholder="Name"
+          value={name1}
+          onChange={(e) => onName1Change(e.target.value)}
+          className="name-input"
+          maxLength={30}
+        />
         <div className="input-row">
           <input
             type="number"
@@ -106,6 +118,14 @@ export default function ControlPanel({
 
       <div className="input-group">
         <label>Point B (End)</label>
+        <input
+          type="text"
+          placeholder="Name"
+          value={name2}
+          onChange={(e) => onName2Change(e.target.value)}
+          className="name-input"
+          maxLength={30}
+        />
         <div className="input-row">
           <input
             type="number"

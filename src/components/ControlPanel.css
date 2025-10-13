@@ -84,6 +84,27 @@
   min-width: 0;
 }
 
+.name-input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  margin-bottom: 8px;
+  font-family: Arial, sans-serif;
+  font-weight: 600;
+  transition: border-color 0.2s;
+  background-color: #ffffff;
+  color: #333;
+}
+
+.name-input:focus {
+  outline: none;
+  border-color: #3388ff;
+  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
+}
+
 .input-row input {
   flex: 1;
   padding: 10px;
@@ -95,6 +116,8 @@
   box-sizing: border-box;
   font-family: 'Courier New', monospace;
   transition: border-color 0.2s;
+  background-color: #ffffff;
+  color: #333;
 }
 
 .input-row input:focus {
