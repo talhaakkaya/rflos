@@ -4,7 +4,7 @@ import MapView from './components/MapView/MapView';
 import LOSPanel from './components/LOSPanel';
 import { calculateDistance } from './hooks/usePathCalculation';
 import { useLOSCalculation } from './hooks/useLOSCalculation';
-import { useLocalStorage, clearAllStorage } from './hooks/useLocalStorage';
+import { decodeStateFromURL, updateURL } from './hooks/useURLState';
 import type { Point, PathResult, SegmentDistance } from './types';
 import './App.css';
 
@@ -15,12 +15,26 @@ function App() {
     { id: '2', lat: 41.0600, lon: 28.9850, name: 'Point B', height: 10 },
   ];
 
-  // Persistent state (saved to localStorage)
-  const [points, setPoints] = useLocalStorage<Point[]>('los-points', defaultPoints);
-  const [losFromId, setLosFromId] = useLocalStorage<string>('los-fromId', '1');
-  const [losToId, setLosToId] = useLocalStorage<string>('los-toId', '2');
-  const [selectedLine, setSelectedLine] = useLocalStorage<{ fromId: string; toId: string } | null>('los-selectedLine', null);
-  const [isPanelVisible, setIsPanelVisible] = useLocalStorage<boolean>('los-panelVisible', true);
+  // Initialize state from URL or defaults
+  const initialState = () => {
+    const urlState = decodeStateFromURL();
+    console.log('Initializing state from URL:', urlState);
+    return {
+      points: urlState?.points || defaultPoints,
+      losFromId: urlState?.losFromId || '1',
+      losToId: urlState?.losToId || '2',
+      selectedLine: urlState?.selectedLine || null
+    };
+  };
+
+  const initial = initialState();
+
+  // State (all stored in URL params)
+  const [points, setPoints] = useState<Point[]>(initial.points);
+  const [losFromId, setLosFromId] = useState<string>(initial.losFromId);
+  const [losToId, setLosToId] = useState<string>(initial.losToId);
+  const [selectedLine, setSelectedLine] = useState<{ fromId: string; toId: string } | null>(initial.selectedLine);
+  const [isPanelVisible, setIsPanelVisible] = useState<boolean>(true);
 
   // Temporary state (not saved)
   const [result, setResult] = useState<PathResult | null>(null);
@@ -28,6 +42,19 @@ function App() {
 
   const { calculateLOS, isLoading } = useLOSCalculation(points);
   const hasCalculatedOnMount = useRef(false);
+  const isFirstRender = useRef(true);
+
+  // Update URL when state changes (skip first render since we just loaded from URL)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      // Set URL to initial state on first render
+      updateURL({ points, losFromId, losToId, selectedLine });
+      return;
+    }
+    console.log('App state changed - updating URL:', { points, losFromId, losToId, selectedLine });
+    updateURL({ points, losFromId, losToId, selectedLine });
+  }, [points, losFromId, losToId, selectedLine]);
 
   // Auto-calculate LOS on mount with saved losFromId and losToId
   useEffect(() => {
@@ -172,18 +199,15 @@ function App() {
   };
 
   const handleReset = () => {
-    if (window.confirm('Are you sure you want to reset all data to defaults? This cannot be undone.')) {
-      // Clear localStorage
-      clearAllStorage();
-
-      // Reset to defaults
-      setPoints(defaultPoints);
-      setLosFromId('1');
-      setLosToId('2');
-      setSelectedLine(null);
-      setResult(null);
-      setSegmentDistances([]);
-    }
+    // Reset to defaults
+    setPoints(defaultPoints);
+    setLosFromId('1');
+    setLosToId('2');
+    setSelectedLine(null);
+    setResult(null);
+    setSegmentDistances([]);
+    // Clear URL params
+    window.history.replaceState({}, '', window.location.pathname);
   };
 
   return (

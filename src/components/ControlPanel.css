@@ -55,13 +55,6 @@
   color: #333;
 }
 
-.drag-hint {
-  color: #999;
-  font-size: 18px;
-  font-weight: bold;
-  user-select: none;
-}
-
 .btn-hide {
   background: #6c757d;
   color: white;
@@ -81,13 +74,32 @@
   background: #5a6268;
 }
 
-.btn-reset {
-  background: #ff6b6b;
+.btn-share {
+  background: #28a745;
   color: white;
   border: none;
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: 18px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.btn-share:hover {
+  background: #218838;
+}
+
+.btn-reset {
+  background: #3388ff;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 16px;
   cursor: pointer;
   transition: background 0.2s;
   display: flex;
@@ -97,7 +109,7 @@
 }
 
 .btn-reset:hover {
-  background: #ff5252;
+  background: #2277ee;
 }
 
 .input-group {

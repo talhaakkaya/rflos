@@ -46,6 +46,16 @@ export default function ControlPanel({
         <h2>RF Path Analysis</h2>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button
+            className="btn-reset"
+            onClick={(e) => {
+              e.stopPropagation();
+              onReset();
+            }}
+            title="Reset to home"
+          >
+            🏠
+          </button>
+          <button
             className="btn-hide"
             onClick={(e) => {
               e.stopPropagation();
@@ -55,17 +65,6 @@ export default function ControlPanel({
           >
             ✕
           </button>
-          <button
-            className="btn-reset"
-            onClick={(e) => {
-              e.stopPropagation();
-              onReset();
-            }}
-            title="Reset to defaults"
-          >
-            ⟲
-          </button>
-          <span className="drag-hint">⋮⋮</span>
         </div>
       </div>
 
