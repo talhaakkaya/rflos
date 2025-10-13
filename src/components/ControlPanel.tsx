@@ -8,6 +8,8 @@ interface ControlPanelProps {
   onAddPoint: () => void;
   onRemovePoint: (id: string) => void;
   onCalculate: () => void;
+  onReset: () => void;
+  onToggleVisibility: () => void;
   isLoading: boolean;
 }
 
@@ -17,9 +19,11 @@ export default function ControlPanel({
   onAddPoint,
   onRemovePoint,
   onCalculate,
+  onReset,
+  onToggleVisibility,
   isLoading
 }: ControlPanelProps) {
-  const { position, isDragging, handleMouseDown } = useDraggable();
+  const { position, isDragging, handleMouseDown } = useDraggable({ x: 50, y: 20 });
 
   const handlePanelMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('.panel-header')) {
@@ -40,7 +44,29 @@ export default function ControlPanel({
     >
       <div className="panel-header" style={{ cursor: 'grab' }}>
         <h2>RF Path Analysis</h2>
-        <span className="drag-hint">⋮⋮</span>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            className="btn-hide"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleVisibility();
+            }}
+            title="Hide panel"
+          >
+            ✕
+          </button>
+          <button
+            className="btn-reset"
+            onClick={(e) => {
+              e.stopPropagation();
+              onReset();
+            }}
+            title="Reset to defaults"
+          >
+            ⟲
+          </button>
+          <span className="drag-hint">⋮⋮</span>
+        </div>
       </div>
 
       {/* Points List */}

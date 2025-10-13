@@ -4,18 +4,25 @@ import MapView from './components/MapView/MapView';
 import LOSPanel from './components/LOSPanel';
 import { calculateDistance } from './hooks/usePathCalculation';
 import { useLOSCalculation } from './hooks/useLOSCalculation';
+import { useLocalStorage, clearAllStorage } from './hooks/useLocalStorage';
 import type { Point, PathResult, SegmentDistance } from './types';
 import './App.css';
 
 function App() {
-  const [points, setPoints] = useState<Point[]>([
+  // Default values
+  const defaultPoints: Point[] = [
     { id: '1', lat: 41.038702, lon: 28.881802, name: 'Point A', height: 10 },
     { id: '2', lat: 41.0600, lon: 28.9850, name: 'Point B', height: 10 },
-  ]);
+  ];
 
-  const [losFromId, setLosFromId] = useState<string>('1');
-  const [losToId, setLosToId] = useState<string>('2');
-  const [selectedLine, setSelectedLine] = useState<{ fromId: string; toId: string } | null>(null);
+  // Persistent state (saved to localStorage)
+  const [points, setPoints] = useLocalStorage<Point[]>('los-points', defaultPoints);
+  const [losFromId, setLosFromId] = useLocalStorage<string>('los-fromId', '1');
+  const [losToId, setLosToId] = useLocalStorage<string>('los-toId', '2');
+  const [selectedLine, setSelectedLine] = useLocalStorage<{ fromId: string; toId: string } | null>('los-selectedLine', null);
+  const [isPanelVisible, setIsPanelVisible] = useLocalStorage<boolean>('los-panelVisible', true);
+
+  // Temporary state (not saved)
   const [result, setResult] = useState<PathResult | null>(null);
   const [segmentDistances, setSegmentDistances] = useState<SegmentDistance[]>([]);
 
@@ -143,6 +150,21 @@ function App() {
     setSelectedLine(null);
   };
 
+  const handleReset = () => {
+    if (window.confirm('Are you sure you want to reset all data to defaults? This cannot be undone.')) {
+      // Clear localStorage
+      clearAllStorage();
+
+      // Reset to defaults
+      setPoints(defaultPoints);
+      setLosFromId('1');
+      setLosToId('2');
+      setSelectedLine(null);
+      setResult(null);
+      setSegmentDistances([]);
+    }
+  };
+
   return (
     <div className="app">
       <MapView
@@ -155,14 +177,26 @@ function App() {
         losToId={result ? losToId : undefined}
       />
 
-      <ControlPanel
-        points={points}
-        onPointUpdate={handlePointUpdate}
-        onAddPoint={handleAddPoint}
-        onRemovePoint={handleRemovePoint}
-        onCalculate={handleCalculate}
-        isLoading={isLoading}
-      />
+      {isPanelVisible ? (
+        <ControlPanel
+          points={points}
+          onPointUpdate={handlePointUpdate}
+          onAddPoint={handleAddPoint}
+          onRemovePoint={handleRemovePoint}
+          onCalculate={handleCalculate}
+          onReset={handleReset}
+          onToggleVisibility={() => setIsPanelVisible(false)}
+          isLoading={isLoading}
+        />
+      ) : (
+        <button
+          className="btn-show-panel"
+          onClick={() => setIsPanelVisible(true)}
+          title="Show control panel"
+        >
+          ☰
+        </button>
+      )}
 
       <LOSPanel result={result} />
     </div>

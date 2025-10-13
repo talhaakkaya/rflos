@@ -17,3 +17,29 @@ body {
   height: 100vh;
   overflow: hidden;
 }
+
+.btn-show-panel {
+  position: absolute;
+  top: 20px;
+  left: 50px;
+  z-index: 1000;
+  background: #3388ff;
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.btn-show-panel:hover {
+  background: #2277ee;
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
