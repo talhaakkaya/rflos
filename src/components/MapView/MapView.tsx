@@ -25,6 +25,7 @@ interface MapViewProps {
   losFromId?: string;
   losToId?: string;
   hideLabels: boolean;
+  hideLines: boolean;
 }
 
 export default function MapView({
@@ -35,7 +36,8 @@ export default function MapView({
   segmentDistances,
   losFromId,
   losToId,
-  hideLabels
+  hideLabels,
+  hideLines
 }: MapViewProps) {
   // Calculate center from all points
   const center: [number, number] = points.length > 0
@@ -60,6 +62,11 @@ export default function MapView({
         {/* Lines connecting all pairs of points */}
         {points.map((point1, i) =>
           points.slice(i + 1).map((point2) => {
+            // When hideLines is true, only show lines from Point A (index 0) to others
+            if (hideLines && i !== 0) {
+              return null;
+            }
+
             const isSelected = selectedLine &&
               ((selectedLine.fromId === point1.id && selectedLine.toId === point2.id) ||
                (selectedLine.fromId === point2.id && selectedLine.toId === point1.id));
@@ -151,6 +158,11 @@ export default function MapView({
           const fromPoint = points.find(p => p.id === seg.fromId);
           const toPoint = points.find(p => p.id === seg.toId);
           if (fromPoint && toPoint) {
+            // When hideLines is true, only show labels for segments involving Point A
+            if (hideLines && seg.fromId !== points[0]?.id && seg.toId !== points[0]?.id) {
+              return null;
+            }
+
             const isSelected = selectedLine &&
               ((selectedLine.fromId === seg.fromId && selectedLine.toId === seg.toId) ||
                (selectedLine.fromId === seg.toId && selectedLine.toId === seg.fromId));

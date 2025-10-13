@@ -40,6 +40,7 @@ function App() {
   const [result, setResult] = useState<PathResult | null>(null);
   const [segmentDistances, setSegmentDistances] = useState<SegmentDistance[]>([]);
   const [hideLabels, setHideLabels] = useState<boolean>(false);
+  const [hideLines, setHideLines] = useState<boolean>(false);
 
   const { calculateLOS, isLoading } = useLOSCalculation(points);
   const hasCalculatedOnMount = useRef(false);
@@ -255,6 +256,7 @@ function App() {
         losFromId={result ? losFromId : undefined}
         losToId={result ? losToId : undefined}
         hideLabels={hideLabels}
+        hideLines={hideLines}
       />
 
       {isPanelVisible ? (
@@ -269,6 +271,8 @@ function App() {
           onToggleVisibility={() => setIsPanelVisible(false)}
           hideLabels={hideLabels}
           onToggleLabels={() => setHideLabels(!hideLabels)}
+          hideLines={hideLines}
+          onToggleLines={() => setHideLines(!hideLines)}
           isLoading={isLoading}
         />
       ) : (

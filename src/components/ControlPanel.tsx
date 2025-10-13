@@ -14,6 +14,8 @@ interface ControlPanelProps {
   onToggleVisibility: () => void;
   hideLabels: boolean;
   onToggleLabels: () => void;
+  hideLines: boolean;
+  onToggleLines: () => void;
   isLoading: boolean;
 }
 
@@ -28,6 +30,8 @@ export default function ControlPanel({
   onToggleVisibility,
   hideLabels,
   onToggleLabels,
+  hideLines,
+  onToggleLines,
   isLoading
 }: ControlPanelProps) {
   const { position, isDragging, handleMouseDown } = useDraggable({ x: 50, y: 20 });
@@ -63,6 +67,16 @@ export default function ControlPanel({
             title={hideLabels ? "Show distance labels" : "Hide distance labels"}
           >
             {hideLabels ? '👁️' : '🏷️'}
+          </button>
+          <button
+            className="btn-toggle-lines"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleLines();
+            }}
+            title={hideLines ? "Show all lines" : "Hide lines (keep Point A only)"}
+          >
+            {hideLines ? '📍' : '📐'}
           </button>
           <button
             className="btn-reset"

@@ -9,8 +9,8 @@
 }
 
 .distance-label {
-  background: rgba(51, 136, 255, 0.9);
-  color: white;
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
   border-radius: 4px;
   padding: 2px 8px;
   font-size: 11px;
@@ -18,7 +18,7 @@
   text-align: center;
   white-space: nowrap;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  border: none;
+  border: 1px solid #3388ff;
 }
 
 .distance-label-clickable {
@@ -27,18 +27,22 @@
 }
 
 .distance-label-clickable:hover {
-  background: rgba(51, 136, 255, 1);
+  background: rgba(255, 255, 255, 1);
+  border-color: #2277ee;
   transform: scale(1.1);
   box-shadow: 0 3px 6px rgba(0,0,0,0.4);
 }
 
 .distance-label-selected {
-  background: rgba(255, 0, 0, 0.9) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #ff0000 !important;
+  border-color: #ff0000 !important;
   font-weight: bold;
 }
 
 .distance-label-selected:hover {
-  background: rgba(255, 0, 0, 1) !important;
+  background: rgba(255, 255, 255, 1) !important;
+  border-color: #cc0000 !important;
 }
 
 .marker-name-label {

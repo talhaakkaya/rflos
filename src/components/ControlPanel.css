@@ -93,6 +93,25 @@
   background: #138496;
 }
 
+.btn-toggle-lines {
+  background: #6610f2;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.btn-toggle-lines:hover {
+  background: #520dc2;
+}
+
 .btn-share {
   background: #28a745;
   color: white;
