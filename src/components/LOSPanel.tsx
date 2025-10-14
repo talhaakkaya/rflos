@@ -69,7 +69,7 @@ export default function LOSPanel({ result, onClose, onHoverPoint }: LOSPanelProp
           mode: 'index',
           intersect: false
         },
-        onHover: (event, activeElements) => {
+        onHover: (_event, activeElements) => {
           if (onHoverPointRef.current) {
             if (activeElements.length > 0) {
               const index = activeElements[0].index;

@@ -296,6 +296,7 @@ function App() {
         hideLines={hideLines}
         isAddingPoint={isAddingPoint}
         hoveredPathPoint={result && hoveredPathIndex !== null ? result.pathPoints[hoveredPathIndex] : null}
+        pathPoints={result?.pathPoints || null}
       />
 
       {isPanelVisible ? (

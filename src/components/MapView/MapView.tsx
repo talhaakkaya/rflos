@@ -42,6 +42,7 @@ interface MapViewProps {
   hideLines: boolean;
   isAddingPoint: boolean;
   hoveredPathPoint: { lat: number; lon: number } | null;
+  pathPoints: { lat: number; lon: number }[] | null;
 }
 
 export default function MapView({
@@ -56,7 +57,8 @@ export default function MapView({
   hideLabels,
   hideLines,
   isAddingPoint,
-  hoveredPathPoint
+  hoveredPathPoint,
+  pathPoints
 }: MapViewProps) {
   // Calculate center from all points
   const center: [number, number] = points.length > 0
@@ -151,6 +153,19 @@ export default function MapView({
             }
             return null;
           })()
+        )}
+
+        {/* Show the actual sampling path when analysis is active */}
+        {pathPoints && pathPoints.length > 0 && (
+          <Polyline
+            positions={pathPoints.map(p => [p.lat, p.lon])}
+            pathOptions={{
+              color: '#888',
+              weight: 2,
+              opacity: 0.5,
+              dashArray: '5, 5'
+            }}
+          />
         )}
 
         {/* Render all markers */}
