@@ -8,11 +8,18 @@ Chart.register(...registerables);
 interface LOSPanelProps {
   result: PathResult | null;
   onClose?: () => void;
+  onHoverPoint?: (index: number | null) => void;
 }
 
-export default function LOSPanel({ result, onClose }: LOSPanelProps) {
+export default function LOSPanel({ result, onClose, onHoverPoint }: LOSPanelProps) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
+  const onHoverPointRef = useRef(onHoverPoint);
+
+  // Update ref when callback changes without recreating chart
+  useEffect(() => {
+    onHoverPointRef.current = onHoverPoint;
+  }, [onHoverPoint]);
 
   useEffect(() => {
     if (!result || !chartRef.current) return;
@@ -38,7 +45,11 @@ export default function LOSPanel({ result, onClose }: LOSPanelProps) {
             backgroundColor: 'rgba(139, 69, 19, 0.2)',
             fill: true,
             tension: 0.3,
-            pointRadius: 0
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: '#ff6b6b',
+            pointHoverBorderColor: '#fff',
+            pointHoverBorderWidth: 2
           },
           {
             label: 'Line of Sight',
@@ -54,6 +65,20 @@ export default function LOSPanel({ result, onClose }: LOSPanelProps) {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        onHover: (event, activeElements) => {
+          if (onHoverPointRef.current) {
+            if (activeElements.length > 0) {
+              const index = activeElements[0].index;
+              onHoverPointRef.current(index);
+            } else {
+              onHoverPointRef.current(null);
+            }
+          }
+        },
         plugins: {
           legend: {
             display: true,
@@ -62,6 +87,9 @@ export default function LOSPanel({ result, onClose }: LOSPanelProps) {
           title: {
             display: true,
             text: 'Elevation Profile'
+          },
+          tooltip: {
+            enabled: true
           }
         },
         scales: {
@@ -155,7 +183,14 @@ export default function LOSPanel({ result, onClose }: LOSPanelProps) {
         )}
       </div>
 
-      <div className="chart-container">
+      <div
+        className="chart-container"
+        onMouseLeave={() => {
+          if (onHoverPoint) {
+            onHoverPoint(null);
+          }
+        }}
+      >
         <canvas ref={chartRef}></canvas>
       </div>
     </div>

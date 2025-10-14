@@ -17,6 +17,7 @@ export interface PathResult {
   height2: number;
   name1: string;
   name2: string;
+  pathPoints: { lat: number; lon: number }[];
 }
 
 export interface SegmentDistance {

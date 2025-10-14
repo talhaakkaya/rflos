@@ -42,6 +42,7 @@ function App() {
   const [hideLabels, setHideLabels] = useState<boolean>(false);
   const [hideLines, setHideLines] = useState<boolean>(false);
   const [isAddingPoint, setIsAddingPoint] = useState<boolean>(false);
+  const [hoveredPathIndex, setHoveredPathIndex] = useState<number | null>(null);
 
   const { calculateLOS, isLoading } = useLOSCalculation(points);
   const hasCalculatedOnMount = useRef(false);
@@ -294,6 +295,7 @@ function App() {
         hideLabels={hideLabels}
         hideLines={hideLines}
         isAddingPoint={isAddingPoint}
+        hoveredPathPoint={result && hoveredPathIndex !== null ? result.pathPoints[hoveredPathIndex] : null}
       />
 
       {isPanelVisible ? (
@@ -329,6 +331,7 @@ function App() {
           setSelectedLine(null);
           setResult(null);
         }}
+        onHoverPoint={(index) => setHoveredPathIndex(index)}
       />
     </div>
   );

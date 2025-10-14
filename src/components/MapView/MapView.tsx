@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Polyline, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, useMapEvents, CircleMarker } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../MapView.css';
@@ -41,6 +41,7 @@ interface MapViewProps {
   hideLabels: boolean;
   hideLines: boolean;
   isAddingPoint: boolean;
+  hoveredPathPoint: { lat: number; lon: number } | null;
 }
 
 export default function MapView({
@@ -54,7 +55,8 @@ export default function MapView({
   losToId,
   hideLabels,
   hideLines,
-  isAddingPoint
+  isAddingPoint,
+  hoveredPathPoint
 }: MapViewProps) {
   // Calculate center from all points
   const center: [number, number] = points.length > 0
@@ -221,6 +223,20 @@ export default function MapView({
           }
           return null;
         })}
+
+        {/* Hovered path point marker */}
+        {hoveredPathPoint && (
+          <CircleMarker
+            center={[hoveredPathPoint.lat, hoveredPathPoint.lon]}
+            radius={8}
+            pathOptions={{
+              color: '#fff',
+              fillColor: '#333',
+              fillOpacity: 1,
+              weight: 3
+            }}
+          />
+        )}
 
         <MapBoundsAdjuster points={points} />
         <ZoomResetButton points={points} />

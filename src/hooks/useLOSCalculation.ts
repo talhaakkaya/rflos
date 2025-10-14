@@ -63,7 +63,8 @@ export function useLOSCalculation(points: Point[]) {
         height1: fromPoint.height,
         height2: toPoint.height,
         name1: fromPoint.name,
-        name2: toPoint.name
+        name2: toPoint.name,
+        pathPoints
       };
 
       onSuccess(result);
