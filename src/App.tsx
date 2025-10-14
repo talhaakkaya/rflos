@@ -46,7 +46,7 @@ function App() {
   const { calculateLOS, isLoading } = useLOSCalculation(points);
   const hasCalculatedOnMount = useRef(false);
   const isFirstRender = useRef(true);
-  const recalculateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const recalculateTimeoutRef = useRef<number | null>(null);
 
   // Update URL when state changes (skip first render since we just loaded from URL)
   useEffect(() => {
