@@ -56,6 +56,14 @@
   cursor: pointer !important;
 }
 
+/* Crosshair cursor when adding point */
+.map-container-adding-point .leaflet-container,
+.map-container-adding-point .leaflet-interactive,
+.map-container-adding-point .leaflet-tile-pane,
+.map-container-adding-point * {
+  cursor: crosshair !important;
+}
+
 .marker-name {
   background: rgba(255, 255, 255, 0.95);
   color: #fff;

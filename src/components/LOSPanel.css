@@ -131,3 +131,25 @@
     width: auto;
   }
 }
+
+.btn-close-los {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  font-size: 16px;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s;
+}
+
+.btn-close-los:hover {
+  background: #f5c6cb;
+  border-color: #f1b0b7;
+}

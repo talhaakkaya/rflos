@@ -41,10 +41,12 @@ function App() {
   const [segmentDistances, setSegmentDistances] = useState<SegmentDistance[]>([]);
   const [hideLabels, setHideLabels] = useState<boolean>(false);
   const [hideLines, setHideLines] = useState<boolean>(false);
+  const [isAddingPoint, setIsAddingPoint] = useState<boolean>(false);
 
   const { calculateLOS, isLoading } = useLOSCalculation(points);
   const hasCalculatedOnMount = useRef(false);
   const isFirstRender = useRef(true);
+  const recalculateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Update URL when state changes (skip first render since we just loaded from URL)
   useEffect(() => {
@@ -69,7 +71,6 @@ function App() {
         losToId,
         (result) => {
           setResult(result);
-          calculateSegmentDistances();
         },
         (error) => {
           console.error('Auto-calculation failed:', error);
@@ -77,6 +78,50 @@ function App() {
       );
     }
   }, [losFromId, losToId, calculateLOS]);
+
+  // Auto-calculate segment distances when points change
+  useEffect(() => {
+    calculateSegmentDistances();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [points]);
+
+  // Auto-recalculate when points change (debounced)
+  useEffect(() => {
+    // Determine which line to calculate
+    const fromId = selectedLine?.fromId || losFromId;
+    const toId = selectedLine?.toId || losToId;
+
+    // Skip if no line is selected and no previous result
+    if (!fromId || !toId || (!selectedLine && !result)) {
+      return;
+    }
+
+    // Clear any pending timeout
+    if (recalculateTimeoutRef.current) {
+      clearTimeout(recalculateTimeoutRef.current);
+    }
+
+    // Debounce for 300ms to avoid excessive calculations while dragging
+    recalculateTimeoutRef.current = setTimeout(() => {
+      calculateLOS(
+        fromId,
+        toId,
+        (result) => {
+          setResult(result);
+        },
+        (error) => {
+          console.error('Auto-recalculation failed:', error);
+        }
+      );
+    }, 300);
+
+    return () => {
+      if (recalculateTimeoutRef.current) {
+        clearTimeout(recalculateTimeoutRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [points]);
 
   // Calculate distances between all pairs of points
   const calculateSegmentDistances = () => {
@@ -103,9 +148,7 @@ function App() {
     setPoints(points.map(p =>
       p.id === id ? { ...p, lat, lon: lng } : p
     ));
-    setResult(null);
-    setSegmentDistances([]);
-    setSelectedLine(null);
+    // Don't clear result/selectedLine - let auto-recalculate handle it
   };
 
   const handleLineClick = async (fromId: string, toId: string) => {
@@ -132,7 +175,6 @@ function App() {
       toId,
       (result) => {
         setResult(result);
-        calculateSegmentDistances();
       },
       (error) => {
         alert('Error calculating path: ' + error);
@@ -140,23 +182,6 @@ function App() {
     );
   };
 
-  const handleCalculate = async () => {
-    // Use the selected line if available, otherwise use the current losFromId/losToId
-    const fromId = selectedLine?.fromId || losFromId;
-    const toId = selectedLine?.toId || losToId;
-
-    await calculateLOS(
-      fromId,
-      toId,
-      (result) => {
-        setResult(result);
-        calculateSegmentDistances();
-      },
-      (error) => {
-        alert('Error calculating path: ' + error);
-      }
-    );
-  };
 
   const handlePointUpdate = (id: string, updates: Partial<Point>) => {
     setPoints(points.map(p =>
@@ -165,18 +190,26 @@ function App() {
   };
 
   const handleAddPoint = () => {
-    const lastPoint = points[points.length - 1];
-    const newId = (Math.max(...points.map(p => parseInt(p.id))) + 1).toString();
-    const newPoint: Point = {
-      id: newId,
-      lat: lastPoint.lat + 0.01,
-      lon: lastPoint.lon + 0.01,
-      name: `Point ${String.fromCharCode(65 + points.length)}`,
-      height: 10
-    };
-    setPoints([...points, newPoint]);
-    setResult(null);
-    setSegmentDistances([]);
+    setIsAddingPoint(true);
+  };
+
+  const handleMapClick = (lat: number, lng: number) => {
+    if (isAddingPoint) {
+      const newId = (Math.max(...points.map(p => parseInt(p.id))) + 1).toString();
+      const newPoint: Point = {
+        id: newId,
+        lat,
+        lon: lng,
+        name: `Point ${String.fromCharCode(65 + points.length)}`,
+        height: 10
+      };
+      setPoints([...points, newPoint]);
+      setIsAddingPoint(false);
+    }
+  };
+
+  const handleCancelAddPoint = () => {
+    setIsAddingPoint(false);
   };
 
   const handleRemovePoint = (id: string) => {
@@ -195,9 +228,11 @@ function App() {
       setLosToId(remainingPoints[1].id);
     }
 
-    setResult(null);
-    setSegmentDistances([]);
-    setSelectedLine(null);
+    // Clear result and selection if the removed point was involved
+    if (selectedLine && (selectedLine.fromId === id || selectedLine.toId === id)) {
+      setResult(null);
+      setSelectedLine(null);
+    }
   };
 
   const handleReset = () => {
@@ -251,12 +286,14 @@ function App() {
         points={points}
         onPointDrag={handlePointDrag}
         onLineClick={handleLineClick}
+        onMapClick={handleMapClick}
         selectedLine={selectedLine}
         segmentDistances={segmentDistances}
         losFromId={result ? losFromId : undefined}
         losToId={result ? losToId : undefined}
         hideLabels={hideLabels}
         hideLines={hideLines}
+        isAddingPoint={isAddingPoint}
       />
 
       {isPanelVisible ? (
@@ -265,7 +302,6 @@ function App() {
           onPointUpdate={handlePointUpdate}
           onAddPoint={handleAddPoint}
           onRemovePoint={handleRemovePoint}
-          onCalculate={handleCalculate}
           onReset={handleReset}
           onImportJSON={handleImportJSON}
           onToggleVisibility={() => setIsPanelVisible(false)}
@@ -274,6 +310,8 @@ function App() {
           hideLines={hideLines}
           onToggleLines={() => setHideLines(!hideLines)}
           isLoading={isLoading}
+          isAddingPoint={isAddingPoint}
+          onCancelAddPoint={handleCancelAddPoint}
         />
       ) : (
         <button
@@ -285,7 +323,13 @@ function App() {
         </button>
       )}
 
-      <LOSPanel result={result} />
+      <LOSPanel
+        result={result}
+        onClose={() => {
+          setSelectedLine(null);
+          setResult(null);
+        }}
+      />
     </div>
   );
 }

@@ -8,7 +8,6 @@ interface ControlPanelProps {
   onPointUpdate: (id: string, updates: Partial<Point>) => void;
   onAddPoint: () => void;
   onRemovePoint: (id: string) => void;
-  onCalculate: () => void;
   onReset: () => void;
   onImportJSON: (jsonText: string) => void;
   onToggleVisibility: () => void;
@@ -17,6 +16,8 @@ interface ControlPanelProps {
   hideLines: boolean;
   onToggleLines: () => void;
   isLoading: boolean;
+  isAddingPoint: boolean;
+  onCancelAddPoint: () => void;
 }
 
 export default function ControlPanel({
@@ -24,7 +25,6 @@ export default function ControlPanel({
   onPointUpdate,
   onAddPoint,
   onRemovePoint,
-  onCalculate,
   onReset,
   onImportJSON,
   onToggleVisibility,
@@ -32,7 +32,9 @@ export default function ControlPanel({
   onToggleLabels,
   hideLines,
   onToggleLines,
-  isLoading
+  isLoading,
+  isAddingPoint,
+  onCancelAddPoint
 }: ControlPanelProps) {
   const { position, isDragging, handleMouseDown } = useDraggable({ x: 50, y: 20 });
   const [showImportDialog, setShowImportDialog] = useState(false);
@@ -106,12 +108,18 @@ export default function ControlPanel({
         <div className="section-header">
           <h3>Points</h3>
           <div style={{ display: 'flex', gap: '5px' }}>
-            <button className="btn-small btn-import" onClick={() => setShowImportDialog(true)}>
+            <button className="btn-small btn-import" onClick={() => setShowImportDialog(true)} disabled={isAddingPoint}>
               📥 Import JSON
             </button>
-            <button className="btn-small btn-add" onClick={onAddPoint}>
-              + Add Point
-            </button>
+            {isAddingPoint ? (
+              <button className="btn-small btn-cancel" onClick={onCancelAddPoint}>
+                ✕ Cancel
+              </button>
+            ) : (
+              <button className="btn-small btn-add" onClick={onAddPoint}>
+                + Add Point
+              </button>
+            )}
           </div>
         </div>
 
@@ -208,14 +216,6 @@ export default function ControlPanel({
           </div>
         ))}
       </div>
-
-      <button
-        className="btn"
-        onClick={onCalculate}
-        disabled={isLoading}
-      >
-        {isLoading ? 'Calculating...' : 'Calculate Path'}
-      </button>
 
       {isLoading && (
         <div className="loading">Fetching elevation data...</div>

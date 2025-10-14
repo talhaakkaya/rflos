@@ -313,6 +313,20 @@
   background: #138496;
 }
 
+.btn-import:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background: #c82333;
+}
+
 .point-item {
   background: #f8f9fa;
   border: 1px solid #dee2e6;

@@ -7,9 +7,10 @@ Chart.register(...registerables);
 
 interface LOSPanelProps {
   result: PathResult | null;
+  onClose?: () => void;
 }
 
-export default function LOSPanel({ result }: LOSPanelProps) {
+export default function LOSPanel({ result, onClose }: LOSPanelProps) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
 
@@ -103,8 +104,19 @@ export default function LOSPanel({ result }: LOSPanelProps) {
     <div className="los-panel">
       <div className="los-header">
         <h3>Line of Sight Analysis</h3>
-        <div className={`los-status ${los.isBlocked ? 'los-blocked' : 'los-clear'}`}>
-          {los.isBlocked ? 'BLOCKED' : 'CLEAR'}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div className={`los-status ${los.isBlocked ? 'los-blocked' : 'los-clear'}`}>
+            {los.isBlocked ? 'BLOCKED' : 'CLEAR'}
+          </div>
+          {onClose && (
+            <button
+              className="btn-close-los"
+              onClick={onClose}
+              title="Close analysis"
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 

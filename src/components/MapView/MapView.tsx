@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../MapView.css';
@@ -7,6 +7,19 @@ import MarkerLabel from './MarkerLabel';
 import SegmentLabel from './SegmentLabel';
 import MapBoundsAdjuster from './MapBoundsAdjuster';
 import DraggableMarker from './DraggableMarker';
+import ZoomResetButton from './ZoomResetButton';
+
+// Component to handle map click events
+function MapClickHandler({ isAddingPoint, onMapClick }: { isAddingPoint: boolean; onMapClick: (lat: number, lng: number) => void }) {
+  useMapEvents({
+    click: (e) => {
+      if (isAddingPoint) {
+        onMapClick(e.latlng.lat, e.latlng.lng);
+      }
+    }
+  });
+  return null;
+}
 
 // Fix Leaflet default marker icon issue with Webpack/Vite
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -20,24 +33,28 @@ interface MapViewProps {
   points: Point[];
   onPointDrag: (id: string, lat: number, lng: number) => void;
   onLineClick: (fromId: string, toId: string) => void;
+  onMapClick: (lat: number, lng: number) => void;
   selectedLine: { fromId: string; toId: string } | null;
   segmentDistances: { fromId: string; toId: string; distance: number }[];
   losFromId?: string;
   losToId?: string;
   hideLabels: boolean;
   hideLines: boolean;
+  isAddingPoint: boolean;
 }
 
 export default function MapView({
   points,
   onPointDrag,
   onLineClick,
+  onMapClick,
   selectedLine,
   segmentDistances,
   losFromId,
   losToId,
   hideLabels,
-  hideLines
+  hideLines,
+  isAddingPoint
 }: MapViewProps) {
   // Calculate center from all points
   const center: [number, number] = points.length > 0
@@ -48,7 +65,25 @@ export default function MapView({
     : [41.038702, 28.881802];
 
   return (
-    <div className="map-container">
+    <div className={`map-container ${isAddingPoint ? 'map-container-adding-point' : ''}`} style={{ position: 'relative' }}>
+      {isAddingPoint && (
+        <div style={{
+          position: 'absolute',
+          top: '10px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: '#4CAF50',
+          color: 'white',
+          padding: '10px 20px',
+          borderRadius: '4px',
+          zIndex: 1000,
+          fontWeight: 'bold',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+          pointerEvents: 'none'
+        }}>
+          Click on map to place new point
+        </div>
+      )}
       <MapContainer
         center={center}
         zoom={10}
@@ -58,6 +93,8 @@ export default function MapView({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+
+        <MapClickHandler isAddingPoint={isAddingPoint} onMapClick={onMapClick} />
 
         {/* Lines connecting all pairs of points */}
         {points.map((point1, i) =>
@@ -186,6 +223,7 @@ export default function MapView({
         })}
 
         <MapBoundsAdjuster points={points} />
+        <ZoomResetButton points={points} />
       </MapContainer>
     </div>
   );
