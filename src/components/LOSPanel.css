@@ -14,6 +14,11 @@
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
+  transition: width 0.3s ease;
+}
+
+.los-panel.panel-expanded {
+  width: 600px;
 }
 
 /* Smooth scrolling for the panel */
@@ -87,6 +92,12 @@
   width: 100%;
   min-height: 150px;
   overflow: hidden;
+  transition: height 0.3s ease;
+}
+
+.chart-container.chart-expanded {
+  height: 300px;
+  min-height: 300px;
 }
 
 .chart-container canvas {
@@ -152,4 +163,26 @@
 .btn-close-los:hover {
   background: #f5c6cb;
   border-color: #f1b0b7;
+}
+
+.btn-expand-chart {
+  background: #e7f3ff;
+  border: 1px solid #3388ff;
+  color: #3388ff;
+  font-size: 16px;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s;
+}
+
+.btn-expand-chart:hover {
+  background: #d0e8ff;
+  border-color: #2277ee;
 }

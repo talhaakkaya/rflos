@@ -43,6 +43,7 @@ function App() {
   const [hideLines, setHideLines] = useState<boolean>(false);
   const [isAddingPoint, setIsAddingPoint] = useState<boolean>(false);
   const [hoveredPathIndex, setHoveredPathIndex] = useState<number | null>(null);
+  const [frequency, setFrequency] = useState<number>(144); // MHz - default to 2m band
 
   const { calculateLOS, isLoading } = useLOSCalculation(points);
   const hasCalculatedOnMount = useRef(false);
@@ -75,7 +76,8 @@ function App() {
         },
         (error) => {
           console.error('Auto-calculation failed:', error);
-        }
+        },
+        frequency
       );
     }
   }, [losFromId, losToId, calculateLOS]);
@@ -112,7 +114,8 @@ function App() {
         },
         (error) => {
           console.error('Auto-recalculation failed:', error);
-        }
+        },
+        frequency
       );
     }, 300);
 
@@ -122,7 +125,7 @@ function App() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [points]);
+  }, [points, frequency]);
 
   // Calculate distances between all pairs of points
   const calculateSegmentDistances = () => {
@@ -179,7 +182,8 @@ function App() {
       },
       (error) => {
         alert('Error calculating path: ' + error);
-      }
+      },
+      frequency
     );
   };
 
@@ -315,6 +319,8 @@ function App() {
           isLoading={isLoading}
           isAddingPoint={isAddingPoint}
           onCancelAddPoint={handleCancelAddPoint}
+          frequency={frequency}
+          onFrequencyChange={setFrequency}
         />
       ) : (
         <button

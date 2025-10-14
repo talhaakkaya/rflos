@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Chart, registerables } from 'chart.js';
 import type { PathResult } from '../types';
 import './LOSPanel.css';
@@ -15,6 +15,7 @@ export default function LOSPanel({ result, onClose, onHoverPoint }: LOSPanelProp
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const onHoverPointRef = useRef(onHoverPoint);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Update ref when callback changes without recreating chart
   useEffect(() => {
@@ -32,35 +33,70 @@ export default function LOSPanel({ result, onClose, onHoverPoint }: LOSPanelProp
       chartInstance.current.destroy();
     }
 
+    // Prepare datasets
+    const datasets: any[] = [
+      {
+        label: 'Terrain Elevation',
+        data: result.elevations,
+        borderColor: '#8B4513',
+        backgroundColor: 'rgba(139, 69, 19, 0.2)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: '#ff6b6b',
+        pointHoverBorderColor: '#fff',
+        pointHoverBorderWidth: 2,
+        order: 3
+      },
+      {
+        label: 'Line of Sight',
+        data: result.los.losLine,
+        borderColor: result.los.isBlocked ? '#dc3545' : '#28a745',
+        borderDash: [5, 5],
+        fill: false,
+        tension: 0,
+        pointRadius: 0,
+        order: 2
+      }
+    ];
+
+    // Add Fresnel zone if available
+    if (result.fresnelZone) {
+      datasets.push({
+        label: '1st Fresnel Zone',
+        data: result.fresnelZone.upper,
+        borderColor: 'rgba(100, 150, 255, 0.5)',
+        backgroundColor: 'rgba(100, 150, 255, 0.1)',
+        fill: '+1', // Fill to next dataset (lower boundary)
+        tension: 0.3,
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [3, 3],
+        order: 1
+      });
+
+      datasets.push({
+        label: 'Fresnel Lower',
+        data: result.fresnelZone.lower,
+        borderColor: 'rgba(100, 150, 255, 0.5)',
+        backgroundColor: 'rgba(100, 150, 255, 0.1)',
+        fill: false,
+        tension: 0.3,
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [3, 3],
+        hidden: true, // Hide from legend
+        order: 1
+      });
+    }
+
     // Create new chart
     chartInstance.current = new Chart(ctx, {
       type: 'line',
       data: {
         labels: result.distances,
-        datasets: [
-          {
-            label: 'Terrain Elevation',
-            data: result.elevations,
-            borderColor: '#8B4513',
-            backgroundColor: 'rgba(139, 69, 19, 0.2)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: 0,
-            pointHoverRadius: 6,
-            pointHoverBackgroundColor: '#ff6b6b',
-            pointHoverBorderColor: '#fff',
-            pointHoverBorderWidth: 2
-          },
-          {
-            label: 'Line of Sight',
-            data: result.los.losLine,
-            borderColor: result.los.isBlocked ? '#dc3545' : '#28a745',
-            borderDash: [5, 5],
-            fill: false,
-            tension: 0,
-            pointRadius: 0
-          }
-        ]
+        datasets
       },
       options: {
         responsive: true,
@@ -126,16 +162,23 @@ export default function LOSPanel({ result, onClose, onHoverPoint }: LOSPanelProp
 
   if (!result) return null;
 
-  const { distance, elevations, los, height1, height2, name1, name2 } = result;
+  const { distance, elevations, los, height1, height2, name1, name2, frequency, fspl, fresnelZone } = result;
 
   return (
-    <div className="los-panel">
+    <div className={`los-panel ${isExpanded ? 'panel-expanded' : ''}`}>
       <div className="los-header">
         <h3>Line of Sight Analysis</h3>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <div className={`los-status ${los.isBlocked ? 'los-blocked' : 'los-clear'}`}>
             {los.isBlocked ? 'BLOCKED' : 'CLEAR'}
           </div>
+          <button
+            className="btn-expand-chart"
+            onClick={() => setIsExpanded(!isExpanded)}
+            title={isExpanded ? "Collapse chart" : "Expand chart"}
+          >
+            {isExpanded ? '⬇' : '⬆'}
+          </button>
           {onClose && (
             <button
               className="btn-close-los"
@@ -181,10 +224,30 @@ export default function LOSPanel({ result, onClose, onHoverPoint }: LOSPanelProp
             Antenna heights: {height1}m and {height2}m included
           </div>
         )}
+
+        {/* RF Analysis Section */}
+        {frequency && fspl && (
+          <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #ddd' }}>
+            <div className="los-detail" style={{ color: '#2277ee', fontWeight: 'bold', marginBottom: '6px' }}>
+              RF Analysis ({frequency} MHz)
+            </div>
+            <div className="los-detail">
+              <strong>Free Space Path Loss:</strong> {fspl.toFixed(2)} dB
+            </div>
+            {fresnelZone && (
+              <div className="los-detail">
+                <strong>1st Fresnel Zone Radius:</strong> {fresnelZone.radius.toFixed(1)} m
+              </div>
+            )}
+            <div className="los-detail" style={{ fontSize: '11px', color: '#666', marginTop: '6px' }}>
+              {frequency === 144 ? '2m band (VHF)' : '70cm band (UHF)'}
+            </div>
+          </div>
+        )}
       </div>
 
       <div
-        className="chart-container"
+        className={`chart-container ${isExpanded ? 'chart-expanded' : ''}`}
         onMouseLeave={() => {
           if (onHoverPoint) {
             onHoverPoint(null);
