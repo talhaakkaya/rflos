@@ -15,7 +15,7 @@ export default function MapBoundsAdjuster({ points }: MapBoundsAdjusterProps) {
     // Only adjust bounds on the very first mount (page load/refresh)
     if (!hasAdjustedBounds.current && points.length > 0) {
       const bounds = L.latLngBounds(points.map(p => [p.lat, p.lon]));
-      map.fitBounds(bounds, { padding: [100, 100], maxZoom: 13 });
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
       hasAdjustedBounds.current = true;
     }
   }, [map, points]);

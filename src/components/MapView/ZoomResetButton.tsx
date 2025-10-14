@@ -12,7 +12,7 @@ export default function ZoomResetButton({ points }: ZoomResetButtonProps) {
   const handleZoomReset = () => {
     if (points.length > 0) {
       const bounds = L.latLngBounds(points.map(p => [p.lat, p.lon]));
-      map.fitBounds(bounds, { padding: [100, 100], maxZoom: 13 });
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
     }
   };
 
