@@ -47,6 +47,7 @@ function App() {
   const [hoveredPathIndex, setHoveredPathIndex] = useState<number | null>(null);
   const [frequency, setFrequency] = useState<number>(145); // MHz - default to 2m band
   const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
+  const [resetZoomTrigger, setResetZoomTrigger] = useState<number>(0);
 
   // Create a stable reference that only changes when geometry actually changes
   const pointsGeometryRef = useRef<Array<{ id: string; lat: number; lon: number; height: number }>>([]);
@@ -192,6 +193,9 @@ function App() {
       return;
     }
 
+    // Clear old result first to ensure clean state
+    setResult(null);
+
     // Select new line
     setSelectedLine({ fromId, toId });
     setLosFromId(fromId);
@@ -264,16 +268,32 @@ function App() {
     }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     // Reset to defaults
     setPoints(defaultPoints);
     setLosFromId('1');
     setLosToId('2');
-    setSelectedLine(null);
+    setSelectedLine({ fromId: '1', toId: '2' });
     setResult(null);
-    setSegmentDistances([]);
+
+    // Reset zoom trigger
+    setResetZoomTrigger(prev => prev + 1);
+
     // Clear URL params
     window.history.replaceState({}, '', window.location.pathname);
+
+    // Trigger calculation for default line (like on page load)
+    await calculateLOS(
+      '1',
+      '2',
+      (result) => {
+        setResult(result);
+      },
+      (error) => {
+        console.error('Reset calculation failed:', error);
+      },
+      frequency
+    );
   };
 
   const handleImportJSON = (jsonText: string) => {
@@ -326,6 +346,7 @@ function App() {
         hoveredPathPoint={result && hoveredPathIndex !== null ? result.pathPoints[hoveredPathIndex] : null}
         pathPoints={result?.pathPoints || null}
         onHelpClick={() => setIsHelpOpen(true)}
+        resetZoomTrigger={resetZoomTrigger}
       />
 
       {isPanelVisible ? (

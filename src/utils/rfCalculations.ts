@@ -46,18 +46,30 @@ export function calculateFresnelRadius(
  * @param losLine - Array of line of sight elevations (m)
  * @param totalDistance - Total path distance (km)
  * @param frequencyMHz - Frequency in MHz
- * @returns Object with upper and lower Fresnel zone boundaries and max radius
+ * @returns Object with upper and lower Fresnel zone boundaries, max radius, and clearance data
  */
 export function calculateFresnelZone(
   distances: number[],
-  _elevations: number[],
+  elevations: number[],
   losLine: number[],
   totalDistance: number,
   frequencyMHz: number
-): { upper: number[]; lower: number[]; radius: number } {
+): {
+  upper: number[];
+  lower: number[];
+  radius: number;
+  clearancePercentages: number[];
+  minClearance: number;
+  minClearanceDistance: number;
+  minClearanceMeters: number;
+} {
   const upper: number[] = [];
   const lower: number[] = [];
+  const clearancePercentages: number[] = [];
   let maxRadius = 0;
+  let minClearance = Infinity;
+  let minClearanceDistance = 0;
+  let minClearanceMeters = Infinity;
 
   for (let i = 0; i < distances.length; i++) {
     const d1 = distances[i];
@@ -73,9 +85,31 @@ export function calculateFresnelZone(
     // Add/subtract radius from LOS line to get boundaries
     upper.push(losLine[i] + radius);
     lower.push(losLine[i] - radius);
+
+    // Calculate clearance percentage
+    // Clearance = distance from terrain to LOS line
+    // Percentage = (clearance / fresnel radius) * 100
+    const clearance = losLine[i] - elevations[i];
+    const clearancePercent = (clearance / radius) * 100;
+    clearancePercentages.push(clearancePercent);
+
+    // Track minimum clearance
+    if (clearancePercent < minClearance) {
+      minClearance = clearancePercent;
+      minClearanceDistance = distances[i];
+      minClearanceMeters = clearance;
+    }
   }
 
-  return { upper, lower, radius: maxRadius };
+  return {
+    upper,
+    lower,
+    radius: maxRadius,
+    clearancePercentages,
+    minClearance,
+    minClearanceDistance,
+    minClearanceMeters
+  };
 }
 
 /**

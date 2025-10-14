@@ -170,6 +170,21 @@ export default function LOSPanel({ result, onClose, onHoverPoint, currentName1, 
   const displayName1 = currentName1 || name1;
   const displayName2 = currentName2 || name2;
 
+  // Helper function to get clearance status and color
+  const getClearanceStatus = (clearancePercent: number) => {
+    if (clearancePercent >= 100) {
+      return { text: 'Excellent', color: '#00aa00', emoji: '✅' };
+    } else if (clearancePercent >= 60) {
+      return { text: 'Good', color: '#28a745', emoji: '✓' };
+    } else if (clearancePercent >= 20) {
+      return { text: 'Marginal', color: '#ff8c00', emoji: '⚠️' };
+    } else if (clearancePercent >= 0) {
+      return { text: 'Poor', color: '#dc3545', emoji: '⚠️' };
+    } else {
+      return { text: 'Obstructed', color: '#aa0000', emoji: '❌' };
+    }
+  };
+
   return (
     <div className={`los-panel ${isExpanded ? 'panel-expanded' : ''}`}>
       <div className="los-header">
@@ -241,9 +256,25 @@ export default function LOSPanel({ result, onClose, onHoverPoint, currentName1, 
               <strong>Free Space Path Loss:</strong> {fspl.toFixed(2)} dB
             </div>
             {fresnelZone && (
-              <div className="los-detail">
-                <strong>1st Fresnel Zone Radius:</strong> {fresnelZone.radius.toFixed(1)} m
-              </div>
+              <>
+                <div className="los-detail">
+                  <strong>1st Fresnel Zone Radius:</strong> {fresnelZone.radius.toFixed(1)} m
+                </div>
+                <div className="los-detail">
+                  <strong>Fresnel Clearance:</strong>{' '}
+                  <span style={{ color: getClearanceStatus(fresnelZone.minClearance).color, fontWeight: 'bold' }}>
+                    {fresnelZone.minClearanceMeters.toFixed(1)}m / {fresnelZone.radius.toFixed(1)}m ({fresnelZone.minClearance.toFixed(0)}%) {getClearanceStatus(fresnelZone.minClearance).emoji}
+                  </span>
+                </div>
+                <div className="los-detail" style={{ fontSize: '11px', color: getClearanceStatus(fresnelZone.minClearance).color, marginTop: '2px' }}>
+                  {getClearanceStatus(fresnelZone.minClearance).text} - {(fresnelZone.radius * 0.6).toFixed(1)}m needed for 60%
+                </div>
+                {fresnelZone.minClearance < 60 && (
+                  <div className="los-detail" style={{ fontSize: '11px', color: '#ff8c00', marginTop: '4px' }}>
+                    ⚠️ Minimum clearance at {fresnelZone.minClearanceDistance.toFixed(2)} km
+                  </div>
+                )}
+              </>
             )}
             <div className="los-detail" style={{ fontSize: '11px', color: '#666', marginTop: '6px' }}>
               {frequency === 145 ? '2m band (VHF)' : '70cm band (UHF)'}

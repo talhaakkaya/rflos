@@ -5,9 +5,10 @@ import type { Point } from '../../types';
 
 interface MapBoundsAdjusterProps {
   points: Point[];
+  resetTrigger?: number; // Increment this to trigger a zoom reset
 }
 
-export default function MapBoundsAdjuster({ points }: MapBoundsAdjusterProps) {
+export default function MapBoundsAdjuster({ points, resetTrigger }: MapBoundsAdjusterProps) {
   const map = useMap();
   const hasAdjustedBounds = useRef(false);
 
@@ -19,6 +20,14 @@ export default function MapBoundsAdjuster({ points }: MapBoundsAdjusterProps) {
       hasAdjustedBounds.current = true;
     }
   }, [map, points]);
+
+  // Zoom when reset is triggered
+  useEffect(() => {
+    if (resetTrigger && resetTrigger > 0 && points.length > 0) {
+      const bounds = L.latLngBounds(points.map(p => [p.lat, p.lon]));
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+    }
+  }, [resetTrigger, points, map]);
 
   return null;
 }

@@ -45,6 +45,7 @@ interface MapViewProps {
   hoveredPathPoint: { lat: number; lon: number } | null;
   pathPoints: { lat: number; lon: number }[] | null;
   onHelpClick: () => void;
+  resetZoomTrigger?: number;
 }
 
 export default function MapView({
@@ -61,7 +62,8 @@ export default function MapView({
   isAddingPoint,
   hoveredPathPoint,
   pathPoints,
-  onHelpClick
+  onHelpClick,
+  resetZoomTrigger
 }: MapViewProps) {
   // Calculate center from all points
   const center: [number, number] = points.length > 0
@@ -256,7 +258,7 @@ export default function MapView({
           />
         )}
 
-        <MapBoundsAdjuster points={points} />
+        <MapBoundsAdjuster points={points} resetTrigger={resetZoomTrigger} />
         <HelpButton onClick={onHelpClick} />
         <ZoomResetButton points={points} />
       </MapContainer>
