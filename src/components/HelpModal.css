@@ -1,0 +1,142 @@
+.help-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.help-modal-content {
+  background: white;
+  border-radius: 8px;
+  max-width: 700px;
+  max-height: 90vh;
+  width: 100%;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.help-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 2px solid #3388ff;
+  background: #f0f8ff;
+  border-radius: 8px 8px 0 0;
+}
+
+.help-modal-header h2 {
+  margin: 0;
+  color: #2277ee;
+  font-size: 22px;
+}
+
+.help-close-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.help-close-btn:hover {
+  background: #c82333;
+}
+
+.help-modal-body {
+  padding: 20px;
+}
+
+.help-section {
+  margin-bottom: 20px;
+}
+
+.help-section h3 {
+  color: #333;
+  font-size: 18px;
+  margin-bottom: 10px;
+  border-left: 4px solid #3388ff;
+  padding-left: 12px;
+}
+
+.help-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.help-section li {
+  padding: 8px 0;
+  color: #555;
+  line-height: 1.5;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.help-section li:last-child {
+  border-bottom: none;
+}
+
+.help-section li strong {
+  color: #2277ee;
+}
+
+/* Scrollbar styling */
+.help-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.help-modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.help-modal-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.help-modal-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .help-modal-content {
+    max-width: 95%;
+    max-height: 85vh;
+  }
+
+  .help-modal-header {
+    padding: 15px;
+  }
+
+  .help-modal-header h2 {
+    font-size: 18px;
+  }
+
+  .help-modal-body {
+    padding: 15px;
+  }
+
+  .help-section h3 {
+    font-size: 16px;
+  }
+
+  .help-section li {
+    font-size: 14px;
+  }
+}

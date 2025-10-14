@@ -15,7 +15,6 @@ interface ControlPanelProps {
   onToggleLabels: () => void;
   hideLines: boolean;
   onToggleLines: () => void;
-  isLoading: boolean;
   isAddingPoint: boolean;
   onCancelAddPoint: () => void;
   frequency: number;
@@ -34,7 +33,6 @@ export default function ControlPanel({
   onToggleLabels,
   hideLines,
   onToggleLines,
-  isLoading,
   isAddingPoint,
   onCancelAddPoint,
   frequency,
@@ -242,10 +240,6 @@ export default function ControlPanel({
           </div>
         ))}
       </div>
-
-      {isLoading && (
-        <div className="loading">Fetching elevation data...</div>
-      )}
     </div>
   );
 }

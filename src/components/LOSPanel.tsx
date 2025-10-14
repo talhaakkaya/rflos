@@ -9,9 +9,11 @@ interface LOSPanelProps {
   result: PathResult | null;
   onClose?: () => void;
   onHoverPoint?: (index: number | null) => void;
+  currentName1?: string;
+  currentName2?: string;
 }
 
-export default function LOSPanel({ result, onClose, onHoverPoint }: LOSPanelProps) {
+export default function LOSPanel({ result, onClose, onHoverPoint, currentName1, currentName2 }: LOSPanelProps) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const onHoverPointRef = useRef(onHoverPoint);
@@ -164,6 +166,10 @@ export default function LOSPanel({ result, onClose, onHoverPoint }: LOSPanelProp
 
   const { distance, elevations, los, height1, height2, name1, name2, frequency, fspl, fresnelZone } = result;
 
+  // Use current names if provided, otherwise fall back to result names
+  const displayName1 = currentName1 || name1;
+  const displayName2 = currentName2 || name2;
+
   return (
     <div className={`los-panel ${isExpanded ? 'panel-expanded' : ''}`}>
       <div className="los-header">
@@ -193,11 +199,11 @@ export default function LOSPanel({ result, onClose, onHoverPoint }: LOSPanelProp
 
       <div className="los-info">
         <div className="los-detail">
-          <strong>{name1}</strong> elevation: {elevations[0].toFixed(1)} m
+          <strong>{displayName1}</strong> elevation: {elevations[0].toFixed(1)} m
           {height1 > 0 && ` (+${height1}m antenna = ${(elevations[0] + height1).toFixed(1)}m)`}
         </div>
         <div className="los-detail">
-          <strong>{name2}</strong> elevation: {elevations[elevations.length - 1].toFixed(1)} m
+          <strong>{displayName2}</strong> elevation: {elevations[elevations.length - 1].toFixed(1)} m
           {height2 > 0 && ` (+${height2}m antenna = ${(elevations[elevations.length - 1] + height2).toFixed(1)}m)`}
         </div>
         <div className="los-detail">

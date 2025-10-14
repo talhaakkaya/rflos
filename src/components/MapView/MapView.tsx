@@ -8,6 +8,7 @@ import SegmentLabel from './SegmentLabel';
 import MapBoundsAdjuster from './MapBoundsAdjuster';
 import DraggableMarker from './DraggableMarker';
 import ZoomResetButton from './ZoomResetButton';
+import HelpButton from './HelpButton';
 
 // Component to handle map click events
 function MapClickHandler({ isAddingPoint, onMapClick }: { isAddingPoint: boolean; onMapClick: (lat: number, lng: number) => void }) {
@@ -43,6 +44,7 @@ interface MapViewProps {
   isAddingPoint: boolean;
   hoveredPathPoint: { lat: number; lon: number } | null;
   pathPoints: { lat: number; lon: number }[] | null;
+  onHelpClick: () => void;
 }
 
 export default function MapView({
@@ -58,7 +60,8 @@ export default function MapView({
   hideLines,
   isAddingPoint,
   hoveredPathPoint,
-  pathPoints
+  pathPoints,
+  onHelpClick
 }: MapViewProps) {
   // Calculate center from all points
   const center: [number, number] = points.length > 0
@@ -254,6 +257,7 @@ export default function MapView({
         )}
 
         <MapBoundsAdjuster points={points} />
+        <HelpButton onClick={onHelpClick} />
         <ZoomResetButton points={points} />
       </MapContainer>
     </div>

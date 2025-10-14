@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { calculateDistance, generatePathPoints, fetchElevationData, calculateLineOfSight } from './usePathCalculation';
 import { calculateFSPL, calculateFresnelZone } from '../utils/rfCalculations';
 import type { Point, PathResult } from '../types';
@@ -6,15 +6,41 @@ import type { Point, PathResult } from '../types';
 export function useLOSCalculation(points: Point[]) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const calculateLOS = async (
+  // Keep current points in a ref so we can access names without triggering recalculation
+  const pointsRef = useRef(points);
+  useEffect(() => {
+    pointsRef.current = points;
+  }, [points]);
+
+  // Track geometry with deep comparison
+  const pointsGeometryRef = useRef<Array<{ id: string; lat: number; lon: number; height: number }>>([]);
+  const [pointsGeometry, setPointsGeometry] = useState<Array<{ id: string; lat: number; lon: number; height: number }>>([]);
+
+  useEffect(() => {
+    const newGeometry = points.map(p => ({ id: p.id, lat: p.lat, lon: p.lon, height: p.height }));
+
+    // Deep compare to see if geometry actually changed
+    const geometryChanged = newGeometry.length !== pointsGeometryRef.current.length ||
+      newGeometry.some((p, i) => {
+        const prev = pointsGeometryRef.current[i];
+        return !prev || p.id !== prev.id || p.lat !== prev.lat || p.lon !== prev.lon || p.height !== prev.height;
+      });
+
+    if (geometryChanged) {
+      pointsGeometryRef.current = newGeometry;
+      setPointsGeometry(newGeometry);
+    }
+  }, [points]);
+
+  const calculateLOS = useCallback(async (
     fromId: string,
     toId: string,
     onSuccess: (result: PathResult) => void,
     onError?: (error: string) => void,
     frequency?: number
   ) => {
-    const fromPoint = points.find(p => p.id === fromId);
-    const toPoint = points.find(p => p.id === toId);
+    const fromPoint = pointsRef.current.find(p => p.id === fromId);
+    const toPoint = pointsRef.current.find(p => p.id === toId);
 
     if (!fromPoint || !toPoint) {
       onError?.('Invalid points selected');
@@ -99,7 +125,7 @@ export function useLOSCalculation(points: Point[]) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [pointsGeometry]); // Only recreate when geometry changes, not names
 
   return { calculateLOS, isLoading };
 }

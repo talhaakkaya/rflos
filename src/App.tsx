@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import ControlPanel from './components/ControlPanel';
 import MapView from './components/MapView/MapView';
 import LOSPanel from './components/LOSPanel';
+import HelpModal from './components/HelpModal';
+import LoadingSpinner from './components/LoadingSpinner';
 import { calculateDistance } from './hooks/usePathCalculation';
 import { useLOSCalculation } from './hooks/useLOSCalculation';
 import { decodeStateFromURL, updateURL } from './hooks/useURLState';
@@ -44,6 +46,28 @@ function App() {
   const [isAddingPoint, setIsAddingPoint] = useState<boolean>(false);
   const [hoveredPathIndex, setHoveredPathIndex] = useState<number | null>(null);
   const [frequency, setFrequency] = useState<number>(144); // MHz - default to 2m band
+  const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
+
+  // Create a stable reference that only changes when geometry actually changes
+  const pointsGeometryRef = useRef<Array<{ id: string; lat: number; lon: number; height: number }>>([]);
+  const [pointsGeometry, setPointsGeometry] = useState<Array<{ id: string; lat: number; lon: number; height: number }>>([]);
+
+  // Update pointsGeometry only when actual geometry changes
+  useEffect(() => {
+    const newGeometry = points.map(p => ({ id: p.id, lat: p.lat, lon: p.lon, height: p.height }));
+
+    // Deep compare to see if geometry actually changed
+    const geometryChanged = newGeometry.length !== pointsGeometryRef.current.length ||
+      newGeometry.some((p, i) => {
+        const prev = pointsGeometryRef.current[i];
+        return !prev || p.id !== prev.id || p.lat !== prev.lat || p.lon !== prev.lon || p.height !== prev.height;
+      });
+
+    if (geometryChanged) {
+      pointsGeometryRef.current = newGeometry;
+      setPointsGeometry(newGeometry);
+    }
+  }, [points]);
 
   const { calculateLOS, isLoading } = useLOSCalculation(points);
   const hasCalculatedOnMount = useRef(false);
@@ -82,13 +106,13 @@ function App() {
     }
   }, [losFromId, losToId, calculateLOS]);
 
-  // Auto-calculate segment distances when points change
+  // Auto-calculate segment distances when points coordinates change
   useEffect(() => {
     calculateSegmentDistances();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [points]);
+  }, [pointsGeometry]);
 
-  // Auto-recalculate when points change (debounced)
+  // Auto-recalculate when points coordinates/heights change (debounced)
   useEffect(() => {
     // Determine which line to calculate
     const fromId = selectedLine?.fromId || losFromId;
@@ -125,7 +149,7 @@ function App() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [points, frequency]);
+  }, [pointsGeometry, frequency]);
 
   // Calculate distances between all pairs of points
   const calculateSegmentDistances = () => {
@@ -301,6 +325,7 @@ function App() {
         isAddingPoint={isAddingPoint}
         hoveredPathPoint={result && hoveredPathIndex !== null ? result.pathPoints[hoveredPathIndex] : null}
         pathPoints={result?.pathPoints || null}
+        onHelpClick={() => setIsHelpOpen(true)}
       />
 
       {isPanelVisible ? (
@@ -316,7 +341,6 @@ function App() {
           onToggleLabels={() => setHideLabels(!hideLabels)}
           hideLines={hideLines}
           onToggleLines={() => setHideLines(!hideLines)}
-          isLoading={isLoading}
           isAddingPoint={isAddingPoint}
           onCancelAddPoint={handleCancelAddPoint}
           frequency={frequency}
@@ -339,7 +363,16 @@ function App() {
           setResult(null);
         }}
         onHoverPoint={(index) => setHoveredPathIndex(index)}
+        currentName1={points.find(p => p.id === (selectedLine?.fromId || losFromId))?.name}
+        currentName2={points.find(p => p.id === (selectedLine?.toId || losToId))?.name}
       />
+
+      <HelpModal
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
+      />
+
+      <LoadingSpinner isLoading={isLoading} />
     </div>
   );
 }
