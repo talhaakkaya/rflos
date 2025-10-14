@@ -112,16 +112,16 @@ export default function ControlPanel({
           <label>Frequency Band:</label>
           <div style={{ display: 'flex', gap: '8px', marginTop: '5px' }}>
             <button
-              className={`btn-freq ${frequency === 144 ? 'active' : ''}`}
-              onClick={() => onFrequencyChange(144)}
+              className={`btn-freq ${frequency === 145 ? 'active' : ''}`}
+              onClick={() => onFrequencyChange(145)}
             >
-              2m (144 MHz)
+              2m (145 MHz)
             </button>
             <button
-              className={`btn-freq ${frequency === 432 ? 'active' : ''}`}
-              onClick={() => onFrequencyChange(432)}
+              className={`btn-freq ${frequency === 433 ? 'active' : ''}`}
+              onClick={() => onFrequencyChange(433)}
             >
-              70cm (432 MHz)
+              70cm (433 MHz)
             </button>
           </div>
         </div>

@@ -246,7 +246,7 @@ export default function LOSPanel({ result, onClose, onHoverPoint, currentName1, 
               </div>
             )}
             <div className="los-detail" style={{ fontSize: '11px', color: '#666', marginTop: '6px' }}>
-              {frequency === 144 ? '2m band (VHF)' : '70cm band (UHF)'}
+              {frequency === 145 ? '2m band (VHF)' : '70cm band (UHF)'}
             </div>
           </div>
         )}

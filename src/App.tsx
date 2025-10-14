@@ -45,7 +45,7 @@ function App() {
   const [hideLines, setHideLines] = useState<boolean>(false);
   const [isAddingPoint, setIsAddingPoint] = useState<boolean>(false);
   const [hoveredPathIndex, setHoveredPathIndex] = useState<number | null>(null);
-  const [frequency, setFrequency] = useState<number>(144); // MHz - default to 2m band
+  const [frequency, setFrequency] = useState<number>(145); // MHz - default to 2m band
   const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
 
   // Create a stable reference that only changes when geometry actually changes

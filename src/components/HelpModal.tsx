@@ -33,7 +33,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
               <li><strong>Select Line:</strong> Click any blue line or distance label on the map</li>
               <li><strong>Auto-Calculate:</strong> Analysis starts automatically when you select a line</li>
               <li><strong>View Results:</strong> Check the LOS panel (bottom-right) for path status</li>
-              <li><strong>Change Frequency:</strong> Toggle between 2m (144 MHz) and 70cm (432 MHz)</li>
+              <li><strong>Change Frequency:</strong> Toggle between 2m (145 MHz) and 70cm (433 MHz)</li>
             </ul>
           </section>
 
