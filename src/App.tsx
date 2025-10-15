@@ -4,6 +4,7 @@ import MapView from './components/MapView/MapView';
 import LOSPanel from './components/LOSPanel';
 import HelpModal from './components/HelpModal';
 import LoadingSpinner from './components/LoadingSpinner';
+import Footer from './components/Footer';
 import { calculateDistance } from './hooks/usePathCalculation';
 import { useLOSCalculation } from './hooks/useLOSCalculation';
 import { decodeStateFromURL, updateURL } from './hooks/useURLState';
@@ -425,6 +426,8 @@ function App() {
       />
 
       <LoadingSpinner isLoading={isLoading} />
+
+      <Footer />
     </div>
   );
 }
