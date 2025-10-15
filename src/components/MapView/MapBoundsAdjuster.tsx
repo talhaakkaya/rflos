@@ -16,7 +16,7 @@ export default function MapBoundsAdjuster({ points, resetTrigger }: MapBoundsAdj
     // Only adjust bounds on the very first mount (page load/refresh)
     if (!hasAdjustedBounds.current && points.length > 0) {
       const bounds = L.latLngBounds(points.map(p => [p.lat, p.lon]));
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
       hasAdjustedBounds.current = true;
     }
   }, [map, points]);
@@ -25,7 +25,7 @@ export default function MapBoundsAdjuster({ points, resetTrigger }: MapBoundsAdj
   useEffect(() => {
     if (resetTrigger && resetTrigger > 0 && points.length > 0) {
       const bounds = L.latLngBounds(points.map(p => [p.lat, p.lon]));
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
     }
   }, [resetTrigger, points, map]);
 
