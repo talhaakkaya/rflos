@@ -268,6 +268,36 @@ function App() {
     }
   };
 
+  const handleReverseCalculation = async () => {
+    // Find the two points being analyzed
+    const fromId = selectedLine?.fromId || losFromId;
+    const toId = selectedLine?.toId || losToId;
+
+    if (!fromId || !toId) {
+      return;
+    }
+
+    // Swap the calculation direction
+    setLosFromId(toId);
+    setLosToId(fromId);
+    if (selectedLine) {
+      setSelectedLine({ fromId: toId, toId: fromId });
+    }
+
+    // Recalculate with reversed direction
+    await calculateLOS(
+      toId,
+      fromId,
+      (result) => {
+        setResult(result);
+      },
+      (error) => {
+        console.error('Reverse calculation failed:', error);
+      },
+      frequency
+    );
+  };
+
   const handleReset = async () => {
     // Reset to defaults
     setPoints(defaultPoints);
@@ -384,6 +414,7 @@ function App() {
           setResult(null);
         }}
         onHoverPoint={(index) => setHoveredPathIndex(index)}
+        onReverseCalculation={handleReverseCalculation}
         currentName1={points.find(p => p.id === (selectedLine?.fromId || losFromId))?.name}
         currentName2={points.find(p => p.id === (selectedLine?.toId || losToId))?.name}
       />

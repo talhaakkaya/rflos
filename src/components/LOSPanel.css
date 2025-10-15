@@ -186,3 +186,25 @@
   background: #d0e8ff;
   border-color: #2277ee;
 }
+
+.btn-reverse-calc {
+  background: #fff3e0;
+  border: 1px solid #ff9800;
+  color: #ff9800;
+  font-size: 16px;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s;
+}
+
+.btn-reverse-calc:hover {
+  background: #ffe0b2;
+  border-color: #f57c00;
+}

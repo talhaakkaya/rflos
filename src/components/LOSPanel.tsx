@@ -9,11 +9,12 @@ interface LOSPanelProps {
   result: PathResult | null;
   onClose?: () => void;
   onHoverPoint?: (index: number | null) => void;
+  onReverseCalculation?: () => void;
   currentName1?: string;
   currentName2?: string;
 }
 
-export default function LOSPanel({ result, onClose, onHoverPoint, currentName1, currentName2 }: LOSPanelProps) {
+export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalculation, currentName1, currentName2 }: LOSPanelProps) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const onHoverPointRef = useRef(onHoverPoint);
@@ -200,6 +201,15 @@ export default function LOSPanel({ result, onClose, onHoverPoint, currentName1, 
           >
             {isExpanded ? '⬇' : '⬆'}
           </button>
+          {onReverseCalculation && (
+            <button
+              className="btn-reverse-calc"
+              onClick={onReverseCalculation}
+              title="Reverse calculation direction"
+            >
+              ⇅
+            </button>
+          )}
           {onClose && (
             <button
               className="btn-close-los"
