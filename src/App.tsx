@@ -27,7 +27,7 @@ function App() {
       losFromId: urlState?.losFromId || '1',
       losToId: urlState?.losToId || '2',
       selectedLine: urlState?.selectedLine || null,
-      hideLines: urlState?.hideLines !== undefined ? urlState.hideLines : true,
+      hideLines: urlState?.hideLines !== undefined ? urlState.hideLines : false,
       isPanelVisible: urlState?.isPanelVisible !== undefined ? urlState.isPanelVisible : true
     };
   };
