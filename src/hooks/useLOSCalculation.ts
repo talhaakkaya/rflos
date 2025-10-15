@@ -115,6 +115,15 @@ export function useLOSCalculation(points: Point[]) {
         fromPoint.lon
       );
 
+      // Calculate elevation angles (vertical takeoff angle)
+      const elevation1WithHeight = elevations[0] + fromPoint.height;
+      const elevation2WithHeight = elevations[elevations.length - 1] + toPoint.height;
+      const distanceInMeters = distance * 1000;
+
+      // Positive angle = point up, negative = point down
+      const elevationAngle = Math.atan2(elevation2WithHeight - elevation1WithHeight, distanceInMeters) * 180 / Math.PI;
+      const reverseElevationAngle = Math.atan2(elevation1WithHeight - elevation2WithHeight, distanceInMeters) * 180 / Math.PI;
+
       const result: PathResult = {
         distance,
         elevations,
@@ -129,7 +138,9 @@ export function useLOSCalculation(points: Point[]) {
         fspl,
         fresnelZone,
         bearing,
-        reverseBearing
+        reverseBearing,
+        elevationAngle,
+        reverseElevationAngle
       };
 
       onSuccess(result);

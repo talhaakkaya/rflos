@@ -291,7 +291,7 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
         {/* Bearing/Azimuth */}
         {result.bearing !== undefined && result.reverseBearing !== undefined && (
           <div className="los-detail" style={{ marginTop: '12px' }}>
-            <strong>Antenna Bearing:</strong>
+            <strong>Antenna Aiming:</strong>
             {isExpanded ? (
               // Expanded view: Show compasses
               <div style={{ display: 'flex', gap: '16px', marginTop: '8px', flexWrap: 'wrap' }}>
@@ -300,7 +300,10 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
                   <CompassSVG bearing={result.bearing} size={70} />
                   <div style={{ fontSize: '11px', color: '#555', textAlign: 'center' }}>
                     <div style={{ fontWeight: 'bold' }}>{displayName1} → {displayName2}</div>
-                    <div>{result.bearing.toFixed(1)}° ({getCompassDirection(result.bearing)})</div>
+                    <div>Azimuth: {result.bearing.toFixed(1)}° ({getCompassDirection(result.bearing)})</div>
+                    {result.elevationAngle !== undefined && (
+                      <div>Elevation: {result.elevationAngle > 0 ? '+' : ''}{result.elevationAngle.toFixed(2)}°</div>
+                    )}
                   </div>
                 </div>
 
@@ -309,15 +312,24 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
                   <CompassSVG bearing={result.reverseBearing} size={70} />
                   <div style={{ fontSize: '11px', color: '#555', textAlign: 'center' }}>
                     <div style={{ fontWeight: 'bold' }}>{displayName2} → {displayName1}</div>
-                    <div>{result.reverseBearing.toFixed(1)}° ({getCompassDirection(result.reverseBearing)})</div>
+                    <div>Azimuth: {result.reverseBearing.toFixed(1)}° ({getCompassDirection(result.reverseBearing)})</div>
+                    {result.reverseElevationAngle !== undefined && (
+                      <div>Elevation: {result.reverseElevationAngle > 0 ? '+' : ''}{result.reverseElevationAngle.toFixed(2)}°</div>
+                    )}
                   </div>
                 </div>
               </div>
             ) : (
               // Collapsed view: Text only
               <div style={{ marginLeft: '8px', fontSize: '12px', color: '#555', marginTop: '4px' }}>
-                <div>{displayName1} → {displayName2}: {result.bearing.toFixed(1)}° ({getCompassDirection(result.bearing)})</div>
-                <div>{displayName2} → {displayName1}: {result.reverseBearing.toFixed(1)}° ({getCompassDirection(result.reverseBearing)})</div>
+                <div>
+                  {displayName1} → {displayName2}: {result.bearing.toFixed(1)}° ({getCompassDirection(result.bearing)})
+                  {result.elevationAngle !== undefined && `, ${result.elevationAngle > 0 ? '+' : ''}${result.elevationAngle.toFixed(2)}° elev`}
+                </div>
+                <div>
+                  {displayName2} → {displayName1}: {result.reverseBearing.toFixed(1)}° ({getCompassDirection(result.reverseBearing)})
+                  {result.reverseElevationAngle !== undefined && `, ${result.reverseElevationAngle > 0 ? '+' : ''}${result.reverseElevationAngle.toFixed(2)}° elev`}
+                </div>
               </div>
             )}
           </div>

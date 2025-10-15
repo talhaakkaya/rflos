@@ -31,6 +31,8 @@ export interface PathResult {
   fspl?: number; // Free Space Path Loss in dB
   bearing?: number; // Forward bearing/azimuth in degrees (0-360)
   reverseBearing?: number; // Reverse bearing in degrees (0-360)
+  elevationAngle?: number; // Elevation angle from point1 to point2 (degrees, + is up, - is down)
+  reverseElevationAngle?: number; // Elevation angle from point2 to point1 (degrees)
 }
 
 export interface SegmentDistance {
