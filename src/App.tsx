@@ -43,7 +43,7 @@ function App() {
   const [result, setResult] = useState<PathResult | null>(null);
   const [segmentDistances, setSegmentDistances] = useState<SegmentDistance[]>([]);
   const [hideLabels, setHideLabels] = useState<boolean>(false);
-  const [hideLines, setHideLines] = useState<boolean>(false);
+  const [hideLines, setHideLines] = useState<boolean>(true);
   const [isAddingPoint, setIsAddingPoint] = useState<boolean>(false);
   const [hoveredPathIndex, setHoveredPathIndex] = useState<number | null>(null);
   const [frequency, setFrequency] = useState<number>(145.5); // MHz - default to 2m band
