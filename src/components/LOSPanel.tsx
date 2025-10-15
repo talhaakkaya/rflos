@@ -292,25 +292,34 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
         {result.bearing !== undefined && result.reverseBearing !== undefined && (
           <div className="los-detail" style={{ marginTop: '12px' }}>
             <strong>Antenna Bearing:</strong>
-            <div style={{ display: 'flex', gap: '16px', marginTop: '8px', flexWrap: 'wrap' }}>
-              {/* Forward bearing */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                <CompassSVG bearing={result.bearing} size={70} />
-                <div style={{ fontSize: '11px', color: '#555', textAlign: 'center' }}>
-                  <div style={{ fontWeight: 'bold' }}>{displayName1} → {displayName2}</div>
-                  <div>{result.bearing.toFixed(1)}° ({getCompassDirection(result.bearing)})</div>
+            {isExpanded ? (
+              // Expanded view: Show compasses
+              <div style={{ display: 'flex', gap: '16px', marginTop: '8px', flexWrap: 'wrap' }}>
+                {/* Forward bearing */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                  <CompassSVG bearing={result.bearing} size={70} />
+                  <div style={{ fontSize: '11px', color: '#555', textAlign: 'center' }}>
+                    <div style={{ fontWeight: 'bold' }}>{displayName1} → {displayName2}</div>
+                    <div>{result.bearing.toFixed(1)}° ({getCompassDirection(result.bearing)})</div>
+                  </div>
                 </div>
-              </div>
 
-              {/* Reverse bearing */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                <CompassSVG bearing={result.reverseBearing} size={70} />
-                <div style={{ fontSize: '11px', color: '#555', textAlign: 'center' }}>
-                  <div style={{ fontWeight: 'bold' }}>{displayName2} → {displayName1}</div>
-                  <div>{result.reverseBearing.toFixed(1)}° ({getCompassDirection(result.reverseBearing)})</div>
+                {/* Reverse bearing */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                  <CompassSVG bearing={result.reverseBearing} size={70} />
+                  <div style={{ fontSize: '11px', color: '#555', textAlign: 'center' }}>
+                    <div style={{ fontWeight: 'bold' }}>{displayName2} → {displayName1}</div>
+                    <div>{result.reverseBearing.toFixed(1)}° ({getCompassDirection(result.reverseBearing)})</div>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              // Collapsed view: Text only
+              <div style={{ marginLeft: '8px', fontSize: '12px', color: '#555', marginTop: '4px' }}>
+                <div>{displayName1} → {displayName2}: {result.bearing.toFixed(1)}° ({getCompassDirection(result.bearing)})</div>
+                <div>{displayName2} → {displayName1}: {result.reverseBearing.toFixed(1)}° ({getCompassDirection(result.reverseBearing)})</div>
+              </div>
+            )}
           </div>
         )}
 
