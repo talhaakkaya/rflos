@@ -17,8 +17,6 @@ interface ControlPanelProps {
   onToggleLines: () => void;
   isAddingPoint: boolean;
   onCancelAddPoint: () => void;
-  frequency: number;
-  onFrequencyChange: (freq: number) => void;
 }
 
 export default function ControlPanel({
@@ -34,9 +32,7 @@ export default function ControlPanel({
   hideLines,
   onToggleLines,
   isAddingPoint,
-  onCancelAddPoint,
-  frequency,
-  onFrequencyChange
+  onCancelAddPoint
 }: ControlPanelProps) {
   const { position, isDragging, handleMouseDown } = useDraggable({ x: 50, y: 20 });
   const [showImportDialog, setShowImportDialog] = useState(false);
@@ -102,28 +98,6 @@ export default function ControlPanel({
           >
             ✕
           </button>
-        </div>
-      </div>
-
-      {/* RF Frequency Selection */}
-      <div className="rf-section">
-        <h3>RF Analysis</h3>
-        <div className="frequency-selector">
-          <label>Frequency Band:</label>
-          <div style={{ display: 'flex', gap: '8px', marginTop: '5px' }}>
-            <button
-              className={`btn-freq ${frequency === 145 ? 'active' : ''}`}
-              onClick={() => onFrequencyChange(145)}
-            >
-              2m (145 MHz)
-            </button>
-            <button
-              className={`btn-freq ${frequency === 433 ? 'active' : ''}`}
-              onClick={() => onFrequencyChange(433)}
-            >
-              70cm (433 MHz)
-            </button>
-          </div>
         </div>
       </div>
 

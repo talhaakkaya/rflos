@@ -45,7 +45,7 @@ function App() {
   const [hideLines, setHideLines] = useState<boolean>(false);
   const [isAddingPoint, setIsAddingPoint] = useState<boolean>(false);
   const [hoveredPathIndex, setHoveredPathIndex] = useState<number | null>(null);
-  const [frequency, setFrequency] = useState<number>(145); // MHz - default to 2m band
+  const [frequency, setFrequency] = useState<number>(145.5); // MHz - default to 2m band
   const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
   const [resetZoomTrigger, setResetZoomTrigger] = useState<number>(0);
 
@@ -394,8 +394,6 @@ function App() {
           onToggleLines={() => setHideLines(!hideLines)}
           isAddingPoint={isAddingPoint}
           onCancelAddPoint={handleCancelAddPoint}
-          frequency={frequency}
-          onFrequencyChange={setFrequency}
         />
       ) : (
         <button
@@ -417,6 +415,8 @@ function App() {
         onReverseCalculation={handleReverseCalculation}
         currentName1={points.find(p => p.id === (selectedLine?.fromId || losFromId))?.name}
         currentName2={points.find(p => p.id === (selectedLine?.toId || losToId))?.name}
+        frequency={frequency}
+        onFrequencyChange={setFrequency}
       />
 
       <HelpModal

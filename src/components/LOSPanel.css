@@ -208,3 +208,13 @@
   background: #ffe0b2;
   border-color: #f57c00;
 }
+
+.freq-input::-webkit-inner-spin-button,
+.freq-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.freq-input {
+  -moz-appearance: textfield;
+}

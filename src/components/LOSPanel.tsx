@@ -12,9 +12,11 @@ interface LOSPanelProps {
   onReverseCalculation?: () => void;
   currentName1?: string;
   currentName2?: string;
+  frequency: number;
+  onFrequencyChange: (freq: number) => void;
 }
 
-export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalculation, currentName1, currentName2 }: LOSPanelProps) {
+export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalculation, currentName1, currentName2, frequency, onFrequencyChange }: LOSPanelProps) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const onHoverPointRef = useRef(onHoverPoint);
@@ -165,7 +167,7 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
 
   if (!result) return null;
 
-  const { distance, elevations, los, height1, height2, name1, name2, frequency, fspl, fresnelZone } = result;
+  const { distance, elevations, los, height1, height2, name1, name2, fspl, fresnelZone } = result;
 
   // Use current names if provided, otherwise fall back to result names
   const displayName1 = currentName1 || name1;
@@ -256,11 +258,69 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
           </div>
         )}
 
+        {/* Frequency Selection */}
+        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #ddd' }}>
+          <div className="los-detail" style={{ marginBottom: '6px' }}>
+            <strong>Frequency:</strong>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button
+              className={`btn-freq ${frequency >= 144 && frequency <= 148 ? 'active' : ''}`}
+              onClick={() => onFrequencyChange(145.5)}
+              style={{ fontSize: '12px', padding: '4px 8px' }}
+            >
+              2m
+            </button>
+            <button
+              className={`btn-freq ${frequency >= 420 && frequency <= 450 ? 'active' : ''}`}
+              onClick={() => onFrequencyChange(433.5)}
+              style={{ fontSize: '12px', padding: '4px 8px' }}
+            >
+              70cm
+            </button>
+            <input
+              type="number"
+              value={frequency}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val)) {
+                  onFrequencyChange(val);
+                }
+              }}
+              onBlur={(e) => {
+                const val = parseFloat(e.target.value);
+                // Validate on blur and reset to default if invalid
+                if (isNaN(val) || val < 30 || val > 3000) {
+                  onFrequencyChange(145.5);
+                }
+              }}
+              step="0.0125"
+              min="30"
+              max="3000"
+              className="freq-input"
+              style={{
+                width: '100px',
+                padding: '4px 8px',
+                border: '2px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '13px',
+                backgroundColor: '#ffffff',
+                color: '#333',
+                fontFamily: "'Courier New', monospace"
+              }}
+            />
+            <span style={{ fontSize: '12px', color: '#666' }}>MHz</span>
+          </div>
+          <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>
+            VHF: 30-300 MHz | UHF: 300-3000 MHz
+          </div>
+        </div>
+
         {/* RF Analysis Section */}
-        {frequency && fspl && (
+        {result.frequency && fspl && (
           <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #ddd' }}>
             <div className="los-detail" style={{ color: '#2277ee', fontWeight: 'bold', marginBottom: '6px' }}>
-              RF Analysis ({frequency} MHz)
+              RF Analysis ({result.frequency} MHz)
             </div>
             <div className="los-detail">
               <strong>Free Space Path Loss:</strong> {fspl.toFixed(2)} dB
@@ -287,7 +347,7 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
               </>
             )}
             <div className="los-detail" style={{ fontSize: '11px', color: '#666', marginTop: '6px' }}>
-              {frequency === 145 ? '2m band (VHF)' : '70cm band (UHF)'}
+              {result.frequency >= 30 && result.frequency < 300 ? 'VHF' : result.frequency >= 300 && result.frequency <= 3000 ? 'UHF' : 'RF'}
             </div>
           </div>
         )}
