@@ -24,14 +24,20 @@ A web-based RF (Radio Frequency) path analysis tool that calculates line of sigh
   - Auto-zoom on initial page load to fit all points
   - Manual zoom reset button (🎯) to reframe all points
   - Zoom stays put when adding/removing points or dragging markers
-- **View Toggles**: Hide/show distance labels and connection lines for cleaner views
-- **URL State Management**: Share links with all points and configurations preserved
+- **View Toggles**:
+  - Hide/show distance labels for cleaner views
+  - Toggle between all lines or only Point A connections (default)
+- **LOS Analysis Indicator**: Low-opacity dashed line shows which path is being analyzed when no line is selected
+- **URL State Management**:
+  - Share links with all points and configurations preserved
+  - UI preferences (panel visibility, line display mode) persisted in URL
 
 ### Line of Sight Analysis
 - **Terrain Profile**: Visual elevation chart showing the path between selected points
 - **Interactive Chart Hover**: Hover over the elevation chart to see exact location markers on the map
 - **Expandable Chart**: Click ⬆/⬇ to expand/collapse chart for detailed analysis
 - **Earth's Curvature Compensation**: Uses 4/3 Earth radius rule for atmospheric refraction (critical for long paths)
+- **Curved Path Visualization**: All lines on the map follow Earth's curvature using 50 interpolated points
 - **Obstruction Detection**: Automatically identifies if terrain blocks the RF path
 - **Detailed Metrics**:
   - Total path distance in kilometers (dynamically displayed on chart)
@@ -40,13 +46,25 @@ A web-based RF (Radio Frequency) path analysis tool that calculates line of sigh
   - Location of first obstruction (if blocked)
   - Maximum obstacle height above line of sight
   - Point names displayed in analysis results
+- **Antenna Aiming Calculations**:
+  - **Azimuth (Bearing)**: Compass heading from each point with cardinal directions (N, NE, E, etc.)
+  - **Elevation Angle**: Vertical takeoff angle for antenna pointing (positive = point up, negative = point down)
+  - **Interactive Compass**: Visual compass rose showing bearing direction (displayed when chart is expanded)
+  - **Bidirectional**: Shows both forward and reverse bearings/elevations
+- **Reverse Path Analysis**: Swap calculation direction with one click to analyze path from opposite perspective
 
 ### RF Propagation Analysis
-- **Frequency Band Selection**: Choose between 2m (144 MHz) and 70cm (432 MHz) amateur radio bands
+- **Frequency Selection**:
+  - Quick buttons for 2m (145.5 MHz) and 70cm (433.5 MHz) amateur radio bands
+  - Custom frequency input supporting 30-3000 MHz (VHF/UHF range)
+  - 12.5 kHz step precision for channel spacing
 - **First Fresnel Zone Visualization**:
   - Shaded blue zone displayed on elevation chart
   - Shows critical RF clearance area around line of sight
   - Maximum radius calculated and displayed
+  - Clearance percentage and status indicator (Excellent/Good/Marginal/Poor/Obstructed)
+  - 60% clearance recommendation highlighted
+  - Minimum clearance point location shown
   - Different zone sizes for different frequencies
 - **Free Space Path Loss (FSPL)**:
   - Automatic calculation in decibels
@@ -140,9 +158,11 @@ npm run lint
    - Heights are added to the terrain elevation
    - Adjust coordinates precisely using the input fields
 
-3. **Select Frequency Band**:
-   - Choose between 2m (144 MHz) or 70cm (432 MHz) in the RF Analysis section
+3. **Select Frequency**:
+   - Quick select: Click 2m or 70cm buttons for common amateur radio bands
+   - Custom frequency: Enter any value from 30-3000 MHz
    - Frequency affects Fresnel zone size and path loss calculations
+   - Updates automatically as you type
 
 4. **Select a Path**:
    - Click any blue line on the map, OR
@@ -153,9 +173,14 @@ npm run lint
 5. **Review Results**:
    - Check the status (CLEAR or BLOCKED)
    - View the elevation profile chart with Earth's curvature and Fresnel zone
-   - See Free Space Path Loss and Fresnel zone radius
+   - See Free Space Path Loss, Fresnel zone radius, and clearance percentage
+   - **Antenna Aiming** section shows:
+     - Azimuth (compass bearing) for both directions with cardinal directions
+     - Elevation angle (vertical pointing angle) for both directions
+     - Interactive compass visualization when chart is expanded
    - Hover over the chart to see precise locations on the map
    - Click ⬆ to expand the chart for detailed analysis
+   - Click ⇅ to reverse calculation direction and see opposite perspective
    - Distance displays dynamically on the chart x-axis
 
 6. **Interactive Chart Analysis**:
@@ -185,20 +210,25 @@ This application uses the free [Open-Elevation API](https://open-elevation.com/)
 src/
 ├── components/
 │   ├── ControlPanel.tsx           # Input controls and point management
-│   ├── LOSPanel.tsx               # Results display and chart
+│   ├── LOSPanel.tsx               # Results display, chart, and antenna aiming
+│   ├── Footer.tsx                 # Author attribution and GitHub link
+│   ├── HelpModal.tsx              # Help documentation modal
+│   ├── LoadingSpinner.tsx         # Loading indicator
 │   └── MapView/                   # Modular map components
-│       ├── MapView.tsx            # Main map container
+│       ├── MapView.tsx            # Main map container with curved lines
 │       ├── MarkerLabel.tsx        # Point name labels
 │       ├── SegmentLabel.tsx       # Distance labels on lines
 │       ├── DraggableMarker.tsx    # Individual draggable markers
-│       └── MapBoundsAdjuster.tsx  # Auto-zoom logic
+│       ├── MapBoundsAdjuster.tsx  # Auto-zoom logic
+│       ├── ZoomResetButton.tsx    # Manual zoom reset control
+│       └── HelpButton.tsx         # Map help button
 ├── hooks/
-│   ├── usePathCalculation.ts     # LOS and curvature calculations
-│   ├── useLOSCalculation.ts      # Reusable LOS calculation hook
-│   ├── useURLState.ts             # URL state management
+│   ├── usePathCalculation.ts     # Distance, bearing, and path generation
+│   ├── useLOSCalculation.ts      # LOS calculation with earth curvature
+│   ├── useURLState.ts             # URL state encoding/decoding
 │   └── useDraggable.ts            # Drag-and-drop behavior hook
 ├── utils/
-│   └── rfCalculations.ts          # RF propagation formulas (FSPL, Fresnel)
+│   └── rfCalculations.ts          # RF formulas (FSPL, Fresnel, clearance)
 ├── types/
 │   └── index.ts                   # Centralized TypeScript interfaces
 ├── App.tsx                        # Main application component
@@ -210,23 +240,47 @@ src/
 The application performs the following calculations:
 
 1. **Distance**: Haversine formula for great circle distance on Earth's surface
+   - Formula: `d = 2R × arcsin(√(sin²(Δφ/2) + cos(φ1)×cos(φ2)×sin²(Δλ/2)))`
+   - R = Earth radius (6371 km), φ = latitude, λ = longitude
+
 2. **Path Sampling**: 50 interpolated points along the great circle path
+   - Used for both elevation profile and curved line visualization on map
+
 3. **Elevation Lookup**: Batch query to Open-Elevation API for all sample points
+
 4. **Line of Sight**: Linear interpolation from start to end point (including antenna heights)
+
 5. **Earth's Curvature**: Applies 4/3 Earth radius correction (8,494.67 km effective radius)
    - Formula: `curvature_offset = (d1 × d2) / (2 × R)`
    - Accounts for atmospheric refraction in RF propagation
    - Critical for paths over ~5km where curvature becomes significant
+   - Visualized on map with curved polylines
+
 6. **Obstruction Check**: Compares terrain elevation vs. curved LOS line at each sample point
-7. **Free Space Path Loss (FSPL)**:
+
+7. **Antenna Bearing (Azimuth)**:
+   - Formula: `θ = atan2(sin(Δλ)×cos(φ2), cos(φ1)×sin(φ2) - sin(φ1)×cos(φ2)×cos(Δλ))`
+   - Converts to 0-360° range and cardinal directions (N, NE, E, etc.)
+   - Calculated bidirectionally for both endpoints
+
+8. **Elevation Angle (Vertical)**:
+   - Formula: `angle = atan2(Δh, d) × 180/π`
+   - Δh = height difference (including antenna heights)
+   - d = horizontal distance in meters
+   - Positive angle = point antenna up, negative = point down
+
+9. **Free Space Path Loss (FSPL)**:
    - Formula: `FSPL(dB) = 20×log₁₀(d_km) + 20×log₁₀(f_MHz) + 32.45`
    - Calculates signal attenuation in free space
    - Used for link budget planning
-8. **First Fresnel Zone**:
-   - Formula: `radius = √((λ × d1 × d2) / (d1 + d2))`
-   - Where λ = wavelength, d1 = distance to point, d2 = distance from point
-   - Calculates clearance zone needed for optimal RF propagation
-   - 60% clearance recommended for reliable communications
+
+10. **First Fresnel Zone**:
+    - Formula: `radius = √((λ × d1 × d2) / (d1 + d2))`
+    - Where λ = wavelength, d1 = distance to point, d2 = distance from point
+    - Calculates clearance zone needed for optimal RF propagation
+    - Clearance percentage = (actual clearance / radius) × 100%
+    - Status thresholds: ≥100% Excellent, ≥60% Good, ≥20% Marginal, ≥0% Poor, <0% Obstructed
+    - 60% clearance (0.6 × radius) recommended for reliable communications
 
 ## Browser Support
 
@@ -241,7 +295,8 @@ The application performs the following calculations:
 - Weather conditions (temperature inversions, ducting) not modeled
 - Path assumes great circle route (not actual terrain-following RF propagation)
 - Knife-edge diffraction not calculated (shows only direct obstruction)
-- Limited to VHF/UHF amateur bands (2m and 70cm currently supported)
+- Frequency range limited to 30-3000 MHz (VHF/UHF bands)
+- Clutter losses (buildings, vegetation) not included in calculations
 
 ## Contributing
 
@@ -256,3 +311,4 @@ This project is open source and available under the GNU License.
 - [Open-Elevation](https://open-elevation.com/) for free elevation data
 - [OpenStreetMap](https://www.openstreetmap.org/) contributors for map tiles
 - [Leaflet](https://leafletjs.com/) for the excellent mapping library
+- Developed by [TA1VAL](https://www.qrz.com/db/TA1VAL)
