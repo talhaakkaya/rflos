@@ -5,6 +5,8 @@ interface AppState {
   losFromId: string;
   losToId: string;
   selectedLine: { fromId: string; toId: string } | null;
+  hideLines?: boolean;
+  isPanelVisible?: boolean;
 }
 
 /**
@@ -23,6 +25,16 @@ export function encodeStateToURL(state: AppState): string {
   // Encode selected line if present
   if (state.selectedLine) {
     params.set('sel', `${state.selectedLine.fromId},${state.selectedLine.toId}`);
+  }
+
+  // Encode hideLines if not default (true)
+  if (state.hideLines !== undefined && state.hideLines !== true) {
+    params.set('hl', state.hideLines ? '1' : '0');
+  }
+
+  // Encode isPanelVisible if not default (true)
+  if (state.isPanelVisible !== undefined && state.isPanelVisible !== true) {
+    params.set('pv', state.isPanelVisible ? '1' : '0');
   }
 
   return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
@@ -68,6 +80,16 @@ export function decodeStateFromURL(): Partial<AppState> | null {
       state.selectedLine = { fromId, toId };
     }
 
+    // Decode hideLines
+    if (params.has('hl')) {
+      state.hideLines = params.get('hl') === '1';
+    }
+
+    // Decode isPanelVisible
+    if (params.has('pv')) {
+      state.isPanelVisible = params.get('pv') === '1';
+    }
+
     console.log('Successfully decoded state from URL:', state);
     return state;
   } catch (error) {
@@ -97,6 +119,16 @@ export function updateURL(state: AppState) {
     // Encode selected line if present
     if (state.selectedLine) {
       params.set('sel', `${state.selectedLine.fromId},${state.selectedLine.toId}`);
+    }
+
+    // Encode hideLines if not default (true)
+    if (state.hideLines !== undefined && state.hideLines !== true) {
+      params.set('hl', state.hideLines ? '1' : '0');
+    }
+
+    // Encode isPanelVisible if not default (true)
+    if (state.isPanelVisible !== undefined && state.isPanelVisible !== true) {
+      params.set('pv', state.isPanelVisible ? '1' : '0');
     }
 
     const queryString = params.toString();

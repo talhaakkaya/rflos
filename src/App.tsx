@@ -26,7 +26,9 @@ function App() {
       points: urlState?.points || defaultPoints,
       losFromId: urlState?.losFromId || '1',
       losToId: urlState?.losToId || '2',
-      selectedLine: urlState?.selectedLine || null
+      selectedLine: urlState?.selectedLine || null,
+      hideLines: urlState?.hideLines !== undefined ? urlState.hideLines : true,
+      isPanelVisible: urlState?.isPanelVisible !== undefined ? urlState.isPanelVisible : true
     };
   };
 
@@ -37,13 +39,13 @@ function App() {
   const [losFromId, setLosFromId] = useState<string>(initial.losFromId);
   const [losToId, setLosToId] = useState<string>(initial.losToId);
   const [selectedLine, setSelectedLine] = useState<{ fromId: string; toId: string } | null>(initial.selectedLine);
-  const [isPanelVisible, setIsPanelVisible] = useState<boolean>(true);
+  const [hideLines, setHideLines] = useState<boolean>(initial.hideLines);
+  const [isPanelVisible, setIsPanelVisible] = useState<boolean>(initial.isPanelVisible);
 
   // Temporary state (not saved)
   const [result, setResult] = useState<PathResult | null>(null);
   const [segmentDistances, setSegmentDistances] = useState<SegmentDistance[]>([]);
   const [hideLabels, setHideLabels] = useState<boolean>(false);
-  const [hideLines, setHideLines] = useState<boolean>(true);
   const [isAddingPoint, setIsAddingPoint] = useState<boolean>(false);
   const [hoveredPathIndex, setHoveredPathIndex] = useState<number | null>(null);
   const [frequency, setFrequency] = useState<number>(145.5); // MHz - default to 2m band
@@ -81,12 +83,12 @@ function App() {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       // Set URL to initial state on first render
-      updateURL({ points, losFromId, losToId, selectedLine });
+      updateURL({ points, losFromId, losToId, selectedLine, hideLines, isPanelVisible });
       return;
     }
-    console.log('App state changed - updating URL:', { points, losFromId, losToId, selectedLine });
-    updateURL({ points, losFromId, losToId, selectedLine });
-  }, [points, losFromId, losToId, selectedLine]);
+    console.log('App state changed - updating URL:', { points, losFromId, losToId, selectedLine, hideLines, isPanelVisible });
+    updateURL({ points, losFromId, losToId, selectedLine, hideLines, isPanelVisible });
+  }, [points, losFromId, losToId, selectedLine, hideLines, isPanelVisible]);
 
   // Auto-calculate LOS on mount with saved losFromId and losToId
   useEffect(() => {
