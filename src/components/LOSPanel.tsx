@@ -195,6 +195,50 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
     return directions[index];
   };
 
+  // Compass SVG component
+  const CompassSVG = ({ bearing, size = 60 }: { bearing: number; size?: number }) => {
+    return (
+      <svg width={size} height={size} viewBox="0 0 100 100" style={{ display: 'inline-block' }}>
+        {/* Outer circle */}
+        <circle cx="50" cy="50" r="48" fill="#f8f9fa" stroke="#333" strokeWidth="2" />
+
+        {/* Cardinal marks */}
+        <line x1="50" y1="5" x2="50" y2="15" stroke="#333" strokeWidth="2" />
+        <text x="50" y="20" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#dc3545">N</text>
+
+        <line x1="95" y1="50" x2="85" y2="50" stroke="#333" strokeWidth="1.5" />
+        <text x="80" y="54" textAnchor="middle" fontSize="10" fill="#666">E</text>
+
+        <line x1="50" y1="95" x2="50" y2="85" stroke="#333" strokeWidth="1.5" />
+        <text x="50" y="92" textAnchor="middle" fontSize="10" fill="#666">S</text>
+
+        <line x1="5" y1="50" x2="15" y2="50" stroke="#333" strokeWidth="1.5" />
+        <text x="20" y="54" textAnchor="middle" fontSize="10" fill="#666">W</text>
+
+        {/* Degree marks every 45° */}
+        {[45, 135, 225, 315].map(angle => {
+          const rad = (angle - 90) * Math.PI / 180;
+          const x1 = 50 + 42 * Math.cos(rad);
+          const y1 = 50 + 42 * Math.sin(rad);
+          const x2 = 50 + 48 * Math.cos(rad);
+          const y2 = 50 + 48 * Math.sin(rad);
+          return <line key={angle} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#999" strokeWidth="1" />;
+        })}
+
+        {/* Needle pointing to bearing */}
+        <g transform={`rotate(${bearing} 50 50)`}>
+          {/* Red arrow pointing to bearing direction */}
+          <polygon points="50,15 46,50 50,45 54,50" fill="#dc3545" stroke="#000" strokeWidth="1" />
+          {/* Gray tail */}
+          <polygon points="50,55 46,50 54,50" fill="#999" />
+        </g>
+
+        {/* Center dot */}
+        <circle cx="50" cy="50" r="3" fill="#333" />
+      </svg>
+    );
+  };
+
   return (
     <div className={`los-panel ${isExpanded ? 'panel-expanded' : ''}`}>
       <div className="los-header">
@@ -246,11 +290,26 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
 
         {/* Bearing/Azimuth */}
         {result.bearing !== undefined && result.reverseBearing !== undefined && (
-          <div className="los-detail" style={{ marginTop: '8px' }}>
+          <div className="los-detail" style={{ marginTop: '12px' }}>
             <strong>Antenna Bearing:</strong>
-            <div style={{ marginLeft: '8px', fontSize: '12px', color: '#555' }}>
-              <div>{displayName1} → {displayName2}: {result.bearing.toFixed(1)}° ({getCompassDirection(result.bearing)})</div>
-              <div>{displayName2} → {displayName1}: {result.reverseBearing.toFixed(1)}° ({getCompassDirection(result.reverseBearing)})</div>
+            <div style={{ display: 'flex', gap: '16px', marginTop: '8px', flexWrap: 'wrap' }}>
+              {/* Forward bearing */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <CompassSVG bearing={result.bearing} size={70} />
+                <div style={{ fontSize: '11px', color: '#555', textAlign: 'center' }}>
+                  <div style={{ fontWeight: 'bold' }}>{displayName1} → {displayName2}</div>
+                  <div>{result.bearing.toFixed(1)}° ({getCompassDirection(result.bearing)})</div>
+                </div>
+              </div>
+
+              {/* Reverse bearing */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <CompassSVG bearing={result.reverseBearing} size={70} />
+                <div style={{ fontSize: '11px', color: '#555', textAlign: 'center' }}>
+                  <div style={{ fontWeight: 'bold' }}>{displayName2} → {displayName1}</div>
+                  <div>{result.reverseBearing.toFixed(1)}° ({getCompassDirection(result.reverseBearing)})</div>
+                </div>
+              </div>
             </div>
           </div>
         )}
