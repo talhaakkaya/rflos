@@ -29,6 +29,8 @@ export interface PathResult {
     minClearanceMeters: number; // Minimum clearance in meters (actual vertical space)
   };
   fspl?: number; // Free Space Path Loss in dB
+  bearing?: number; // Forward bearing/azimuth in degrees (0-360)
+  reverseBearing?: number; // Reverse bearing in degrees (0-360)
 }
 
 export interface SegmentDistance {

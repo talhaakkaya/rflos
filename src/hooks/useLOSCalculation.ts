@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { calculateDistance, generatePathPoints, fetchElevationData, calculateLineOfSight } from './usePathCalculation';
+import { calculateDistance, generatePathPoints, fetchElevationData, calculateLineOfSight, calculateBearing } from './usePathCalculation';
 import { calculateFSPL, calculateFresnelZone } from '../utils/rfCalculations';
 import type { Point, PathResult } from '../types';
 
@@ -101,6 +101,20 @@ export function useLOSCalculation(points: Point[]) {
         );
       }
 
+      // Calculate bearing/azimuth
+      const bearing = calculateBearing(
+        fromPoint.lat,
+        fromPoint.lon,
+        toPoint.lat,
+        toPoint.lon
+      );
+      const reverseBearing = calculateBearing(
+        toPoint.lat,
+        toPoint.lon,
+        fromPoint.lat,
+        fromPoint.lon
+      );
+
       const result: PathResult = {
         distance,
         elevations,
@@ -113,7 +127,9 @@ export function useLOSCalculation(points: Point[]) {
         pathPoints,
         frequency,
         fspl,
-        fresnelZone
+        fresnelZone,
+        bearing,
+        reverseBearing
       };
 
       onSuccess(result);

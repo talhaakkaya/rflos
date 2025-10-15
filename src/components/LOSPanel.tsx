@@ -188,6 +188,13 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
     }
   };
 
+  // Helper function to convert bearing to compass direction
+  const getCompassDirection = (bearing: number): string => {
+    const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+    const index = Math.round(bearing / 22.5) % 16;
+    return directions[index];
+  };
+
   return (
     <div className={`los-panel ${isExpanded ? 'panel-expanded' : ''}`}>
       <div className="los-header">
@@ -236,6 +243,17 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
         <div className="los-detail">
           <strong>Distance:</strong> {distance.toFixed(2)} km
         </div>
+
+        {/* Bearing/Azimuth */}
+        {result.bearing !== undefined && result.reverseBearing !== undefined && (
+          <div className="los-detail" style={{ marginTop: '8px' }}>
+            <strong>Antenna Bearing:</strong>
+            <div style={{ marginLeft: '8px', fontSize: '12px', color: '#555' }}>
+              <div>{displayName1} → {displayName2}: {result.bearing.toFixed(1)}° ({getCompassDirection(result.bearing)})</div>
+              <div>{displayName2} → {displayName1}: {result.reverseBearing.toFixed(1)}° ({getCompassDirection(result.reverseBearing)})</div>
+            </div>
+          </div>
+        )}
 
         {los.isBlocked ? (
           <>
