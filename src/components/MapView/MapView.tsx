@@ -9,6 +9,7 @@ import MapBoundsAdjuster from './MapBoundsAdjuster';
 import DraggableMarker from './DraggableMarker';
 import ZoomResetButton from './ZoomResetButton';
 import HelpButton from './HelpButton';
+import { generatePathPoints } from '../../hooks/usePathCalculation';
 
 // Component to handle map click events
 function MapClickHandler({ isAddingPoint, onMapClick }: { isAddingPoint: boolean; onMapClick: (lat: number, lng: number) => void }) {
@@ -105,7 +106,7 @@ export default function MapView({
 
         <MapClickHandler isAddingPoint={isAddingPoint} onMapClick={onMapClick} />
 
-        {/* Lines connecting all pairs of points */}
+        {/* Lines connecting all pairs of points - all curved */}
         {points.map((point1, i) =>
           points.slice(i + 1).map((point2) => {
             // When hideLines is true, only show lines from Point A (index 0) to others
@@ -117,10 +118,13 @@ export default function MapView({
               ((selectedLine.fromId === point1.id && selectedLine.toId === point2.id) ||
                (selectedLine.fromId === point2.id && selectedLine.toId === point1.id));
 
+            // Generate curved path for this segment
+            const segmentPath = generatePathPoints(point1.lat, point1.lon, point2.lat, point2.lon, 50);
+
             return (
               <Polyline
                 key={`line-${point1.id}-${point2.id}`}
-                positions={[[point1.lat, point1.lon], [point2.lat, point2.lon]]}
+                positions={segmentPath.map(p => [p.lat, p.lon])}
                 pathOptions={{
                   color: isSelected ? '#ff0000' : '#3388ff',
                   weight: isSelected ? 5 : 3,
@@ -138,37 +142,15 @@ export default function MapView({
           })
         )}
 
-        {/* Highlight LOS analysis line if active */}
-        {losFromId && losToId && (
-          (() => {
-            const fromPoint = points.find(p => p.id === losFromId);
-            const toPoint = points.find(p => p.id === losToId);
-            if (fromPoint && toPoint) {
-              return (
-                <Polyline
-                  positions={[[fromPoint.lat, fromPoint.lon], [toPoint.lat, toPoint.lon]]}
-                  pathOptions={{
-                    color: '#ff6b6b',
-                    weight: 4,
-                    opacity: 0.8,
-                    dashArray: '10, 10'
-                  }}
-                />
-              );
-            }
-            return null;
-          })()
-        )}
-
-        {/* Show the actual sampling path when analysis is active */}
-        {pathPoints && pathPoints.length > 0 && (
+        {/* Low-opacity indicator for LOS analysis when no line is selected */}
+        {!selectedLine && losFromId && losToId && pathPoints && pathPoints.length > 0 && (
           <Polyline
             positions={pathPoints.map(p => [p.lat, p.lon])}
             pathOptions={{
-              color: '#888',
-              weight: 2,
-              opacity: 0.5,
-              dashArray: '5, 5'
+              color: '#ff6b6b',
+              weight: 3,
+              opacity: 0.9,
+              dashArray: '10, 10'
             }}
           />
         )}
