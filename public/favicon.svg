@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Base -->
+  <rect x="26" y="54" width="12" height="6" fill="#e74c3c" rx="1"/>
+
+  <!-- Tower body -->
+  <path d="M32 10 L28 54 L36 54 Z" fill="#e74c3c"/>
+
+  <!-- Antenna top -->
+  <rect x="30.5" y="4" width="3" height="8" fill="#c0392b" rx="1"/>
+  <circle cx="32" cy="3" r="2" fill="#c0392b"/>
+
+  <!-- Signal waves (left) -->
+  <path d="M20 20 Q15 25 20 30" stroke="#3498db" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M16 18 Q10 25 16 32" stroke="#3498db" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Signal waves (right) -->
+  <path d="M44 20 Q49 25 44 30" stroke="#3498db" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M48 18 Q54 25 48 32" stroke="#3498db" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Cross beams -->
+  <line x1="28" y1="20" x2="36" y2="20" stroke="#c0392b" stroke-width="1.5"/>
+  <line x1="27.5" y1="35" x2="36.5" y2="35" stroke="#c0392b" stroke-width="1.5"/>
+</svg>
