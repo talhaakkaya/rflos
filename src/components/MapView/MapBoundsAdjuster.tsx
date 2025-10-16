@@ -27,7 +27,8 @@ export default function MapBoundsAdjuster({ points, resetTrigger }: MapBoundsAdj
       const bounds = L.latLngBounds(points.map(p => [p.lat, p.lon]));
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
     }
-  }, [resetTrigger, points, map]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetTrigger, map]);
 
   return null;
 }
