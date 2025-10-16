@@ -22,14 +22,29 @@ function App() {
   const initialState = () => {
     const urlState = decodeStateFromURL();
     console.log('Initializing state from URL:', urlState);
+
+    // If no URL state at all, use full defaults
+    if (!urlState) {
+      return {
+        points: defaultPoints,
+        losFromId: '1',
+        losToId: '2',
+        selectedLine: { fromId: '1', toId: '2' },
+        hideLines: false,
+        isPanelVisible: true,
+        isLOSPanelOpen: true
+      };
+    }
+
+    // URL state exists, use it (respecting null values)
     return {
-      points: urlState?.points || defaultPoints,
-      losFromId: urlState?.losFromId || '1',
-      losToId: urlState?.losToId || '2',
-      selectedLine: urlState?.selectedLine || { fromId: '1', toId: '2' },
-      hideLines: urlState?.hideLines !== undefined ? urlState.hideLines : false,
-      isPanelVisible: urlState?.isPanelVisible !== undefined ? urlState.isPanelVisible : true,
-      isLOSPanelOpen: urlState?.isLOSPanelOpen !== undefined ? urlState.isLOSPanelOpen : true
+      points: urlState.points || defaultPoints,
+      losFromId: urlState.losFromId || '1',
+      losToId: urlState.losToId || '2',
+      selectedLine: urlState.selectedLine ?? null,
+      hideLines: urlState.hideLines || false,
+      isPanelVisible: urlState.isPanelVisible ?? true,
+      isLOSPanelOpen: urlState.isLOSPanelOpen ?? true
     };
   };
 
