@@ -34,17 +34,15 @@ L.Icon.Default.mergeOptions({
 interface MapViewProps {
   points: Point[];
   onPointDrag: (id: string, lat: number, lng: number) => void;
+  onMarkerClick: (id: string) => void;
   onLineClick: (fromId: string, toId: string) => void;
   onMapClick: (lat: number, lng: number) => void;
   selectedLine: { fromId: string; toId: string } | null;
   segmentDistances: { fromId: string; toId: string; distance: number }[];
-  losFromId?: string;
-  losToId?: string;
   hideLabels: boolean;
   hideLines: boolean;
   isAddingPoint: boolean;
   hoveredPathPoint: { lat: number; lon: number } | null;
-  pathPoints: { lat: number; lon: number }[] | null;
   onHelpClick: () => void;
   resetZoomTrigger?: number;
 }
@@ -52,17 +50,15 @@ interface MapViewProps {
 export default function MapView({
   points,
   onPointDrag,
+  onMarkerClick,
   onLineClick,
   onMapClick,
   selectedLine,
   segmentDistances,
-  losFromId,
-  losToId,
   hideLabels,
   hideLines,
   isAddingPoint,
   hoveredPathPoint,
-  pathPoints,
   onHelpClick,
   resetZoomTrigger
 }: MapViewProps) {
@@ -142,19 +138,6 @@ export default function MapView({
           })
         )}
 
-        {/* Low-opacity indicator for LOS analysis when no line is selected */}
-        {!selectedLine && losFromId && losToId && pathPoints && pathPoints.length > 0 && (
-          <Polyline
-            positions={pathPoints.map(p => [p.lat, p.lon])}
-            pathOptions={{
-              color: '#ff6b6b',
-              weight: 3,
-              opacity: 0.9,
-              dashArray: '10, 10'
-            }}
-          />
-        )}
-
         {/* Render all markers */}
         {points.map((point, index) => {
           // Check if this marker is part of the selected line
@@ -170,6 +153,7 @@ export default function MapView({
               point={point}
               useRedIcon={useRedIcon}
               onDragEnd={onPointDrag}
+              onClick={onMarkerClick}
             />
           );
         })}
@@ -190,6 +174,7 @@ export default function MapView({
               lon={point.lon}
               name={point.name}
               color={useRedColor ? 'red' : 'blue'}
+              onClick={() => onMarkerClick(point.id)}
             />
           );
         })}

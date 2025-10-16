@@ -7,9 +7,10 @@ interface MarkerLabelProps {
   lon: number;
   name: string;
   color: 'red' | 'blue';
+  onClick: () => void;
 }
 
-export default function MarkerLabel({ lat, lon, name, color }: MarkerLabelProps) {
+export default function MarkerLabel({ lat, lon, name, color, onClick }: MarkerLabelProps) {
   const map = useMap();
 
   useEffect(() => {
@@ -18,10 +19,15 @@ export default function MarkerLabel({ lat, lon, name, color }: MarkerLabelProps)
     const nameMarker = L.marker([lat, lon], {
       icon: L.divIcon({
         className: 'marker-name-label',
-        html: `<div class="marker-name marker-name-${color}">${name}</div>`,
+        html: `<div class="marker-name marker-name-${color}" style="cursor: pointer;">${name}</div>`,
         iconSize: [80, 20],
         iconAnchor: [40, 70]
       })
+    });
+
+    // Add click handler
+    nameMarker.on('click', () => {
+      onClick();
     });
 
     nameMarker.addTo(map);
@@ -29,7 +35,7 @@ export default function MarkerLabel({ lat, lon, name, color }: MarkerLabelProps)
     return () => {
       map.removeLayer(nameMarker);
     };
-  }, [map, lat, lon, name, color]);
+  }, [map, lat, lon, name, color, onClick]);
 
   return null;
 }

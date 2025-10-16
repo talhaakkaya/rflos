@@ -22,17 +22,44 @@ interface DraggableMarkerProps {
   point: Point;
   useRedIcon: boolean;
   onDragEnd: (id: string, lat: number, lng: number) => void;
+  onClick: (id: string) => void;
 }
 
-export default function DraggableMarker({ point, useRedIcon, onDragEnd }: DraggableMarkerProps) {
+export default function DraggableMarker({ point, useRedIcon, onDragEnd, onClick }: DraggableMarkerProps) {
   const markerRef = useRef<L.Marker>(null);
+  const dragStartPos = useRef<{ lat: number; lng: number } | null>(null);
 
   const eventHandlers = {
+    dragstart() {
+      // Store initial position to detect if marker was actually dragged
+      const marker = markerRef.current;
+      if (marker != null) {
+        const { lat, lng } = marker.getLatLng();
+        dragStartPos.current = { lat, lng };
+      }
+    },
     dragend() {
       const marker = markerRef.current;
       if (marker != null) {
         const { lat, lng } = marker.getLatLng();
         onDragEnd(point.id, lat, lng);
+      }
+    },
+    click() {
+      // Only trigger onClick if marker wasn't dragged
+      const marker = markerRef.current;
+      if (marker != null && dragStartPos.current) {
+        const { lat, lng } = marker.getLatLng();
+        const wasDragged =
+          Math.abs(lat - dragStartPos.current.lat) > 0.0001 ||
+          Math.abs(lng - dragStartPos.current.lng) > 0.0001;
+
+        if (!wasDragged) {
+          onClick(point.id);
+        }
+      } else {
+        // No drag started, it's a simple click
+        onClick(point.id);
       }
     },
   };

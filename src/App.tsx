@@ -28,7 +28,8 @@ function App() {
       losToId: urlState?.losToId || '2',
       selectedLine: urlState?.selectedLine || null,
       hideLines: urlState?.hideLines !== undefined ? urlState.hideLines : false,
-      isPanelVisible: urlState?.isPanelVisible !== undefined ? urlState.isPanelVisible : true
+      isPanelVisible: urlState?.isPanelVisible !== undefined ? urlState.isPanelVisible : true,
+      isLOSPanelOpen: urlState?.isLOSPanelOpen !== undefined ? urlState.isLOSPanelOpen : true
     };
   };
 
@@ -41,6 +42,7 @@ function App() {
   const [selectedLine, setSelectedLine] = useState<{ fromId: string; toId: string } | null>(initial.selectedLine);
   const [hideLines, setHideLines] = useState<boolean>(initial.hideLines);
   const [isPanelVisible, setIsPanelVisible] = useState<boolean>(initial.isPanelVisible);
+  const [isLOSPanelOpen, setIsLOSPanelOpen] = useState<boolean>(initial.isLOSPanelOpen);
 
   // Temporary state (not saved)
   const [result, setResult] = useState<PathResult | null>(null);
@@ -83,16 +85,16 @@ function App() {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       // Set URL to initial state on first render
-      updateURL({ points, losFromId, losToId, selectedLine, hideLines, isPanelVisible });
+      updateURL({ points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen });
       return;
     }
-    console.log('App state changed - updating URL:', { points, losFromId, losToId, selectedLine, hideLines, isPanelVisible });
-    updateURL({ points, losFromId, losToId, selectedLine, hideLines, isPanelVisible });
-  }, [points, losFromId, losToId, selectedLine, hideLines, isPanelVisible]);
+    console.log('App state changed - updating URL:', { points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen });
+    updateURL({ points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen });
+  }, [points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen]);
 
-  // Auto-calculate LOS on mount with saved losFromId and losToId
+  // Auto-calculate LOS on mount with saved losFromId and losToId (only if panel should be open)
   useEffect(() => {
-    if (!hasCalculatedOnMount.current && losFromId && losToId) {
+    if (!hasCalculatedOnMount.current && isLOSPanelOpen && losFromId && losToId) {
       hasCalculatedOnMount.current = true;
 
       // Trigger calculation for the saved points
@@ -108,7 +110,7 @@ function App() {
         frequency
       );
     }
-  }, [losFromId, losToId, calculateLOS]);
+  }, [losFromId, losToId, calculateLOS, isLOSPanelOpen]);
 
   // Auto-calculate segment distances when points coordinates change
   useEffect(() => {
@@ -183,6 +185,49 @@ function App() {
     // Don't clear result/selectedLine - let auto-recalculate handle it
   };
 
+  const handleMarkerClick = (id: string) => {
+    // If clicking the first point, do nothing (it's already the "from" point)
+    if (points[0].id === id) {
+      return;
+    }
+
+    // Find the clicked point
+    const clickedPoint = points.find(p => p.id === id);
+    if (!clickedPoint) {
+      return;
+    }
+
+    // Reorder: move clicked point to the front
+    const reorderedPoints = [
+      clickedPoint,
+      ...points.filter(p => p.id !== id)
+    ];
+
+    setPoints(reorderedPoints);
+
+    // Update LOS IDs to use the new first point
+    setLosFromId(clickedPoint.id);
+    setLosToId(reorderedPoints[1].id);
+
+    // Only recalculate if LOS panel is already open
+    if (isLOSPanelOpen && (result || selectedLine)) {
+      setSelectedLine({ fromId: clickedPoint.id, toId: reorderedPoints[1].id });
+
+      // Trigger new calculation
+      calculateLOS(
+        clickedPoint.id,
+        reorderedPoints[1].id,
+        (result) => {
+          setResult(result);
+        },
+        (error) => {
+          console.error('Marker click calculation failed:', error);
+        },
+        frequency
+      );
+    }
+  };
+
   const handleLineClick = async (fromId: string, toId: string) => {
     // Check if clicking the already selected line - deselect it
     const isAlreadySelected = selectedLine &&
@@ -193,6 +238,7 @@ function App() {
       // Deselect: clear selection and results
       setSelectedLine(null);
       setResult(null);
+      setIsLOSPanelOpen(false);
       return;
     }
 
@@ -203,6 +249,7 @@ function App() {
     setSelectedLine({ fromId, toId });
     setLosFromId(fromId);
     setLosToId(toId);
+    setIsLOSPanelOpen(true);
 
     // Automatically calculate LOS for the clicked line
     await calculateLOS(
@@ -307,6 +354,7 @@ function App() {
     setLosFromId('1');
     setLosToId('2');
     setSelectedLine({ fromId: '1', toId: '2' });
+    setIsLOSPanelOpen(true);
     setResult(null);
 
     // Reset zoom trigger
@@ -367,17 +415,15 @@ function App() {
       <MapView
         points={points}
         onPointDrag={handlePointDrag}
+        onMarkerClick={handleMarkerClick}
         onLineClick={handleLineClick}
         onMapClick={handleMapClick}
         selectedLine={selectedLine}
         segmentDistances={segmentDistances}
-        losFromId={result ? losFromId : undefined}
-        losToId={result ? losToId : undefined}
         hideLabels={hideLabels}
         hideLines={hideLines}
         isAddingPoint={isAddingPoint}
         hoveredPathPoint={result && hoveredPathIndex !== null ? result.pathPoints[hoveredPathIndex] : null}
-        pathPoints={result?.pathPoints || null}
         onHelpClick={() => setIsHelpOpen(true)}
         resetZoomTrigger={resetZoomTrigger}
       />
@@ -413,6 +459,7 @@ function App() {
         onClose={() => {
           setSelectedLine(null);
           setResult(null);
+          setIsLOSPanelOpen(false);
         }}
         onHoverPoint={(index) => setHoveredPathIndex(index)}
         onReverseCalculation={handleReverseCalculation}

@@ -7,6 +7,7 @@ interface AppState {
   selectedLine: { fromId: string; toId: string } | null;
   hideLines?: boolean;
   isPanelVisible?: boolean;
+  isLOSPanelOpen?: boolean;
 }
 
 /**
@@ -27,14 +28,19 @@ export function encodeStateToURL(state: AppState): string {
     params.set('sel', `${state.selectedLine.fromId},${state.selectedLine.toId}`);
   }
 
-  // Encode hideLines if not default (true)
-  if (state.hideLines !== undefined && state.hideLines !== true) {
+  // Encode hideLines if not default (false)
+  if (state.hideLines !== undefined && state.hideLines !== false) {
     params.set('hl', state.hideLines ? '1' : '0');
   }
 
   // Encode isPanelVisible if not default (true)
   if (state.isPanelVisible !== undefined && state.isPanelVisible !== true) {
     params.set('pv', state.isPanelVisible ? '1' : '0');
+  }
+
+  // Encode isLOSPanelOpen if not default (true)
+  if (state.isLOSPanelOpen !== undefined && state.isLOSPanelOpen !== true) {
+    params.set('los', state.isLOSPanelOpen ? '1' : '0');
   }
 
   return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
@@ -90,6 +96,11 @@ export function decodeStateFromURL(): Partial<AppState> | null {
       state.isPanelVisible = params.get('pv') === '1';
     }
 
+    // Decode isLOSPanelOpen
+    if (params.has('los')) {
+      state.isLOSPanelOpen = params.get('los') === '1';
+    }
+
     console.log('Successfully decoded state from URL:', state);
     return state;
   } catch (error) {
@@ -121,14 +132,19 @@ export function updateURL(state: AppState) {
       params.set('sel', `${state.selectedLine.fromId},${state.selectedLine.toId}`);
     }
 
-    // Encode hideLines if not default (true)
-    if (state.hideLines !== undefined && state.hideLines !== true) {
+    // Encode hideLines if not default (false)
+    if (state.hideLines !== undefined && state.hideLines !== false) {
       params.set('hl', state.hideLines ? '1' : '0');
     }
 
     // Encode isPanelVisible if not default (true)
     if (state.isPanelVisible !== undefined && state.isPanelVisible !== true) {
       params.set('pv', state.isPanelVisible ? '1' : '0');
+    }
+
+    // Encode isLOSPanelOpen if not default (true)
+    if (state.isLOSPanelOpen !== undefined && state.isLOSPanelOpen !== true) {
+      params.set('los', state.isLOSPanelOpen ? '1' : '0');
     }
 
     const queryString = params.toString();
