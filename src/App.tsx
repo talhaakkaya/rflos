@@ -3,6 +3,7 @@ import ControlPanel from './components/ControlPanel';
 import MapView from './components/MapView/MapView';
 import LOSPanel from './components/LOSPanel';
 import HelpModal from './components/HelpModal';
+import ERPCalculator from './components/ERPCalculator';
 import LoadingSpinner from './components/LoadingSpinner';
 import Footer from './components/Footer';
 import { calculateDistance } from './hooks/usePathCalculation';
@@ -67,6 +68,7 @@ function App() {
   const [hoveredPathIndex, setHoveredPathIndex] = useState<number | null>(null);
   const [frequency, setFrequency] = useState<number>(145.5); // MHz - default to 2m band
   const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
+  const [isERPCalculatorOpen, setIsERPCalculatorOpen] = useState<boolean>(false);
   const [resetZoomTrigger, setResetZoomTrigger] = useState<number>(0);
 
   // Create a stable reference that only changes when geometry actually changes
@@ -482,11 +484,22 @@ function App() {
         currentName2={points.find(p => p.id === (selectedLine?.toId || losToId))?.name}
         frequency={frequency}
         onFrequencyChange={setFrequency}
+        onOpenERPCalculator={() => setIsERPCalculatorOpen(true)}
       />
 
       <HelpModal
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
+      />
+
+      <ERPCalculator
+        isOpen={isERPCalculatorOpen}
+        onClose={() => setIsERPCalculatorOpen(false)}
+        fspl={result?.fspl}
+        distance={result?.distance}
+        frequency={result?.frequency}
+        pointAName={points.find(p => p.id === (selectedLine?.fromId || losFromId))?.name}
+        pointBName={points.find(p => p.id === (selectedLine?.toId || losToId))?.name}
       />
 
       <LoadingSpinner isLoading={isLoading} />

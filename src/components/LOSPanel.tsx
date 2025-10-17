@@ -14,9 +14,10 @@ interface LOSPanelProps {
   currentName2?: string;
   frequency: number;
   onFrequencyChange: (freq: number) => void;
+  onOpenERPCalculator?: () => void;
 }
 
-export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalculation, currentName1, currentName2, frequency, onFrequencyChange }: LOSPanelProps) {
+export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalculation, currentName1, currentName2, frequency, onFrequencyChange, onOpenERPCalculator }: LOSPanelProps) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const onHoverPointRef = useRef(onHoverPoint);
@@ -417,8 +418,28 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
         {/* RF Analysis Section */}
         {result.frequency && fspl && (
           <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #ddd' }}>
-            <div className="los-detail" style={{ color: '#2277ee', fontWeight: 'bold', marginBottom: '6px' }}>
-              RF Analysis ({result.frequency} MHz)
+            <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div className="los-detail" style={{ color: '#2277ee', fontWeight: 'bold', margin: 0 }}>
+                RF Analysis ({result.frequency} MHz)
+              </div>
+              {onOpenERPCalculator && (
+                <button
+                  onClick={onOpenERPCalculator}
+                  style={{
+                    fontSize: '9px',
+                    padding: '2px 6px',
+                    background: '#667eea',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '2px',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
+                  title="Open ERP/Link Budget Calculator"
+                >
+                  🔌 ERP Calculator
+                </button>
+              )}
             </div>
             <div className="los-detail">
               <strong>Free Space Path Loss:</strong> {fspl.toFixed(2)} dB

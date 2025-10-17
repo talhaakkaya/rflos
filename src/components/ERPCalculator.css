@@ -1,0 +1,327 @@
+.erp-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.erp-modal-content {
+  background: white;
+  border-radius: 8px;
+  max-width: 900px;
+  max-height: 90vh;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.erp-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 2px solid #3388ff;
+  background: #f0f8ff;
+  border-radius: 8px 8px 0 0;
+}
+
+.erp-modal-header h2 {
+  margin: 0;
+  color: #2277ee;
+  font-size: 22px;
+}
+
+.erp-close-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.erp-close-btn:hover {
+  background: #c82333;
+}
+
+.erp-modal-body {
+  padding: 20px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.erp-warning {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  padding: 15px;
+  color: #856404;
+  text-align: center;
+}
+
+.erp-info-section {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.erp-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.erp-info-label {
+  font-size: 12px;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.erp-info-value {
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+}
+
+.erp-input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+  min-width: 0;
+}
+
+.erp-point-section {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 15px;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.erp-point-section h3 {
+  margin: 0 0 15px 0;
+  color: #2277ee;
+  font-size: 16px;
+  border-bottom: 2px solid #3388ff;
+  padding-bottom: 8px;
+  word-break: break-word;
+}
+
+.erp-input-group {
+  margin-bottom: 12px;
+  min-width: 0;
+}
+
+.erp-input-group label {
+  display: block;
+  font-size: 13px;
+  color: #555;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.erp-input-with-unit {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.erp-input-with-unit input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+  background-color: #ffffff;
+  color: #333;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.erp-input-with-unit input:focus {
+  outline: none;
+  border-color: #3388ff;
+  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
+}
+
+/* Remove spinner arrows from number inputs */
+.erp-input-with-unit input[type="number"]::-webkit-inner-spin-button,
+.erp-input-with-unit input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.erp-input-with-unit input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.erp-input-with-unit select {
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  min-width: 70px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.erp-input-with-unit select option {
+  background: white;
+  color: #333;
+}
+
+.erp-input-with-unit select:focus {
+  outline: none;
+  border-color: #3388ff;
+  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
+}
+
+.erp-unit-label {
+  padding: 10px 12px;
+  background: #e9ecef;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #555;
+  font-weight: 600;
+  min-width: 50px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.erp-results {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+  min-width: 0;
+}
+
+.erp-result-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  padding: 20px;
+  color: white;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.erp-result-section h3 {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 10px;
+  word-break: break-word;
+}
+
+.erp-result-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.erp-result-item:last-of-type {
+  border-bottom: none;
+}
+
+.erp-result-item.highlight {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+  border-bottom: none;
+}
+
+.erp-result-label {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.erp-result-value {
+  font-weight: 600;
+  font-family: monospace;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+/* Scrollbar styling */
+.erp-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.erp-modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.erp-modal-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.erp-modal-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .erp-modal-content {
+    max-width: 95%;
+    max-height: 85vh;
+  }
+
+  .erp-input-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .erp-results {
+    grid-template-columns: 1fr;
+  }
+
+  .erp-info-section {
+    grid-template-columns: 1fr;
+  }
+
+  .erp-modal-header {
+    padding: 15px;
+  }
+
+  .erp-modal-header h2 {
+    font-size: 18px;
+  }
+
+  .erp-modal-body {
+    padding: 15px;
+  }
+}
