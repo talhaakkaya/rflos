@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { calculateDistance, generatePathPoints, fetchElevationData, calculateLineOfSight, calculateBearing } from './usePathCalculation';
 import { calculateFSPL, calculateFresnelZone } from '../utils/rfCalculations';
+import { comparePointGeometry } from '../utils/pointComparison';
 import type { Point, PathResult } from '../types';
 
 export function useLOSCalculation(points: Point[]) {
@@ -20,11 +21,7 @@ export function useLOSCalculation(points: Point[]) {
     const newGeometry = points.map(p => ({ id: p.id, lat: p.lat, lon: p.lon, height: p.height }));
 
     // Deep compare to see if geometry actually changed
-    const geometryChanged = newGeometry.length !== pointsGeometryRef.current.length ||
-      newGeometry.some((p, i) => {
-        const prev = pointsGeometryRef.current[i];
-        return !prev || p.id !== prev.id || p.lat !== prev.lat || p.lon !== prev.lon || p.height !== prev.height;
-      });
+    const geometryChanged = comparePointGeometry(newGeometry, pointsGeometryRef.current);
 
     if (geometryChanged) {
       pointsGeometryRef.current = newGeometry;

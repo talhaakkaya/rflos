@@ -9,6 +9,7 @@ import Footer from './components/Footer';
 import { calculateDistance } from './hooks/usePathCalculation';
 import { useLOSCalculation } from './hooks/useLOSCalculation';
 import { decodeStateFromURL, updateURL } from './hooks/useURLState';
+import { comparePointGeometry } from './utils/pointComparison';
 import type { Point, PathResult, SegmentDistance } from './types';
 import './App.css';
 
@@ -80,11 +81,7 @@ function App() {
     const newGeometry = points.map(p => ({ id: p.id, lat: p.lat, lon: p.lon, height: p.height }));
 
     // Deep compare to see if geometry actually changed
-    const geometryChanged = newGeometry.length !== pointsGeometryRef.current.length ||
-      newGeometry.some((p, i) => {
-        const prev = pointsGeometryRef.current[i];
-        return !prev || p.id !== prev.id || p.lat !== prev.lat || p.lon !== prev.lon || p.height !== prev.height;
-      });
+    const geometryChanged = comparePointGeometry(newGeometry, pointsGeometryRef.current);
 
     if (geometryChanged) {
       pointsGeometryRef.current = newGeometry;

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Chart, registerables } from 'chart.js';
 import type { PathResult } from '../types';
+import { getClearanceStatus, getCompassDirection } from '../utils/formatting';
 import './LOSPanel.css';
 
 Chart.register(...registerables);
@@ -173,28 +174,6 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
   // Use current names if provided, otherwise fall back to result names
   const displayName1 = currentName1 || name1;
   const displayName2 = currentName2 || name2;
-
-  // Helper function to get clearance status and color
-  const getClearanceStatus = (clearancePercent: number) => {
-    if (clearancePercent >= 100) {
-      return { text: 'Excellent', color: '#00aa00', emoji: '✅' };
-    } else if (clearancePercent >= 60) {
-      return { text: 'Good', color: '#28a745', emoji: '✓' };
-    } else if (clearancePercent >= 20) {
-      return { text: 'Marginal', color: '#ff8c00', emoji: '⚠️' };
-    } else if (clearancePercent >= 0) {
-      return { text: 'Poor', color: '#dc3545', emoji: '⚠️' };
-    } else {
-      return { text: 'Obstructed', color: '#aa0000', emoji: '❌' };
-    }
-  };
-
-  // Helper function to convert bearing to compass direction
-  const getCompassDirection = (bearing: number): string => {
-    const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
-    const index = Math.round(bearing / 22.5) % 16;
-    return directions[index];
-  };
 
   // Compass SVG component
   const CompassSVG = ({ bearing, size = 60 }: { bearing: number; size?: number }) => {
