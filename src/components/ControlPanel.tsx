@@ -142,7 +142,7 @@ export default function ControlPanel({
                 Import
               </button>
               <button
-                className="btn-small"
+                className="btn-small btn-cancel"
                 onClick={() => {
                   setImportText('');
                   setShowImportDialog(false);
@@ -157,9 +157,14 @@ export default function ControlPanel({
         {points.map((point, index) => (
           <div key={point.id} className="point-item">
             <div className="point-header">
-              <span className={`point-badge ${index === 0 ? 'badge-red' : 'badge-blue'}`}>
-                {point.name}
-              </span>
+              <input
+                type="text"
+                placeholder="Name"
+                value={point.name}
+                onChange={(e) => onPointUpdate(point.id, { name: e.target.value })}
+                className={`point-name-input ${index === 0 ? 'name-red' : 'name-blue'}`}
+                maxLength={30}
+              />
               {points.length > 2 && (
                 <button
                   className="btn-remove"
@@ -173,15 +178,6 @@ export default function ControlPanel({
                 </button>
               )}
             </div>
-
-            <input
-              type="text"
-              placeholder="Name"
-              value={point.name}
-              onChange={(e) => onPointUpdate(point.id, { name: e.target.value })}
-              className="name-input"
-              maxLength={30}
-            />
 
             <div className="input-row">
               <input

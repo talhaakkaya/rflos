@@ -425,16 +425,7 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
               {onOpenERPCalculator && (
                 <button
                   onClick={onOpenERPCalculator}
-                  style={{
-                    fontSize: '9px',
-                    padding: '2px 6px',
-                    background: '#667eea',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '2px',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap'
-                  }}
+                  className="btn-erp"
                   title="Open ERP/Link Budget Calculator"
                 >
                   🔌 ERP Calculator

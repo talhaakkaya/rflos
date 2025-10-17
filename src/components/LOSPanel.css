@@ -1,20 +1,20 @@
 .los-panel {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
+  bottom: var(--spacing-lg);
+  right: var(--spacing-lg);
   width: 400px;
   max-width: calc(100vw - 40px);
   max-height: calc(100vh - 40px);
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  padding: 15px;
+  background: var(--color-bg-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg);
   z-index: 1000;
-  font-family: Arial, sans-serif;
+  font-family: var(--font-sans);
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
-  transition: width 0.3s ease;
+  transition: width var(--transition-normal);
 }
 
 .los-panel.panel-expanded {
@@ -28,38 +28,38 @@
 
 .los-panel::-webkit-scrollbar-track {
   background: #f1f1f1;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
 }
 
 .los-panel::-webkit-scrollbar-thumb {
   background: #888;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
 }
 
 .los-panel::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--color-text-secondary);
 }
 
 .los-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--color-primary);
 }
 
 .los-header h3 {
   margin: 0;
-  font-size: 16px;
-  color: #333;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
 }
 
 .los-status {
-  padding: 4px 12px;
-  border-radius: 4px;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-md);
   font-weight: bold;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .los-clear {
@@ -73,15 +73,15 @@
 }
 
 .los-info {
-  margin-bottom: 12px;
-  font-size: 13px;
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-base);
   overflow-wrap: break-word;
   word-wrap: break-word;
 }
 
 .los-detail {
-  margin: 4px 0;
-  color: #555;
+  margin: var(--spacing-xs) 0;
+  color: var(--color-text-secondary);
   overflow-wrap: break-word;
   word-wrap: break-word;
 }
@@ -92,7 +92,7 @@
   width: 100%;
   min-height: 150px;
   overflow: hidden;
-  transition: height 0.3s ease;
+  transition: height var(--transition-normal);
 }
 
 .chart-container.chart-expanded {
@@ -112,15 +112,15 @@
     max-width: calc(100vw - 20px);
     bottom: 10px;
     right: 10px;
-    padding: 12px;
+    padding: var(--spacing-lg);
   }
 
   .los-header h3 {
-    font-size: 14px;
+    font-size: var(--font-size-md);
   }
 
   .los-info {
-    font-size: 12px;
+    font-size: var(--font-size-sm);
   }
 
   .chart-container {
@@ -147,17 +147,17 @@
   background: #f8d7da;
   border: 1px solid #f5c6cb;
   color: #721c24;
-  font-size: 16px;
+  font-size: var(--font-size-lg);
   font-weight: bold;
   width: 24px;
   height: 24px;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
 }
 
 .btn-close-los:hover {
@@ -166,47 +166,47 @@
 }
 
 .btn-expand-chart {
-  background: #e7f3ff;
-  border: 1px solid #3388ff;
-  color: #3388ff;
-  font-size: 16px;
+  background: var(--color-bg-blue-lighter);
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  font-size: var(--font-size-lg);
   font-weight: bold;
   width: 24px;
   height: 24px;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
 }
 
 .btn-expand-chart:hover {
   background: #d0e8ff;
-  border-color: #2277ee;
+  border-color: var(--color-primary-dark);
 }
 
 .btn-reverse-calc {
-  background: #fff3e0;
-  border: 1px solid #ff9800;
-  color: #ff9800;
-  font-size: 16px;
+  background: var(--color-bg-blue-lighter);
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  font-size: var(--font-size-lg);
   font-weight: bold;
   width: 24px;
   height: 24px;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
 }
 
 .btn-reverse-calc:hover {
-  background: #ffe0b2;
-  border-color: #f57c00;
+  background: #d0e8ff;
+  border-color: var(--color-primary-dark);
 }
 
 .freq-input::-webkit-inner-spin-button,
@@ -217,4 +217,22 @@
 
 .freq-input {
   -moz-appearance: textfield;
+}
+
+.btn-erp {
+  background: var(--color-bg-blue-lighter);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  padding: var(--spacing-xs) 10px;
+  font-size: var(--font-size-sm);
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-erp:hover {
+  background: #d0e8ff;
+  border-color: var(--color-primary-dark);
 }
