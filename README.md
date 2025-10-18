@@ -70,6 +70,28 @@ A web-based RF (Radio Frequency) path analysis tool that calculates line of sigh
   - Automatic calculation in decibels
   - Helps estimate link budget requirements
   - Accounts for frequency-dependent losses
+- **Knife-Edge Diffraction Analysis** (ITU-R P.526):
+  - Detects terrain obstacles above the line of sight
+  - Calculates Fresnel-Kirchhoff diffraction parameters
+  - Multi-obstacle diffraction loss calculations
+  - Shows main obstacle location and height above LOS
+  - Total diffraction loss in dB added to path loss
+  - Supports multiple knife-edge obstacles along the path
+- **K-Factor / Atmospheric Refraction**:
+  - Adjustable K-factor from 1.0 to 5.0 (default: 4/3 standard atmosphere)
+  - Presets for different conditions: No refraction, Standard, Inversion
+  - Affects radio horizon distance and LOS calculations
+  - Shows refraction category (Subrefractive/Standard/Superrefractive/Ducting)
+  - Temperature inversion and ducting condition modeling
+- **ERP Calculator & Link Budget Tool**:
+  - Calculate Effective Radiated Power (ERP) for both stations
+  - Bidirectional link budget analysis
+  - Multiple modulation types: FM 25kHz, FM 12.5kHz, NFM, P25 Digital, DMR, D-Star, SSB, CW
+  - Transmitter power, antenna gain, and cable loss inputs
+  - Received power and link margin calculations
+  - Fade margin with quality assessment (Excellent/Good/Marginal/Poor/Failed)
+  - Power unit conversions: watts ↔ dBm, dBi ↔ dBd
+  - Real-time link budget updates with path changes
 - **Real-time RF Updates**: All RF metrics recalculate when changing frequency or moving markers
 
 ### Advanced Configuration
@@ -77,8 +99,12 @@ A web-based RF (Radio Frequency) path analysis tool that calculates line of sigh
 - **Precision Coordinates**: Enter exact latitude/longitude coordinates (6 decimal places)
 - **JSON Import**: Import multiple points from JSON format (supports callsign, latitude, longitude fields)
 - **Real Elevation Data**: Uses Open-Elevation API with 50 sample points along the path
-- **Draggable Panels**: Move control and results panels anywhere on screen
+- **Draggable Panels**:
+  - Station Setup panel (control panel) - draggable
+  - RF Analysis panel - draggable with independent positioning
+  - Path Analysis panel (Line of Sight) - separate results display
 - **Point Management**: Add or remove points dynamically (minimum 2 required)
+- **Advanced LOS Settings**: Configure K-factor for atmospheric refraction modeling
 - **Auto-Calculation**: Path analysis updates automatically when moving markers or changing settings (no manual calculate button needed)
 
 ### User Interface
@@ -171,32 +197,60 @@ npm run lint
    - LOS and RF analysis starts automatically
 
 5. **Review Results**:
-   - Check the status (CLEAR or BLOCKED)
-   - View the elevation profile chart with Earth's curvature and Fresnel zone
-   - See Free Space Path Loss, Fresnel zone radius, and clearance percentage
-   - **Antenna Aiming** section shows:
-     - Azimuth (compass bearing) for both directions with cardinal directions
-     - Elevation angle (vertical pointing angle) for both directions
-     - Interactive compass visualization when chart is expanded
-   - Hover over the chart to see precise locations on the map
-   - Click ⬆ to expand the chart for detailed analysis
-   - Click ⇅ to reverse calculation direction and see opposite perspective
-   - Distance displays dynamically on the chart x-axis
+   - **Path Analysis Panel** (Line of Sight):
+     - Check the status (CLEAR or BLOCKED)
+     - View the elevation profile chart with Earth's curvature and Fresnel zone
+     - **Antenna Aiming** section shows:
+       - Azimuth (compass bearing) for both directions with cardinal directions
+       - Elevation angle (vertical pointing angle) for both directions
+       - Interactive compass visualization when chart is expanded
+     - Hover over the chart to see precise locations on the map
+     - Click ⬆ to expand the chart for detailed analysis
+     - Click ⇅ to reverse calculation direction and see opposite perspective
+   - **RF Analysis Panel** (draggable):
+     - Free Space Path Loss (FSPL) in dB
+     - Knife-Edge Diffraction analysis (if obstacles detected)
+       - Main obstacle location and height
+       - Diffraction loss in dB
+       - Total path loss (FSPL + diffraction)
+     - K-Factor (atmospheric refraction) with category
+     - Fresnel zone radius and clearance percentage
 
-6. **Interactive Chart Analysis**:
+6. **ERP Calculator & Link Budget**:
+   - Click "🔌 ERP Calculator" button in RF Analysis panel
+   - Configure transmitter power, antenna gain, and cable loss for both stations
+   - Select modulation type (FM, NFM, Digital, SSB, CW) or use custom settings
+   - View bidirectional link budget with:
+     - Effective Radiated Power (ERP) for both directions
+     - Received power levels
+     - Link margin and fade margin
+     - Link quality assessment (Excellent/Good/Marginal/Poor/Failed)
+   - Switch between watts/dBm and dBi/dBd units
+
+7. **Advanced LOS Settings** (K-Factor):
+   - Click "⚙️ Settings" button in RF Analysis panel
+   - Adjust K-factor slider (1.0 to 5.0)
+   - Quick presets:
+     - No Refraction (1.0) - geometric LOS only
+     - Standard (1.333) - normal atmospheric conditions
+     - Inversion (1.5) - enhanced propagation
+   - K-factor affects LOS horizon distance and path clearance
+
+8. **Interactive Chart Analysis**:
    - Hover over elevation points to see exact locations marked on the map
    - Observe Fresnel zone (blue shaded area) clearance
    - Move mouse outside chart area to hide the location marker
 
-7. **Analyze Multiple Paths**:
+9. **Analyze Multiple Paths**:
    - Click different lines to analyze various combinations
    - Distance labels show for all point pairs
    - Each analysis updates the chart and RF metrics
    - Compare 2m vs 70cm by toggling frequency
 
-8. **Manage Points**:
+10. **Manage Points and Panels**:
    - Remove points using the × button (minimum 2 required)
    - Drag markers to adjust positions (calculations auto-update)
+   - Drag RF Analysis panel anywhere on screen for better visibility
    - Add/remove points as needed for your network planning
    - Use 🎯 button to reset map zoom to fit all points
 
@@ -209,8 +263,11 @@ This application uses the free [Open-Elevation API](https://open-elevation.com/)
 ```
 src/
 ├── components/
-│   ├── ControlPanel.tsx           # Input controls and point management
-│   ├── LOSPanel.tsx               # Results display, chart, and antenna aiming
+│   ├── ControlPanel.tsx           # Station Setup panel (input controls and point management)
+│   ├── PathAnalysisPanel.tsx      # Line of Sight results display and elevation chart
+│   ├── RFAnalysisPanel.tsx        # RF Analysis panel (draggable) - frequency, FSPL, diffraction, K-factor
+│   ├── ERPCalculator.tsx          # ERP/Link Budget calculator modal
+│   ├── AdvancedSettingsModal.tsx  # K-factor and LOS settings modal
 │   ├── Footer.tsx                 # Author attribution and GitHub link
 │   ├── HelpModal.tsx              # Help documentation modal
 │   ├── LoadingSpinner.tsx         # Loading indicator
@@ -223,12 +280,18 @@ src/
 │       ├── ZoomResetButton.tsx    # Manual zoom reset control
 │       └── HelpButton.tsx         # Map help button
 ├── hooks/
-│   ├── usePathCalculation.ts     # Distance, bearing, and path generation
-│   ├── useLOSCalculation.ts      # LOS calculation with earth curvature
+│   ├── usePathCalculation.ts      # Distance, bearing, and path generation
+│   ├── useLOSCalculation.ts       # LOS calculation with earth curvature and K-factor
 │   ├── useURLState.ts             # URL state encoding/decoding
-│   └── useDraggable.ts            # Drag-and-drop behavior hook
+│   ├── useDraggable.ts            # Drag-and-drop behavior hook
+│   └── useLocalStorage.ts         # Local storage persistence hook
 ├── utils/
-│   └── rfCalculations.ts          # RF formulas (FSPL, Fresnel, clearance)
+│   ├── rfCalculations.ts          # RF formulas (FSPL, Fresnel, clearance)
+│   ├── diffraction.ts             # Knife-edge diffraction (ITU-R P.526)
+│   ├── linkBudget.ts              # ERP and link budget calculations
+│   ├── atmospheric.ts             # K-factor and atmospheric refraction
+│   ├── formatting.ts              # Display formatting utilities
+│   └── pointComparison.ts         # Point comparison utilities
 ├── types/
 │   └── index.ts                   # Centralized TypeScript interfaces
 ├── App.tsx                        # Main application component
@@ -282,6 +345,33 @@ The application performs the following calculations:
     - Status thresholds: ≥100% Excellent, ≥60% Good, ≥20% Marginal, ≥0% Poor, <0% Obstructed
     - 60% clearance (0.6 × radius) recommended for reliable communications
 
+11. **Knife-Edge Diffraction** (ITU-R P.526):
+    - **Fresnel-Kirchhoff parameter**: `v = h × √(2(d1 + d2) / (λ × d1 × d2))`
+      - h = obstacle height above LOS line (m)
+      - d1, d2 = distances from transmitter/receiver to obstacle (m)
+      - λ = wavelength (m)
+    - **Diffraction Loss**: `L(v) = 6.9 + 20×log₁₀(√((v - 0.1)² + 1) + v - 0.1)` dB
+    - **Multi-obstacle**: Uses primary obstacle loss + weighted secondary obstacles
+    - Detects obstacles within 5m below LOS line for near-grazing cases
+
+12. **K-Factor (Atmospheric Refraction)**:
+    - Effective Earth radius: `R_eff = k × R_earth`
+    - Standard atmosphere: k = 4/3 (1.333)
+    - Subrefractive: k < 1.2 (signal bends away from Earth)
+    - Superrefractive: k > 1.35 (enhanced propagation)
+    - Ducting: k > 1.6 (extreme range extension)
+    - Affects LOS horizon and path clearance calculations
+
+13. **Link Budget (ERP Calculator)**:
+    - **ERP (Effective Radiated Power)**: `ERP = P_tx + G_ant - L_cable` (dBm)
+    - **Received Power**: `P_rx = ERP - FSPL + G_rx - L_cable_rx` (dBm)
+    - **Link Margin**: `Margin = P_rx - Sensitivity` (dB)
+    - **Fade Margin**: `Fade = Margin - SNR_required` (dB)
+    - **Power Conversions**:
+      - dBm to Watts: `P(W) = 10^(P(dBm)/10) / 1000`
+      - dBd to dBi: `G(dBi) = G(dBd) + 2.15`
+    - Quality thresholds: Excellent ≥20dB, Good ≥10dB, Marginal ≥0dB, Poor ≥-6dB
+
 ## Browser Support
 
 - Chrome/Edge 90+
@@ -292,11 +382,11 @@ The application performs the following calculations:
 ## Known Limitations
 
 - Elevation data accuracy depends on Open-Elevation API resolution (~30m in most areas)
-- Weather conditions (temperature inversions, ducting) not modeled
 - Path assumes great circle route (not actual terrain-following RF propagation)
-- Knife-edge diffraction not calculated (shows only direct obstruction)
 - Frequency range limited to 30-3000 MHz (VHF/UHF bands)
 - Clutter losses (buildings, vegetation) not included in calculations
+- Diffraction calculations use ITU-R P.526 knife-edge approximation (actual terrain may differ)
+- K-factor modeling is simplified (real atmospheric conditions vary continuously)
 
 ## Contributing
 

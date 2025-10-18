@@ -32,8 +32,8 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             <ul>
               <li><strong>Select Line:</strong> Click any blue line or distance label on the map</li>
               <li><strong>Auto-Calculate:</strong> Analysis starts automatically when you select a line</li>
-              <li><strong>View Results:</strong> Check the LOS panel (bottom-right) for path status</li>
-              <li><strong>Change Frequency:</strong> Toggle between 2m (145 MHz) and 70cm (433 MHz)</li>
+              <li><strong>View Results:</strong> Check the Path Analysis and RF Analysis panels for detailed info</li>
+              <li><strong>Change Frequency:</strong> Toggle between 2m (145 MHz) and 70cm (433 MHz), or enter custom frequency</li>
             </ul>
           </section>
 
@@ -51,18 +51,43 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
           <section className="help-section">
             <h3>📐 RF Analysis Metrics</h3>
             <ul>
-              <li><strong>CLEAR/BLOCKED:</strong> Whether terrain obstructs the path</li>
+              <li><strong>CLEAR/BLOCKED:</strong> Whether terrain obstructs the path (in Path Analysis panel)</li>
               <li><strong>Free Space Path Loss (FSPL):</strong> Signal loss in dB (lower is better)</li>
-              <li><strong>Fresnel Zone Radius:</strong> Minimum clearance needed for good signal</li>
+              <li><strong>Knife-Edge Diffraction:</strong> Additional loss from obstacles (if detected)</li>
+              <li><strong>K-Factor:</strong> Atmospheric refraction effect on radio horizon</li>
+              <li><strong>Fresnel Zone:</strong> Clearance percentage and status indicator</li>
               <li><strong>Distance:</strong> Total path length in kilometers</li>
+            </ul>
+          </section>
+
+          <section className="help-section">
+            <h3>🔌 ERP Calculator & Link Budget</h3>
+            <ul>
+              <li><strong>Access:</strong> Click "🔌 ERP Calculator" in RF Analysis panel</li>
+              <li><strong>Configure:</strong> Set TX power, antenna gain, and cable loss for both stations</li>
+              <li><strong>Modulation:</strong> Choose FM, NFM, Digital (P25/DMR/D-Star), SSB, or CW</li>
+              <li><strong>Results:</strong> View ERP, received power, link margin, and fade margin</li>
+              <li><strong>Quality:</strong> Link assessment (Excellent/Good/Marginal/Poor/Failed)</li>
+            </ul>
+          </section>
+
+          <section className="help-section">
+            <h3>🌐 K-Factor (Atmospheric Refraction)</h3>
+            <ul>
+              <li><strong>Access:</strong> Click "⚙️ Settings" in RF Analysis panel</li>
+              <li><strong>Standard:</strong> 4/3 (1.333) for normal atmospheric conditions</li>
+              <li><strong>Inversion:</strong> 1.5 for enhanced propagation (longer range)</li>
+              <li><strong>Effect:</strong> Higher K-factor extends radio horizon and improves clearance</li>
+              <li><strong>Use:</strong> Adjust based on local weather and propagation conditions</li>
             </ul>
           </section>
 
           <section className="help-section">
             <h3>⚙️ Configuration</h3>
             <ul>
-              <li><strong>Antenna Heights:</strong> Set tower/antenna height for each point</li>
+              <li><strong>Antenna Heights:</strong> Set tower/antenna height for each point in Station Setup panel</li>
               <li><strong>Point Names:</strong> Label your points (e.g., "Base Station")</li>
+              <li><strong>Draggable Panels:</strong> Drag Station Setup and RF Analysis panels anywhere on screen</li>
               <li><strong>Hide Labels:</strong> 🏷️ button to toggle distance labels</li>
               <li><strong>Hide Lines:</strong> 📐 button to show only Point A connections</li>
               <li><strong>Reset View:</strong> 🎯 button to zoom to fit all points</li>
@@ -75,7 +100,12 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
               <li>Terrain obstructions can often be cleared by increasing antenna heights</li>
               <li>2m band has better propagation than 70cm for same conditions</li>
               <li>Fresnel zone should have 60% clearance for reliable communications</li>
+              <li>Knife-edge diffraction adds loss even when LOS shows "CLEAR"</li>
+              <li>Higher K-factor (inversion conditions) can make blocked paths viable</li>
+              <li>Use ERP Calculator to verify link budget before installation</li>
+              <li>Fade margin of 20+ dB provides excellent reliability</li>
               <li>FSPL under 110 dB typically indicates good signal strength</li>
+              <li>Drag panels to optimize your workspace for multi-monitor setups</li>
               <li>Use URL sharing to save and share your point configurations</li>
             </ul>
           </section>
