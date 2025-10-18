@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { calculateDistance, generatePathPoints, fetchElevationData, calculateLineOfSight, calculateBearing } from './usePathCalculation';
 import { calculateFSPL, calculateFresnelZone } from '../utils/rfCalculations';
+import { detectObstacles, calculateMultipleObstacleLoss, findMainObstacle } from '../utils/diffraction';
 import { comparePointGeometry } from '../utils/pointComparison';
 import type { Point, PathResult } from '../types';
 
@@ -34,7 +35,8 @@ export function useLOSCalculation(points: Point[]) {
     toId: string,
     onSuccess: (result: PathResult) => void,
     onError?: (error: string) => void,
-    frequency?: number
+    frequency?: number,
+    kFactor: number = 4/3
   ) => {
     const fromPoint = pointsRef.current.find(p => p.id === fromId);
     const toPoint = pointsRef.current.find(p => p.id === toId);
@@ -77,12 +79,14 @@ export function useLOSCalculation(points: Point[]) {
         distances,
         elevations,
         fromPoint.height,
-        toPoint.height
+        toPoint.height,
+        kFactor
       );
 
       // Calculate RF metrics if frequency is provided
       let fspl: number | undefined;
       let fresnelZone: PathResult['fresnelZone'] | undefined;
+      let diffraction: PathResult['diffraction'] | undefined;
 
       if (frequency) {
         // Calculate Free Space Path Loss
@@ -96,6 +100,22 @@ export function useLOSCalculation(points: Point[]) {
           distance,
           frequency
         );
+
+        // Calculate knife-edge diffraction
+        const obstacles = detectObstacles(
+          distances,
+          elevations,
+          los.losLine,
+          frequency
+        );
+        const totalLoss = calculateMultipleObstacleLoss(obstacles);
+        const mainObstacle = findMainObstacle(obstacles);
+
+        diffraction = {
+          obstacles,
+          totalLoss,
+          mainObstacle
+        };
       }
 
       // Calculate bearing/azimuth
@@ -137,7 +157,9 @@ export function useLOSCalculation(points: Point[]) {
         bearing,
         reverseBearing,
         elevationAngle,
-        reverseElevationAngle
+        reverseElevationAngle,
+        diffraction,
+        kFactor // Store k-factor used for this calculation
       };
 
       onSuccess(result);

@@ -105,7 +105,8 @@ export function calculateLineOfSight(
   distances: number[],
   elevations: number[],
   height1: number,
-  height2: number
+  height2: number,
+  kFactor: number = 4/3
 ): LineOfSightResult {
   const n = distances.length;
   const losLine: number[] = [];
@@ -113,8 +114,9 @@ export function calculateLineOfSight(
   const endElev = elevations[n-1] + height2;
   const totalDistance = distances[n-1];
 
-  // Earth's effective radius for RF propagation (4/3 rule for atmospheric refraction)
-  const earthRadius = 6371 * 4 / 3; // km
+  // Earth's effective radius for RF propagation (k-factor for atmospheric refraction)
+  // k = 4/3 is standard, but can range from 1.0 (no refraction) to 5+ (ducting)
+  const earthRadius = 6371 * kFactor; // km
 
   // Calculate LOS line with Earth's curvature
   for (let i = 0; i < n; i++) {

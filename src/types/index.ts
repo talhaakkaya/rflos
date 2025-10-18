@@ -1,4 +1,5 @@
 import type { LineOfSightResult } from '../hooks/usePathCalculation';
+import type { Obstacle } from '../utils/diffraction';
 
 export interface Point {
   id: string;
@@ -33,6 +34,12 @@ export interface PathResult {
   reverseBearing?: number; // Reverse bearing in degrees (0-360)
   elevationAngle?: number; // Elevation angle from point1 to point2 (degrees, + is up, - is down)
   reverseElevationAngle?: number; // Elevation angle from point2 to point1 (degrees)
+  diffraction?: {
+    obstacles: Obstacle[]; // Detected obstacles along the path
+    totalLoss: number; // Total diffraction loss in dB
+    mainObstacle: Obstacle | null; // Most significant obstacle
+  };
+  kFactor?: number; // K-factor used for earth curvature and atmospheric refraction
 }
 
 export interface SegmentDistance {

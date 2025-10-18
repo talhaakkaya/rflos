@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import ControlPanel from './components/ControlPanel';
 import MapView from './components/MapView/MapView';
-import LOSPanel from './components/LOSPanel';
+import PathAnalysisPanel from './components/PathAnalysisPanel';
+import RFAnalysisPanel from './components/RFAnalysisPanel';
 import HelpModal from './components/HelpModal';
 import ERPCalculator from './components/ERPCalculator';
+import AdvancedSettingsModal from './components/AdvancedSettingsModal';
 import LoadingSpinner from './components/LoadingSpinner';
 import Footer from './components/Footer';
 import { calculateDistance } from './hooks/usePathCalculation';
@@ -70,7 +72,12 @@ function App() {
   const [frequency, setFrequency] = useState<number>(145.5); // MHz - default to 2m band
   const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
   const [isERPCalculatorOpen, setIsERPCalculatorOpen] = useState<boolean>(false);
+  const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState<boolean>(false);
   const [resetZoomTrigger, setResetZoomTrigger] = useState<number>(0);
+  const [showRFAnalysis, setShowRFAnalysis] = useState<boolean>(false);
+
+  // Advanced LOS settings
+  const [kFactor, setKFactor] = useState<number>(4/3);
 
   // Create a stable reference that only changes when geometry actually changes
   const pointsGeometryRef = useRef<Array<{ id: string; lat: number; lon: number; height: number }>>([]);
@@ -121,7 +128,8 @@ function App() {
         (error) => {
           console.error('Auto-calculation failed:', error);
         },
-        frequency
+        frequency,
+        kFactor
       );
     }
   }, [losFromId, losToId, calculateLOS, isLOSPanelOpen]);
@@ -159,7 +167,8 @@ function App() {
         (error) => {
           console.error('Auto-recalculation failed:', error);
         },
-        frequency
+        frequency,
+        kFactor
       );
     }, 300);
 
@@ -237,7 +246,8 @@ function App() {
         (error) => {
           console.error('Marker click calculation failed:', error);
         },
-        frequency
+        frequency,
+        kFactor
       );
     }
   };
@@ -256,10 +266,7 @@ function App() {
       return;
     }
 
-    // Clear old result first to ensure clean state
-    setResult(null);
-
-    // Select new line
+    // Select new line (keep old result visible with opacity until new calculation completes)
     setSelectedLine({ fromId, toId });
     setLosFromId(fromId);
     setLosToId(toId);
@@ -275,7 +282,8 @@ function App() {
       (error) => {
         alert('Error calculating path: ' + error);
       },
-      frequency
+      frequency,
+      kFactor
     );
   };
 
@@ -358,7 +366,8 @@ function App() {
       (error) => {
         console.error('Reverse calculation failed:', error);
       },
-      frequency
+      frequency,
+      kFactor
     );
   };
 
@@ -387,7 +396,8 @@ function App() {
       (error) => {
         console.error('Reset calculation failed:', error);
       },
-      frequency
+      frequency,
+      kFactor
     );
   };
 
@@ -440,6 +450,31 @@ function App() {
     }
   };
 
+  const handleApplyAdvancedSettings = (settings: {
+    kFactor: number;
+  }) => {
+    setKFactor(settings.kFactor);
+
+    // Trigger recalculation if we have an active path
+    const fromId = selectedLine?.fromId || losFromId;
+    const toId = selectedLine?.toId || losToId;
+
+    if (fromId && toId && (result || selectedLine)) {
+      calculateLOS(
+        fromId,
+        toId,
+        (result) => {
+          setResult(result);
+        },
+        (error) => {
+          console.error('Advanced settings recalculation failed:', error);
+        },
+        frequency,
+        settings.kFactor
+      );
+    }
+  };
+
   return (
     <div className="app">
       <MapView
@@ -456,6 +491,9 @@ function App() {
         hoveredPathPoint={result && hoveredPathIndex !== null ? result.pathPoints[hoveredPathIndex] : null}
         onHelpClick={() => setIsHelpOpen(true)}
         resetZoomTrigger={resetZoomTrigger}
+        onRFAnalysisToggle={() => setShowRFAnalysis(!showRFAnalysis)}
+        showRFAnalysis={showRFAnalysis}
+        hasResult={result !== null}
       />
 
       {isPanelVisible ? (
@@ -484,7 +522,8 @@ function App() {
         </button>
       )}
 
-      <LOSPanel
+      {/* Main Path Analysis Panel - always shown when result exists */}
+      <PathAnalysisPanel
         result={result}
         onClose={() => {
           setSelectedLine(null);
@@ -495,10 +534,22 @@ function App() {
         onReverseCalculation={handleReverseCalculation}
         currentName1={points.find(p => p.id === (selectedLine?.fromId || losFromId))?.name}
         currentName2={points.find(p => p.id === (selectedLine?.toId || losToId))?.name}
-        frequency={frequency}
-        onFrequencyChange={setFrequency}
-        onOpenERPCalculator={() => setIsERPCalculatorOpen(true)}
+        isLoading={isLoading}
       />
+
+      {/* RF Analysis Panel - toggleable */}
+      {showRFAnalysis && (
+        <RFAnalysisPanel
+          result={result}
+          frequency={frequency}
+          onFrequencyChange={setFrequency}
+          onOpenERPCalculator={() => setIsERPCalculatorOpen(true)}
+          onOpenAdvancedSettings={() => setIsAdvancedSettingsOpen(true)}
+          onClose={() => setShowRFAnalysis(false)}
+          currentName1={points.find(p => p.id === (selectedLine?.fromId || losFromId))?.name}
+          isLoading={isLoading}
+        />
+      )}
 
       <HelpModal
         isOpen={isHelpOpen}
@@ -513,6 +564,13 @@ function App() {
         frequency={result?.frequency}
         pointAName={points.find(p => p.id === (selectedLine?.fromId || losFromId))?.name}
         pointBName={points.find(p => p.id === (selectedLine?.toId || losToId))?.name}
+      />
+
+      <AdvancedSettingsModal
+        isOpen={isAdvancedSettingsOpen}
+        onClose={() => setIsAdvancedSettingsOpen(false)}
+        kFactor={kFactor}
+        onApply={handleApplyAdvancedSettings}
       />
 
       <LoadingSpinner isLoading={isLoading} />

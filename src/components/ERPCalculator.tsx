@@ -1,6 +1,15 @@
 import { useState, useEffect } from 'react';
 import './ERPCalculator.css';
-import { calculateLinkBudget, wattsTodBm, dBdTodBi } from '../utils/linkBudget';
+import {
+  calculateLinkBudget,
+  wattsTodBm,
+  dBdTodBi,
+  calculateLinkMargin,
+  calculateFadeMargin,
+  getLinkQuality,
+  MODULATION_TYPES
+} from '../utils/linkBudget';
+import type { ModulationType } from '../utils/linkBudget';
 
 interface ERPCalculatorProps {
   isOpen: boolean;
@@ -35,14 +44,33 @@ export default function ERPCalculator({
   const [antennaUnitB, setAntennaUnitB] = useState<'dBi' | 'dBd'>('dBi');
   const [cableLossB, setCableLossB] = useState<string>('1.5');
 
+  // Receiver sensitivity and modulation
+  const [modulationType, setModulationType] = useState<ModulationType>('FM 25kHz');
+  const [rxSensitivityA, setRxSensitivityA] = useState<string>(MODULATION_TYPES['FM 25kHz'].sensitivity.toString());
+  const [rxSensitivityB, setRxSensitivityB] = useState<string>(MODULATION_TYPES['FM 25kHz'].sensitivity.toString());
+
   const [results, setResults] = useState<ReturnType<typeof calculateLinkBudget> | null>(null);
+  const [linkMargins, setLinkMargins] = useState<{
+    aToB: { linkMargin: number; fadeMargin: number; quality: ReturnType<typeof getLinkQuality> };
+    bToA: { linkMargin: number; fadeMargin: number; quality: ReturnType<typeof getLinkQuality> };
+  } | null>(null);
+
+  // Update receiver sensitivities when modulation type changes
+  useEffect(() => {
+    if (modulationType !== 'Custom') {
+      const modData = MODULATION_TYPES[modulationType];
+      setRxSensitivityA(modData.sensitivity.toString());
+      setRxSensitivityB(modData.sensitivity.toString());
+    }
+  }, [modulationType]);
 
   useEffect(() => {
     if (isOpen && fspl) {
       calculateResults();
     }
   }, [isOpen, txPowerA, txPowerUnitA, antennaGainA, antennaUnitA, cableLossA,
-      txPowerB, txPowerUnitB, antennaGainB, antennaUnitB, cableLossB, fspl]);
+      txPowerB, txPowerUnitB, antennaGainB, antennaUnitB, cableLossB, fspl,
+      rxSensitivityA, rxSensitivityB, modulationType]);
 
   const calculateResults = () => {
     if (!fspl) return;
@@ -80,6 +108,32 @@ export default function ERPCalculator({
     );
 
     setResults(linkBudget);
+
+    // Calculate link margins
+    const rxSensA = parseFloat(rxSensitivityA) || -116;
+    const rxSensB = parseFloat(rxSensitivityB) || -116;
+    const requiredSNR = MODULATION_TYPES[modulationType].requiredSNR;
+
+    const linkMarginAtoB = calculateLinkMargin(linkBudget.aToB.receivedPowerDBm, rxSensB);
+    const fadeMarginAtoB = calculateFadeMargin(linkMarginAtoB, requiredSNR);
+    const qualityAtoB = getLinkQuality(fadeMarginAtoB);
+
+    const linkMarginBtoA = calculateLinkMargin(linkBudget.bToA.receivedPowerDBm, rxSensA);
+    const fadeMarginBtoA = calculateFadeMargin(linkMarginBtoA, requiredSNR);
+    const qualityBtoA = getLinkQuality(fadeMarginBtoA);
+
+    setLinkMargins({
+      aToB: {
+        linkMargin: linkMarginAtoB,
+        fadeMargin: fadeMarginAtoB,
+        quality: qualityAtoB
+      },
+      bToA: {
+        linkMargin: linkMarginBtoA,
+        fadeMargin: fadeMarginBtoA,
+        quality: qualityBtoA
+      }
+    });
   };
 
   if (!isOpen) return null;
@@ -252,6 +306,78 @@ export default function ERPCalculator({
                 </div>
               </div>
 
+              {/* Modulation and Receiver Sensitivity */}
+              <div style={{ marginTop: '16px' }}>
+                <div className="erp-point-section">
+                  <h3>Receiver Sensitivity & Modulation</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div className="erp-input-group">
+                    <label>Modulation Type</label>
+                    <select
+                      className="select-unit"
+                      style={{ width: '100%', padding: '8px' }}
+                      value={modulationType}
+                      onChange={(e) => setModulationType(e.target.value as ModulationType)}
+                    >
+                      {Object.keys(MODULATION_TYPES).map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="erp-input-group">
+                    <label>Required SNR</label>
+                    <div className="erp-input-with-unit">
+                      <input
+                        className="input-data"
+                        type="text"
+                        value={MODULATION_TYPES[modulationType].requiredSNR}
+                        disabled
+                        style={{ backgroundColor: '#f5f5f5' }}
+                      />
+                      <span className="unit-label">dB</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '12px' }}>
+                  <div className="erp-input-group">
+                    <label>{pointAName} RX Sensitivity</label>
+                    <div className="erp-input-with-unit">
+                      <input
+                        className="input-data"
+                        type="number"
+                        value={rxSensitivityA}
+                        onChange={(e) => {
+                          setRxSensitivityA(e.target.value);
+                          if (modulationType !== 'Custom') setModulationType('Custom');
+                        }}
+                        step="1"
+                      />
+                      <span className="unit-label">dBm</span>
+                    </div>
+                  </div>
+
+                  <div className="erp-input-group">
+                    <label>{pointBName} RX Sensitivity</label>
+                    <div className="erp-input-with-unit">
+                      <input
+                        className="input-data"
+                        type="number"
+                        value={rxSensitivityB}
+                        onChange={(e) => {
+                          setRxSensitivityB(e.target.value);
+                          if (modulationType !== 'Custom') setModulationType('Custom');
+                        }}
+                        step="1"
+                      />
+                      <span className="unit-label">dBm</span>
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </div>
+
               {/* Results */}
               {results && (
                 <div className="erp-results">
@@ -273,6 +399,35 @@ export default function ERPCalculator({
                         {formatPower(results.aToB.receivedPowerDBm, results.aToB.receivedPowerWatts)}
                       </span>
                     </div>
+                    {linkMargins && (
+                      <>
+                        <div className="erp-result-item">
+                          <span className="erp-result-label">RX Sensitivity:</span>
+                          <span className="erp-result-value">{rxSensitivityB} dBm</span>
+                        </div>
+                        <div className="erp-result-item">
+                          <span className="erp-result-label">Link Margin:</span>
+                          <span className="erp-result-badge" style={{ color: linkMargins.aToB.linkMargin >= 0 ? '#28a745' : '#dc3545' }}>
+                            {linkMargins.aToB.linkMargin >= 0 ? '+' : ''}{linkMargins.aToB.linkMargin.toFixed(2)} dB
+                          </span>
+                        </div>
+                        <div className="erp-result-item">
+                          <span className="erp-result-label">Fade Margin:</span>
+                          <span className="erp-result-badge" style={{ color: linkMargins.aToB.quality.color }}>
+                            {linkMargins.aToB.fadeMargin >= 0 ? '+' : ''}{linkMargins.aToB.fadeMargin.toFixed(2)} dB
+                          </span>
+                        </div>
+                        <div className="erp-result-item highlight">
+                          <span className="erp-result-label">Link Quality:</span>
+                          <span className="erp-result-badge" style={{ color: linkMargins.aToB.quality.color, fontWeight: 'bold' }}>
+                            {linkMargins.aToB.quality.status.toUpperCase()}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '11px', marginTop: '4px', fontStyle: 'italic' }}>
+                          {linkMargins.aToB.quality.description}
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <div className="erp-result-section">
@@ -293,6 +448,35 @@ export default function ERPCalculator({
                         {formatPower(results.bToA.receivedPowerDBm, results.bToA.receivedPowerWatts)}
                       </span>
                     </div>
+                    {linkMargins && (
+                      <>
+                        <div className="erp-result-item">
+                          <span className="erp-result-label">RX Sensitivity:</span>
+                          <span className="erp-result-value">{rxSensitivityA} dBm</span>
+                        </div>
+                        <div className="erp-result-item">
+                          <span className="erp-result-label">Link Margin:</span>
+                          <span className="erp-result-badge" style={{ color: linkMargins.bToA.linkMargin >= 0 ? '#28a745' : '#dc3545' }}>
+                            {linkMargins.bToA.linkMargin >= 0 ? '+' : ''}{linkMargins.bToA.linkMargin.toFixed(2)} dB
+                          </span>
+                        </div>
+                        <div className="erp-result-item">
+                          <span className="erp-result-label">Fade Margin:</span>
+                          <span className="erp-result-badge" style={{ color: linkMargins.bToA.quality.color }}>
+                            {linkMargins.bToA.fadeMargin >= 0 ? '+' : ''}{linkMargins.bToA.fadeMargin.toFixed(2)} dB
+                          </span>
+                        </div>
+                        <div className="erp-result-item highlight">
+                          <span className="erp-result-label">Link Quality:</span>
+                          <span className="erp-result-badge" style={{ color: linkMargins.bToA.quality.color, fontWeight: 'bold' }}>
+                            {linkMargins.bToA.quality.status.toUpperCase()}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '11px', marginTop: '4px', fontStyle: 'italic' }}>
+                          {linkMargins.bToA.quality.description}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               )}

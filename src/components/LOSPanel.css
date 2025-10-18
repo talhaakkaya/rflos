@@ -71,9 +71,9 @@
 
 .chart-container {
   position: relative;
-  height: 200px;
+  height: 280px;
   width: 100%;
-  min-height: 150px;
+  min-height: 200px;
   overflow: hidden;
   transition: height 0.3s;
 }
@@ -107,8 +107,13 @@
   }
 
   .chart-container {
-    height: 150px;
-    min-height: 120px;
+    height: 220px;
+    min-height: 180px;
+  }
+
+  .chart-container.chart-expanded {
+    height: 250px;
+    min-height: 190px;
   }
 }
 

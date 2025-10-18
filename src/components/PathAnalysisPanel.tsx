@@ -1,24 +1,74 @@
 import { useEffect, useRef, useState } from 'react';
 import { Chart, registerables } from 'chart.js';
 import type { PathResult } from '../types';
-import { getClearanceStatus, getCompassDirection } from '../utils/formatting';
+import { getCompassDirection, getClearanceStatus } from '../utils/formatting';
 import './LOSPanel.css';
 
 Chart.register(...registerables);
 
-interface LOSPanelProps {
+interface PathAnalysisPanelProps {
   result: PathResult | null;
   onClose?: () => void;
   onHoverPoint?: (index: number | null) => void;
   onReverseCalculation?: () => void;
   currentName1?: string;
   currentName2?: string;
-  frequency: number;
-  onFrequencyChange: (freq: number) => void;
-  onOpenERPCalculator?: () => void;
+  isLoading?: boolean;
 }
 
-export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalculation, currentName1, currentName2, frequency, onFrequencyChange, onOpenERPCalculator }: LOSPanelProps) {
+// Compass SVG component
+const CompassSVG = ({ bearing, size = 60 }: { bearing: number; size?: number }) => {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" style={{ display: 'inline-block' }}>
+      {/* Outer circle */}
+      <circle cx="50" cy="50" r="48" fill="#f8f9fa" stroke="#333" strokeWidth="2" />
+
+      {/* Cardinal marks */}
+      <line x1="50" y1="5" x2="50" y2="15" stroke="#333" strokeWidth="2" />
+      <text x="50" y="20" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#dc3545">N</text>
+
+      <line x1="95" y1="50" x2="85" y2="50" stroke="#333" strokeWidth="1.5" />
+      <text x="80" y="54" textAnchor="middle" fontSize="10" fill="#666">E</text>
+
+      <line x1="50" y1="95" x2="50" y2="85" stroke="#333" strokeWidth="1.5" />
+      <text x="50" y="92" textAnchor="middle" fontSize="10" fill="#666">S</text>
+
+      <line x1="5" y1="50" x2="15" y2="50" stroke="#333" strokeWidth="1.5" />
+      <text x="20" y="54" textAnchor="middle" fontSize="10" fill="#666">W</text>
+
+      {/* Degree marks every 45° */}
+      {[45, 135, 225, 315].map(angle => {
+        const rad = (angle - 90) * Math.PI / 180;
+        const x1 = 50 + 42 * Math.cos(rad);
+        const y1 = 50 + 42 * Math.sin(rad);
+        const x2 = 50 + 48 * Math.cos(rad);
+        const y2 = 50 + 48 * Math.sin(rad);
+        return <line key={angle} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#999" strokeWidth="1" />;
+      })}
+
+      {/* Needle pointing to bearing */}
+      <g transform={`rotate(${bearing} 50 50)`}>
+        {/* Red arrow pointing to bearing direction */}
+        <polygon points="50,15 46,50 50,45 54,50" fill="#dc3545" stroke="#000" strokeWidth="1" />
+        {/* Gray tail */}
+        <polygon points="50,55 46,50 54,50" fill="#999" />
+      </g>
+
+      {/* Center dot */}
+      <circle cx="50" cy="50" r="3" fill="#333" />
+    </svg>
+  );
+};
+
+export default function PathAnalysisPanel({
+  result,
+  onClose,
+  onHoverPoint,
+  onReverseCalculation,
+  currentName1,
+  currentName2,
+  isLoading = false
+}: PathAnalysisPanelProps) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const onHoverPointRef = useRef(onHoverPoint);
@@ -93,7 +143,6 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
         pointRadius: 0,
         borderWidth: 1,
         borderDash: [3, 3],
-        hidden: true, // Hide from legend
         order: 1
       });
     }
@@ -169,55 +218,11 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
 
   if (!result) return null;
 
-  const { distance, elevations, los, height1, height2, name1, name2, fspl, fresnelZone } = result;
+  const { distance, elevations, los, height1, height2, name1, name2 } = result;
 
   // Use current names if provided, otherwise fall back to result names
   const displayName1 = currentName1 || name1;
   const displayName2 = currentName2 || name2;
-
-  // Compass SVG component
-  const CompassSVG = ({ bearing, size = 60 }: { bearing: number; size?: number }) => {
-    return (
-      <svg width={size} height={size} viewBox="0 0 100 100" style={{ display: 'inline-block' }}>
-        {/* Outer circle */}
-        <circle cx="50" cy="50" r="48" fill="#f8f9fa" stroke="#333" strokeWidth="2" />
-
-        {/* Cardinal marks */}
-        <line x1="50" y1="5" x2="50" y2="15" stroke="#333" strokeWidth="2" />
-        <text x="50" y="20" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#dc3545">N</text>
-
-        <line x1="95" y1="50" x2="85" y2="50" stroke="#333" strokeWidth="1.5" />
-        <text x="80" y="54" textAnchor="middle" fontSize="10" fill="#666">E</text>
-
-        <line x1="50" y1="95" x2="50" y2="85" stroke="#333" strokeWidth="1.5" />
-        <text x="50" y="92" textAnchor="middle" fontSize="10" fill="#666">S</text>
-
-        <line x1="5" y1="50" x2="15" y2="50" stroke="#333" strokeWidth="1.5" />
-        <text x="20" y="54" textAnchor="middle" fontSize="10" fill="#666">W</text>
-
-        {/* Degree marks every 45° */}
-        {[45, 135, 225, 315].map(angle => {
-          const rad = (angle - 90) * Math.PI / 180;
-          const x1 = 50 + 42 * Math.cos(rad);
-          const y1 = 50 + 42 * Math.sin(rad);
-          const x2 = 50 + 48 * Math.cos(rad);
-          const y2 = 50 + 48 * Math.sin(rad);
-          return <line key={angle} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#999" strokeWidth="1" />;
-        })}
-
-        {/* Needle pointing to bearing */}
-        <g transform={`rotate(${bearing} 50 50)`}>
-          {/* Red arrow pointing to bearing direction */}
-          <polygon points="50,15 46,50 50,45 54,50" fill="#dc3545" stroke="#000" strokeWidth="1" />
-          {/* Gray tail */}
-          <polygon points="50,55 46,50 54,50" fill="#999" />
-        </g>
-
-        {/* Center dot */}
-        <circle cx="50" cy="50" r="3" fill="#333" />
-      </svg>
-    );
-  };
 
   return (
     <div className={`los-panel ${isExpanded ? 'panel-expanded' : ''}`}>
@@ -255,29 +260,17 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
         </div>
       </div>
 
-      <div className="los-info">
-        <div className="los-detail">
-          <strong>{displayName1}</strong> elevation: {elevations[0].toFixed(1)} m
-          {height1 > 0 && ` (+${height1}m antenna = ${(elevations[0] + height1).toFixed(1)}m)`}
-        </div>
-        <div className="los-detail">
-          <strong>{displayName2}</strong> elevation: {elevations[elevations.length - 1].toFixed(1)} m
-          {height2 > 0 && ` (+${height2}m antenna = ${(elevations[elevations.length - 1] + height2).toFixed(1)}m)`}
-        </div>
-        <div className="los-detail">
-          <strong>Distance:</strong> {distance.toFixed(2)} km
-        </div>
-
-        {/* Bearing/Azimuth */}
+      <div className="los-info" style={{ opacity: isLoading ? 0.5 : 1, transition: 'opacity 0.2s' }}>
+        {/* Bearing/Azimuth - Top section for practical setup info */}
         {result.bearing !== undefined && result.reverseBearing !== undefined && (
-          <div className="los-detail" style={{ marginTop: '12px' }}>
+          <div className="los-detail">
             <strong>Antenna Aiming:</strong>
             {isExpanded ? (
               // Expanded view: Show compasses
               <div style={{ display: 'flex', gap: '16px', marginTop: '8px', flexWrap: 'wrap' }}>
                 {/* Forward bearing */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                  <CompassSVG bearing={result.bearing} size={70} />
+                  <CompassSVG bearing={result.bearing} size={90} />
                   <div style={{ fontSize: '11px', color: '#555', textAlign: 'center' }}>
                     <div style={{ fontWeight: 'bold' }}>{displayName1} → {displayName2}</div>
                     <div>Azimuth: {result.bearing.toFixed(1)}° ({getCompassDirection(result.bearing)})</div>
@@ -289,7 +282,7 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
 
                 {/* Reverse bearing */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                  <CompassSVG bearing={result.reverseBearing} size={70} />
+                  <CompassSVG bearing={result.reverseBearing} size={90} />
                   <div style={{ fontSize: '11px', color: '#555', textAlign: 'center' }}>
                     <div style={{ fontWeight: 'bold' }}>{displayName2} → {displayName1}</div>
                     <div>Azimuth: {result.reverseBearing.toFixed(1)}° ({getCompassDirection(result.reverseBearing)})</div>
@@ -315,6 +308,23 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
           </div>
         )}
 
+        {result.bearing !== undefined && result.reverseBearing !== undefined && (
+          <hr style={{ margin: '12px 0', border: 'none', borderTop: '1px solid #ddd' }} />
+        )}
+
+        {/* Chart-related information section */}
+        <div className="los-detail" style={{ marginTop: '12px' }}>
+          <strong>{displayName1}</strong> elevation: {elevations[0].toFixed(1)} m
+          {height1 > 0 && ` (+${height1}m antenna = ${(elevations[0] + height1).toFixed(1)}m)`}
+        </div>
+        <div className="los-detail">
+          <strong>{displayName2}</strong> elevation: {elevations[elevations.length - 1].toFixed(1)} m
+          {height2 > 0 && ` (+${height2}m antenna = ${(elevations[elevations.length - 1] + height2).toFixed(1)}m)`}
+        </div>
+        <div className="los-detail">
+          <strong>Distance:</strong> {distance.toFixed(2)} km
+        </div>
+
         {los.isBlocked ? (
           <>
             <div className="los-detail">
@@ -330,120 +340,34 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
           </div>
         )}
 
-        {(height1 > 0 || height2 > 0) && (
-          <div className="los-detail" style={{ fontSize: '11px', color: '#666', marginTop: '8px' }}>
-            Antenna heights: {height1}m and {height2}m included
-          </div>
-        )}
-
-        {/* Frequency Selection */}
-        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #ddd' }}>
-          <div className="los-detail" style={{ marginBottom: '6px' }}>
-            <strong>Frequency:</strong>
-          </div>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <button
-              className={`btn-freq btn-freq-default ${frequency >= 144 && frequency <= 148 ? 'active' : ''}`}
-              onClick={() => onFrequencyChange(145.5)}
-              style={{ fontSize: '12px', padding: '4px 8px' }}
-            >
-              2m
-            </button>
-            <button
-              className={`btn-freq btn-freq-default ${frequency >= 420 && frequency <= 450 ? 'active' : ''}`}
-              onClick={() => onFrequencyChange(433.5)}
-              style={{ fontSize: '12px', padding: '4px 8px' }}
-            >
-              70cm
-            </button>
-            <input
-              type="number"
-              value={frequency}
-              onChange={(e) => {
-                const val = parseFloat(e.target.value);
-                if (!isNaN(val)) {
-                  onFrequencyChange(val);
-                }
-              }}
-              onBlur={(e) => {
-                const val = parseFloat(e.target.value);
-                // Validate on blur and reset to default if invalid
-                if (isNaN(val) || val < 30 || val > 3000) {
-                  onFrequencyChange(145.5);
-                }
-              }}
-              step="0.0125"
-              min="30"
-              max="3000"
-              className="freq-input"
-              style={{
-                width: '100px',
-                padding: '4px 8px',
-                border: '2px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '13px',
-                backgroundColor: '#ffffff',
-                color: '#333',
-                fontFamily: "'Courier New', monospace"
-              }}
-            />
-            <span style={{ fontSize: '12px', color: '#666' }}>MHz</span>
-          </div>
-          <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>
-            VHF: 30-300 MHz | UHF: 300-3000 MHz
-          </div>
-        </div>
-
-        {/* RF Analysis Section */}
-        {result.frequency && fspl && (
-          <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #ddd' }}>
-            <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div className="los-detail" style={{ color: '#2277ee', fontWeight: 'bold', margin: 0 }}>
-                RF Analysis ({result.frequency} MHz)
-              </div>
-              {onOpenERPCalculator && (
-                <button
-                  onClick={onOpenERPCalculator}
-                  className="btn-small btn-primary"
-                  title="Open ERP/Link Budget Calculator"
-                >
-                  🔌 ERP Calculator
-                </button>
-              )}
+        {/* Fresnel Zone Information */}
+        {result.fresnelZone && (
+          <>
+            <hr style={{ margin: '12px 0', border: 'none', borderTop: '1px solid #ddd' }} />
+            <div className="los-detail">
+              <strong>1st Fresnel Zone Radius:</strong> {result.fresnelZone.radius.toFixed(1)} m
             </div>
             <div className="los-detail">
-              <strong>Free Space Path Loss:</strong> {fspl.toFixed(2)} dB
+              <strong>Fresnel Clearance:</strong>{' '}
+              <span style={{ color: getClearanceStatus(result.fresnelZone.minClearance).color, fontWeight: 'bold' }}>
+                {result.fresnelZone.minClearanceMeters.toFixed(1)}m / {result.fresnelZone.radius.toFixed(1)}m ({result.fresnelZone.minClearance.toFixed(0)}%) {getClearanceStatus(result.fresnelZone.minClearance).emoji}
+              </span>
             </div>
-            {fresnelZone && (
-              <>
-                <div className="los-detail">
-                  <strong>1st Fresnel Zone Radius:</strong> {fresnelZone.radius.toFixed(1)} m
-                </div>
-                <div className="los-detail">
-                  <strong>Fresnel Clearance:</strong>{' '}
-                  <span style={{ color: getClearanceStatus(fresnelZone.minClearance).color, fontWeight: 'bold' }}>
-                    {fresnelZone.minClearanceMeters.toFixed(1)}m / {fresnelZone.radius.toFixed(1)}m ({fresnelZone.minClearance.toFixed(0)}%) {getClearanceStatus(fresnelZone.minClearance).emoji}
-                  </span>
-                </div>
-                <div className="los-detail" style={{ fontSize: '11px', color: getClearanceStatus(fresnelZone.minClearance).color, marginTop: '2px' }}>
-                  {getClearanceStatus(fresnelZone.minClearance).text} - {(fresnelZone.radius * 0.6).toFixed(1)}m needed for 60%
-                </div>
-                {fresnelZone.minClearance < 60 && (
-                  <div className="los-detail" style={{ fontSize: '11px', color: '#ff8c00', marginTop: '4px' }}>
-                    ⚠️ Minimum clearance at {fresnelZone.minClearanceDistance.toFixed(2)} km
-                  </div>
-                )}
-              </>
+            <div className="los-detail" style={{ fontSize: '11px', color: getClearanceStatus(result.fresnelZone.minClearance).color, marginTop: '2px' }}>
+              {getClearanceStatus(result.fresnelZone.minClearance).text} - {(result.fresnelZone.radius * 0.6).toFixed(1)}m needed for 60%
+            </div>
+            {result.fresnelZone.minClearance < 60 && (
+              <div className="los-detail" style={{ fontSize: '11px', color: '#ff8c00', marginTop: '4px' }}>
+                ⚠️ Minimum clearance at {result.fresnelZone.minClearanceDistance.toFixed(2)} km
+              </div>
             )}
-            <div className="los-detail" style={{ fontSize: '11px', color: '#666', marginTop: '6px' }}>
-              {result.frequency >= 30 && result.frequency < 300 ? 'VHF' : result.frequency >= 300 && result.frequency <= 3000 ? 'UHF' : 'RF'}
-            </div>
-          </div>
+          </>
         )}
       </div>
 
       <div
         className={`chart-container ${isExpanded ? 'chart-expanded' : ''}`}
+        style={{ opacity: isLoading ? 0.5 : 1, transition: 'opacity 0.2s' }}
         onMouseLeave={() => {
           if (onHoverPoint) {
             onHoverPoint(null);

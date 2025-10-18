@@ -9,6 +9,7 @@ import MapBoundsAdjuster from './MapBoundsAdjuster';
 import DraggableMarker from './DraggableMarker';
 import ZoomResetButton from './ZoomResetButton';
 import HelpButton from './HelpButton';
+import RFAnalysisButton from './RFAnalysisButton';
 import { generatePathPoints } from '../../hooks/usePathCalculation';
 
 // Component to handle map click events
@@ -45,6 +46,9 @@ interface MapViewProps {
   hoveredPathPoint: { lat: number; lon: number } | null;
   onHelpClick: () => void;
   resetZoomTrigger?: number;
+  onRFAnalysisToggle: () => void;
+  showRFAnalysis: boolean;
+  hasResult: boolean;
 }
 
 export default function MapView({
@@ -60,7 +64,10 @@ export default function MapView({
   isAddingPoint,
   hoveredPathPoint,
   onHelpClick,
-  resetZoomTrigger
+  resetZoomTrigger,
+  onRFAnalysisToggle,
+  showRFAnalysis,
+  hasResult
 }: MapViewProps) {
   // Calculate center from all points
   const center: [number, number] = points.length > 0
@@ -226,6 +233,7 @@ export default function MapView({
         )}
 
         <MapBoundsAdjuster points={points} resetTrigger={resetZoomTrigger} />
+        <RFAnalysisButton onClick={onRFAnalysisToggle} isActive={showRFAnalysis} disabled={!hasResult} />
         <HelpButton onClick={onHelpClick} />
         <ZoomResetButton points={points} />
       </MapContainer>

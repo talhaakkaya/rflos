@@ -1,0 +1,116 @@
+.settings-section {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 15px;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.settings-section h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 16px;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 8px;
+  word-break: break-word;
+}
+
+.settings-input-group {
+  margin-bottom: 12px;
+  min-width: 0;
+}
+
+.settings-input-group label {
+  display: block;
+  font-size: 13px;
+  color: #555;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.settings-value-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.settings-value-label {
+  font-weight: bold;
+  color: #333;
+  font-size: 13px;
+}
+
+.settings-value-number {
+  font-size: 18px;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.settings-description {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.settings-preset-label {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+/* Range slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 4px;
+  background: #ddd;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #007bff;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #007bff;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  background: #0056b3;
+}
+
+input[type="range"]:active::-moz-range-thumb {
+  background: #0056b3;
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .preset-grid {
+    grid-template-columns: 1fr;
+  }
+}
