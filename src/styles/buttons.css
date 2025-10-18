@@ -1,0 +1,195 @@
+/**
+ * Shared Button Styles
+ * Consolidates button patterns from ControlPanel, LOSPanel, ERPCalculator, and HelpModal
+ */
+
+/* Base Button Styles */
+.btn-base {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: bold;
+  box-sizing: border-box;
+}
+
+/* Icon Buttons (24x24) */
+.btn-icon {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* Large Icon Buttons (32x32) - for modals */
+.btn-icon-lg {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  border: none;
+}
+
+/* Small Action Buttons */
+.btn-small {
+  padding: 4px 10px;
+  font-size: 11px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+/* Regular Full-Width Buttons */
+.btn-regular {
+  width: 100%;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+/* Frequency Selector Buttons */
+.btn-freq {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* Color Variants - Primary (Blue) */
+.btn-primary {
+  background: #e7f3ff;
+  border: 1px solid #3388ff;
+  color: #3388ff;
+}
+
+.btn-primary:hover {
+  background: #d0e8ff;
+  border-color: #2277ee;
+}
+
+/* Color Variants - Danger (Red) */
+.btn-danger {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.btn-danger:hover {
+  background: #f5c6cb;
+  border-color: #f1b0b7;
+}
+
+/* Color Variants - Danger Solid (for modal close buttons) */
+.btn-danger-solid {
+  background: #dc3545;
+  color: white;
+  border: none;
+}
+
+.btn-danger-solid:hover {
+  background: #c82333;
+}
+
+/* Color Variants - Success (Green) */
+.btn-success {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.btn-success:hover {
+  background: #c3e6cb;
+  border-color: #b1dfbb;
+}
+
+/* Color Variants - Neutral (Gray) */
+.btn-neutral {
+  background: #e9ecef;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+.btn-neutral:hover {
+  background: #dee2e6;
+  border-color: #ccc;
+}
+
+/* Frequency Button Variants */
+.btn-freq-default {
+  background: #ffffff;
+  border: 2px solid #3388ff;
+  color: #3388ff;
+}
+
+.btn-freq-default:hover {
+  background: #e6f2ff;
+}
+
+.btn-freq-default.active {
+  background: #3388ff;
+  color: white;
+}
+
+/* Import Dialog Button Variants (solid colors) */
+.btn-import-solid {
+  background: #3388ff;
+  color: white;
+  border: none;
+}
+
+.btn-import-solid:hover {
+  background: #2277ee;
+}
+
+.btn-cancel-solid {
+  background: #dc3545;
+  color: white;
+  border: none;
+}
+
+.btn-cancel-solid:hover {
+  background: #c82333;
+}
+
+/* Disabled State */
+.btn-regular:disabled,
+.btn-small:disabled {
+  background: #ccc;
+  border-color: #ccc;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.btn-regular:disabled:hover,
+.btn-small:disabled:hover {
+  background: #ccc;
+  border-color: #ccc;
+}
+
+/* Modifier - Circular */
+.btn-circular {
+  border-radius: 50%;
+}

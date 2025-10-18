@@ -59,7 +59,7 @@ export default function ControlPanel({
         <h2>RF Path Analysis</h2>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button
-            className="btn-toggle-labels"
+            className="btn-icon btn-primary"
             onClick={(e) => {
               e.stopPropagation();
               onToggleLabels();
@@ -69,7 +69,7 @@ export default function ControlPanel({
             {hideLabels ? '👁️' : '🏷️'}
           </button>
           <button
-            className="btn-toggle-lines"
+            className="btn-icon btn-primary"
             onClick={(e) => {
               e.stopPropagation();
               onToggleLines();
@@ -79,7 +79,7 @@ export default function ControlPanel({
             {hideLines ? '📍' : '📐'}
           </button>
           <button
-            className="btn-reset"
+            className="btn-icon btn-primary"
             onClick={(e) => {
               e.stopPropagation();
               onReset();
@@ -89,7 +89,7 @@ export default function ControlPanel({
             🏠
           </button>
           <button
-            className="btn-hide"
+            className="btn-icon btn-danger"
             onClick={(e) => {
               e.stopPropagation();
               onToggleVisibility();
@@ -106,15 +106,15 @@ export default function ControlPanel({
         <div className="section-header">
           <h3>Points</h3>
           <div style={{ display: 'flex', gap: '5px' }}>
-            <button className="btn-small btn-import" onClick={() => setShowImportDialog(true)} disabled={isAddingPoint}>
+            <button className="btn-small btn-primary" onClick={() => setShowImportDialog(true)} disabled={isAddingPoint}>
               📥 Import JSON
             </button>
             {isAddingPoint ? (
-              <button className="btn-small btn-cancel" onClick={onCancelAddPoint}>
+              <button className="btn-small btn-danger" onClick={onCancelAddPoint}>
                 ✕ Cancel
               </button>
             ) : (
-              <button className="btn-small btn-add" onClick={onAddPoint}>
+              <button className="btn-small btn-primary" onClick={onAddPoint}>
                 + Add Point
               </button>
             )}
@@ -125,6 +125,7 @@ export default function ControlPanel({
         {showImportDialog && (
           <div className="import-dialog">
             <textarea
+              className="textarea-base"
               placeholder='Paste JSON here, e.g.:&#10;{"callsign": "ta1val", "latitude": 40.90, "longitude": 29.123}&#10;or an array of objects'
               value={importText}
               onChange={(e) => setImportText(e.target.value)}
@@ -132,7 +133,7 @@ export default function ControlPanel({
             />
             <div style={{ display: 'flex', gap: '5px', marginTop: '5px' }}>
               <button
-                className="btn-small btn-import"
+                className="btn-small btn-import-solid"
                 onClick={() => {
                   onImportJSON(importText);
                   setImportText('');
@@ -142,7 +143,7 @@ export default function ControlPanel({
                 Import
               </button>
               <button
-                className="btn-small btn-cancel"
+                className="btn-small btn-cancel-solid"
                 onClick={() => {
                   setImportText('');
                   setShowImportDialog(false);
@@ -162,12 +163,12 @@ export default function ControlPanel({
                 placeholder="Name"
                 value={point.name}
                 onChange={(e) => onPointUpdate(point.id, { name: e.target.value })}
-                className={`point-name-input ${index === 0 ? 'name-red' : 'name-blue'}`}
+                className={`input-compact point-name-input ${index === 0 ? 'name-red' : 'name-blue'}`}
                 maxLength={30}
               />
               {points.length > 2 && (
                 <button
-                  className="btn-remove"
+                  className="btn-icon btn-neutral btn-circular"
                   onClick={(e) => {
                     e.stopPropagation();
                     onRemovePoint(point.id);
@@ -186,6 +187,7 @@ export default function ControlPanel({
                 step="any"
                 value={point.lat}
                 onChange={(e) => onPointUpdate(point.id, { lat: parseFloat(e.target.value) || 0 })}
+                className="input-data"
               />
               <input
                 type="number"
@@ -193,6 +195,7 @@ export default function ControlPanel({
                 step="any"
                 value={point.lon}
                 onChange={(e) => onPointUpdate(point.id, { lon: parseFloat(e.target.value) || 0 })}
+                className="input-data"
               />
             </div>
 
@@ -204,7 +207,7 @@ export default function ControlPanel({
                 value={point.height}
                 onChange={(e) => onPointUpdate(point.id, { height: parseFloat(e.target.value) || 0 })}
                 min="0"
-                className="small-input"
+                className="input-data small-input"
               />
             </div>
           </div>

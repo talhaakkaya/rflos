@@ -1,0 +1,94 @@
+/**
+ * Shared Modal Styles
+ * Consolidates modal patterns from ERPCalculator and HelpModal
+ */
+
+/* Modal Overlay (dark background) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+/* Modal Content Container */
+.modal-content {
+  background: #ffffff;
+  border-radius: 8px;
+  max-width: 700px;
+  max-height: 90vh;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Wide Modal Content (for ERP Calculator) */
+.modal-content-wide {
+  background: #ffffff;
+  border-radius: 8px;
+  max-width: 900px;
+  max-height: 90vh;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 2px solid #3388ff;
+  background: #f0f8ff;
+  border-radius: 8px 8px 0 0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #2277ee;
+  font-size: 22px;
+}
+
+/* Modal Body */
+.modal-body {
+  padding: 20px;
+}
+
+/* Wide Modal Body (for ERP Calculator) */
+.modal-body-wide {
+  padding: 20px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .modal-content,
+  .modal-content-wide {
+    max-width: 95%;
+    max-height: 85vh;
+  }
+
+  .modal-header {
+    padding: 15px;
+  }
+
+  .modal-header h2 {
+    font-size: 18px;
+  }
+
+  .modal-body,
+  .modal-body-wide {
+    padding: 15px;
+  }
+}

@@ -95,14 +95,14 @@ export default function ERPCalculator({
   };
 
   return (
-    <div className="erp-modal-overlay" onClick={onClose}>
-      <div className="erp-modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="erp-modal-header">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content-wide" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
           <h2>Link Budget Calculator</h2>
-          <button className="erp-close-btn" onClick={onClose}>✕</button>
+          <button className="btn-icon-lg btn-danger-solid" onClick={onClose}>✕</button>
         </div>
 
-        <div className="erp-modal-body">
+        <div className="modal-body-wide">
           {!fspl ? (
             <div className="erp-warning">
               Please calculate a path first to get the Free Space Path Loss (FSPL).
@@ -137,12 +137,14 @@ export default function ERPCalculator({
                     <label>TX Power</label>
                     <div className="erp-input-with-unit">
                       <input
+                        className="input-data"
                         type="number"
                         value={txPowerA}
                         onChange={(e) => setTxPowerA(e.target.value)}
                         step="0.1"
                       />
                       <select
+                        className="select-unit"
                         value={txPowerUnitA}
                         onChange={(e) => setTxPowerUnitA(e.target.value as 'watts' | 'dBm')}
                       >
@@ -156,12 +158,14 @@ export default function ERPCalculator({
                     <label>Antenna Gain</label>
                     <div className="erp-input-with-unit">
                       <input
+                        className="input-data"
                         type="number"
                         value={antennaGainA}
                         onChange={(e) => setAntennaGainA(e.target.value)}
                         step="0.1"
                       />
                       <select
+                        className="select-unit"
                         value={antennaUnitA}
                         onChange={(e) => setAntennaUnitA(e.target.value as 'dBi' | 'dBd')}
                       >
@@ -175,12 +179,13 @@ export default function ERPCalculator({
                     <label>Cable Loss</label>
                     <div className="erp-input-with-unit">
                       <input
+                        className="input-data"
                         type="number"
                         value={cableLossA}
                         onChange={(e) => setCableLossA(e.target.value)}
                         step="0.1"
                       />
-                      <span className="erp-unit-label">dB</span>
+                      <span className="unit-label">dB</span>
                     </div>
                   </div>
                 </div>
@@ -193,12 +198,14 @@ export default function ERPCalculator({
                     <label>TX Power</label>
                     <div className="erp-input-with-unit">
                       <input
+                        className="input-data"
                         type="number"
                         value={txPowerB}
                         onChange={(e) => setTxPowerB(e.target.value)}
                         step="0.1"
                       />
                       <select
+                        className="select-unit"
                         value={txPowerUnitB}
                         onChange={(e) => setTxPowerUnitB(e.target.value as 'watts' | 'dBm')}
                       >
@@ -212,12 +219,14 @@ export default function ERPCalculator({
                     <label>Antenna Gain</label>
                     <div className="erp-input-with-unit">
                       <input
+                        className="input-data"
                         type="number"
                         value={antennaGainB}
                         onChange={(e) => setAntennaGainB(e.target.value)}
                         step="0.1"
                       />
                       <select
+                        className="select-unit"
                         value={antennaUnitB}
                         onChange={(e) => setAntennaUnitB(e.target.value as 'dBi' | 'dBd')}
                       >
@@ -231,12 +240,13 @@ export default function ERPCalculator({
                     <label>Cable Loss</label>
                     <div className="erp-input-with-unit">
                       <input
+                        className="input-data"
                         type="number"
                         value={cableLossB}
                         onChange={(e) => setCableLossB(e.target.value)}
                         step="0.1"
                       />
-                      <span className="erp-unit-label">dB</span>
+                      <span className="unit-label">dB</span>
                     </div>
                   </div>
                 </div>

@@ -228,7 +228,7 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
             {los.isBlocked ? 'BLOCKED' : 'CLEAR'}
           </div>
           <button
-            className="btn-expand-chart"
+            className="btn-icon btn-primary"
             onClick={() => setIsExpanded(!isExpanded)}
             title={isExpanded ? "Collapse chart" : "Expand chart"}
           >
@@ -236,7 +236,7 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
           </button>
           {onReverseCalculation && (
             <button
-              className="btn-reverse-calc"
+              className="btn-icon btn-primary"
               onClick={onReverseCalculation}
               title="Reverse calculation direction"
             >
@@ -245,7 +245,7 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
           )}
           {onClose && (
             <button
-              className="btn-close-los"
+              className="btn-icon btn-danger"
               onClick={onClose}
               title="Close analysis"
             >
@@ -343,14 +343,14 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
           </div>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
             <button
-              className={`btn-freq ${frequency >= 144 && frequency <= 148 ? 'active' : ''}`}
+              className={`btn-freq btn-freq-default ${frequency >= 144 && frequency <= 148 ? 'active' : ''}`}
               onClick={() => onFrequencyChange(145.5)}
               style={{ fontSize: '12px', padding: '4px 8px' }}
             >
               2m
             </button>
             <button
-              className={`btn-freq ${frequency >= 420 && frequency <= 450 ? 'active' : ''}`}
+              className={`btn-freq btn-freq-default ${frequency >= 420 && frequency <= 450 ? 'active' : ''}`}
               onClick={() => onFrequencyChange(433.5)}
               style={{ fontSize: '12px', padding: '4px 8px' }}
             >
@@ -404,7 +404,7 @@ export default function LOSPanel({ result, onClose, onHoverPoint, onReverseCalcu
               {onOpenERPCalculator && (
                 <button
                   onClick={onOpenERPCalculator}
-                  className="btn-erp"
+                  className="btn-small btn-primary"
                   title="Open ERP/Link Budget Calculator"
                 >
                   🔌 ERP Calculator

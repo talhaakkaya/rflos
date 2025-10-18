@@ -9,14 +9,14 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="help-modal-overlay" onClick={onClose}>
-      <div className="help-modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="help-modal-header">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
           <h2>How to Use LOS Calculator</h2>
-          <button className="help-close-btn" onClick={onClose}>✕</button>
+          <button className="btn-icon-lg btn-danger-solid" onClick={onClose}>✕</button>
         </div>
 
-        <div className="help-modal-body">
+        <div className="modal-body">
           <section className="help-section">
             <h3>🗺️ Getting Started</h3>
             <ul>

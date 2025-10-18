@@ -1,0 +1,204 @@
+/**
+ * Shared Input Styles
+ * Consolidates input patterns from ControlPanel and ERPCalculator
+ */
+
+/* Base Input Styles */
+.input-base {
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  color: #333;
+  transition: border-color 0.2s;
+}
+
+.input-base:focus {
+  outline: none;
+  border-color: #3388ff;
+  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
+}
+
+/* Regular Input (full width) */
+.input-regular {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  color: #333;
+  transition: border-color 0.2s;
+}
+
+.input-regular:focus {
+  outline: none;
+  border-color: #3388ff;
+  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
+}
+
+/* Coordinate/Data Input (monospace font) */
+.input-data {
+  flex: 1;
+  min-width: 0;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  font-family: 'Courier New', monospace;
+  background-color: #ffffff;
+  color: #333;
+  transition: border-color 0.2s;
+}
+
+.input-data:focus {
+  outline: none;
+  border-color: #3388ff;
+  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
+}
+
+.input-data::placeholder {
+  color: #aaa;
+  font-size: 13px;
+}
+
+/* Name Input (sans-serif font, bold) */
+.input-name {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  font-weight: 600;
+  background-color: #ffffff;
+  color: #333;
+  transition: border-color 0.2s;
+}
+
+.input-name:focus {
+  outline: none;
+  border-color: #3388ff;
+  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
+}
+
+/* Compact Input (small size) */
+.input-compact {
+  padding: 4px 8px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  font-weight: 600;
+  background-color: #ffffff;
+  transition: border-color 0.2s;
+}
+
+.input-compact:focus {
+  outline: none;
+  border-color: #3388ff;
+  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
+}
+
+.input-compact::placeholder {
+  color: #aaa;
+}
+
+/* Select Dropdown */
+.select-base {
+  padding: 8px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  background-color: #ffffff;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.select-base:focus {
+  outline: none;
+  border-color: #3388ff;
+  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
+}
+
+/* Select with units (ERP Calculator style) */
+.select-unit {
+  padding: 9px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  min-width: 70px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.select-unit option {
+  background: #ffffff;
+  color: #333;
+}
+
+.select-unit:focus {
+  outline: none;
+  border-color: #3388ff;
+  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
+}
+
+/* Textarea */
+.textarea-base {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+  resize: vertical;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  color: #333;
+  transition: border-color 0.2s;
+}
+
+.textarea-base:focus {
+  outline: none;
+  border-color: #3388ff;
+  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
+}
+
+/* Unit Label (for input groups with units) */
+.unit-label {
+  padding: 9px 12px;
+  background: #e9ecef;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #555;
+  font-weight: 600;
+  min-width: 50px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Remove spinner arrows from number inputs */
+.input-regular[type="number"]::-webkit-inner-spin-button,
+.input-regular[type="number"]::-webkit-outer-spin-button,
+.input-data[type="number"]::-webkit-inner-spin-button,
+.input-data[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input-regular[type="number"],
+.input-data[type="number"] {
+  -moz-appearance: textfield;
+}

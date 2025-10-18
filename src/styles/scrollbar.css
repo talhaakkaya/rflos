@@ -1,0 +1,39 @@
+/**
+ * Shared Scrollbar Styles
+ * Consolidates webkit scrollbar styling used across all panels and modals
+ */
+
+/* Apply to any scrollable container */
+.scrollable::-webkit-scrollbar,
+.control-panel::-webkit-scrollbar,
+.los-panel::-webkit-scrollbar,
+.erp-modal-content::-webkit-scrollbar,
+.help-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollable::-webkit-scrollbar-track,
+.control-panel::-webkit-scrollbar-track,
+.los-panel::-webkit-scrollbar-track,
+.erp-modal-content::-webkit-scrollbar-track,
+.help-modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.scrollable::-webkit-scrollbar-thumb,
+.control-panel::-webkit-scrollbar-thumb,
+.los-panel::-webkit-scrollbar-thumb,
+.erp-modal-content::-webkit-scrollbar-thumb,
+.help-modal-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover,
+.control-panel::-webkit-scrollbar-thumb:hover,
+.los-panel::-webkit-scrollbar-thumb:hover,
+.erp-modal-content::-webkit-scrollbar-thumb:hover,
+.help-modal-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

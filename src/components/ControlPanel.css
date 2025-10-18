@@ -16,24 +16,7 @@
   box-sizing: border-box;
 }
 
-/* Smooth scrolling for the panel */
-.control-panel::-webkit-scrollbar {
-  width: 8px;
-}
-
-.control-panel::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.control-panel::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-.control-panel::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
+/* Scrollbar styling now in shared scrollbar.css */
 
 .panel-header {
   display: flex;
@@ -55,116 +38,8 @@
   color: #333;
 }
 
-.btn-hide {
-  background: #f8d7da;
-  border: 1px solid #f5c6cb;
-  color: #721c24;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
-.btn-hide:hover {
-  background: #f5c6cb;
-  border-color: #f1b0b7;
-}
-
-.btn-toggle-labels {
-  background: #e7f3ff;
-  border: 1px solid #3388ff;
-  color: #3388ff;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
-.btn-toggle-labels:hover {
-  background: #d0e8ff;
-  border-color: #2277ee;
-}
-
-.btn-toggle-lines {
-  background: #e7f3ff;
-  border: 1px solid #3388ff;
-  color: #3388ff;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
-.btn-toggle-lines:hover {
-  background: #d0e8ff;
-  border-color: #2277ee;
-}
-
-.btn-share {
-  background: #e7f3ff;
-  border: 1px solid #3388ff;
-  color: #3388ff;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
-.btn-share:hover {
-  background: #d0e8ff;
-  border-color: #2277ee;
-}
-
-.btn-reset {
-  background: #e7f3ff;
-  border: 1px solid #3388ff;
-  color: #3388ff;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
-.btn-reset:hover {
-  background: #d0e8ff;
-  border-color: #2277ee;
-}
+/* Button styles now in shared buttons.css
+   Use: btn-icon btn-danger, btn-icon btn-primary */
 
 .input-group {
   margin-bottom: 15px;
@@ -188,63 +63,9 @@
   min-width: 0;
 }
 
-.name-input {
-  width: 100%;
-  padding: 10px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  box-sizing: border-box;
-  margin-bottom: 8px;
-  font-family: Arial, sans-serif;
-  font-weight: 600;
-  transition: border-color 0.2s;
-  background-color: #ffffff;
-  color: #333;
-}
-
-.name-input:focus {
-  outline: none;
-  border-color: #3388ff;
-  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
-}
-
-.input-row input {
-  flex: 1;
-  padding: 10px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  min-width: 0;
-  width: 100%;
-  box-sizing: border-box;
-  font-family: 'Courier New', monospace;
-  transition: border-color 0.2s;
-  background-color: #ffffff;
-  color: #333;
-}
-
-.input-row input:focus {
-  outline: none;
-  border-color: #3388ff;
-  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
-}
-
-.input-row input::placeholder {
-  color: #aaa;
-  font-size: 13px;
-}
-
-/* Remove spinner arrows from number inputs */
-.input-row input[type="number"]::-webkit-inner-spin-button,
-.input-row input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.input-row input[type="number"] {
-  -moz-appearance: textfield;
-}
+/* Input styles now in shared inputs.css
+   name-input: use input-name
+   input-row input: use input-data */
 
 .small-input {
   flex: 1 !important;
@@ -253,30 +74,8 @@
   font-size: 13px !important;
 }
 
-.btn {
-  width: 100%;
-  padding: 12px;
-  background: #e7f3ff;
-  border: 1px solid #3388ff;
-  color: #3388ff;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn:hover:not(:disabled) {
-  background: #d0e8ff;
-  border-color: #2277ee;
-}
-
-.btn:disabled {
-  background: #ccc;
-  border-color: #ccc;
-  color: #999;
-  cursor: not-allowed;
-}
+/* Full-width button styles now in shared buttons.css
+   Use: btn-regular btn-primary */
 
 .loading {
   text-align: center;
@@ -308,27 +107,8 @@
   color: #555;
 }
 
-.btn-freq {
-  flex: 1;
-  padding: 8px 12px;
-  font-size: 11px;
-  font-weight: 600;
-  border: 2px solid #3388ff;
-  border-radius: 4px;
-  background: #ffffff;
-  color: #3388ff;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-freq:hover {
-  background: #e6f2ff;
-}
-
-.btn-freq.active {
-  background: #3388ff;
-  color: white;
-}
+/* Frequency button styles now in shared buttons.css
+   Use: btn-freq btn-freq-default and .active modifier */
 
 /* Points Section */
 .points-section {
@@ -348,53 +128,8 @@
   color: #333;
 }
 
-.btn-small {
-  padding: 4px 10px;
-  font-size: 11px;
-  border-radius: 3px;
-  border: 1px solid #3388ff;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-
-.btn-add {
-  background: #e7f3ff;
-  color: #3388ff;
-}
-
-.btn-add:hover {
-  background: #d0e8ff;
-  border-color: #2277ee;
-}
-
-.btn-import {
-  background: #e7f3ff;
-  color: #3388ff;
-}
-
-.btn-import:hover {
-  background: #d0e8ff;
-  border-color: #2277ee;
-}
-
-.btn-import:disabled {
-  background: #ccc;
-  border-color: #ccc;
-  color: #999;
-  cursor: not-allowed;
-}
-
-.btn-cancel {
-  background: #f8d7da;
-  border-color: #f5c6cb;
-  color: #721c24;
-}
-
-.btn-cancel:hover {
-  background: #f5c6cb;
-  border-color: #f1b0b7;
-}
+/* Small button styles now in shared buttons.css
+   Use: btn-small btn-primary, btn-small btn-danger */
 
 .point-item {
   background: #f8f9fa;
@@ -413,28 +148,11 @@
   border-bottom: 2px solid #ddd;
 }
 
+/* Point name input styling now in shared inputs.css
+   Use: input-compact + custom flex/width styles */
 .point-name-input {
   flex: 0 1 auto;
   max-width: 25%;
-  padding: 4px 8px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  font-size: 13px;
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
-  font-weight: 600;
-  transition: border-color 0.2s;
-  background-color: #ffffff;
-}
-
-.point-name-input:focus {
-  outline: none;
-  border-color: #3388ff;
-  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
-}
-
-.point-name-input::placeholder {
-  color: #aaa;
 }
 
 .name-red {
@@ -445,27 +163,8 @@
   color: #3388ff;
 }
 
-.btn-remove {
-  background: #e9ecef;
-  border: 1px solid #ddd;
-  color: #333;
-  font-weight: bold;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  font-size: 11px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.btn-remove:hover {
-  background: #dee2e6;
-  border-color: #ccc;
-}
+/* Remove button styles now in shared buttons.css
+   Use: btn-icon btn-neutral btn-circular */
 
 .height-input-row {
   display: flex;
@@ -480,35 +179,8 @@
   margin: 0;
 }
 
-.height-input-row input {
-  flex: 1;
-  padding: 10px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  min-width: 0;
-  box-sizing: border-box;
-  font-family: 'Courier New', monospace;
-  transition: border-color 0.2s;
-  background-color: #ffffff;
-  color: #333;
-}
-
-.height-input-row input:focus {
-  outline: none;
-  border-color: #3388ff;
-  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
-}
-
-.height-input-row input[type="number"]::-webkit-inner-spin-button,
-.height-input-row input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.height-input-row input[type="number"] {
-  -moz-appearance: textfield;
-}
+/* Height input styles now in shared inputs.css
+   Use: input-data with flex: 1 */
 
 /* LOS Selector Section */
 .los-selector-section {
@@ -542,23 +214,8 @@
   margin-bottom: 4px;
 }
 
-.point-selector {
-  width: 100%;
-  padding: 8px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  font-size: 13px;
-  background-color: #ffffff;
-  color: #333;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-
-.point-selector:focus {
-  outline: none;
-  border-color: #3388ff;
-  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
-}
+/* Point selector styles now in shared inputs.css
+   Use: select-base with width: 100% */
 
 /* Import Dialog */
 .import-dialog {
@@ -569,45 +226,9 @@
   margin-bottom: 10px;
 }
 
-.import-dialog textarea {
-  width: 100%;
-  padding: 10px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  font-size: 11px;
-  font-family: 'Courier New', monospace;
-  resize: vertical;
-  box-sizing: border-box;
-  background-color: #ffffff;
-  color: #333;
-  transition: border-color 0.2s;
-}
-
-.import-dialog textarea:focus {
-  outline: none;
-  border-color: #3388ff;
-  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.1);
-}
-
-.import-dialog .btn-import {
-  background: #3388ff;
-  color: white;
-  border: none;
-}
-
-.import-dialog .btn-import:hover {
-  background: #2277ee;
-}
-
-.import-dialog .btn-cancel {
-  background: #dc3545;
-  color: white;
-  border: none;
-}
-
-.import-dialog .btn-cancel:hover {
-  background: #c82333;
-}
+/* Import dialog textarea now uses shared inputs.css: textarea-base */
+/* Import dialog buttons now use shared buttons.css:
+   btn-small btn-import-solid, btn-small btn-cancel-solid */
 
 /* Responsive design for small screens */
 @media (max-width: 768px) {

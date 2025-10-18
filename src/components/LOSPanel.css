@@ -21,24 +21,7 @@
   width: 600px;
 }
 
-/* Smooth scrolling for the panel */
-.los-panel::-webkit-scrollbar {
-  width: 8px;
-}
-
-.los-panel::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.los-panel::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-.los-panel::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
+/* Scrollbar styling now in shared scrollbar.css */
 
 .los-header {
   display: flex;
@@ -143,71 +126,10 @@
   }
 }
 
-.btn-close-los {
-  background: #f8d7da;
-  border: 1px solid #f5c6cb;
-  color: #721c24;
-  font-size: 16px;
-  font-weight: bold;
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: all 0.2s;
-}
-
-.btn-close-los:hover {
-  background: #f5c6cb;
-  border-color: #f1b0b7;
-}
-
-.btn-expand-chart {
-  background: #e7f3ff;
-  border: 1px solid #3388ff;
-  color: #3388ff;
-  font-size: 16px;
-  font-weight: bold;
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: all 0.2s;
-}
-
-.btn-expand-chart:hover {
-  background: #d0e8ff;
-  border-color: #2277ee;
-}
-
-.btn-reverse-calc {
-  background: #e7f3ff;
-  border: 1px solid #3388ff;
-  color: #3388ff;
-  font-size: 16px;
-  font-weight: bold;
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: all 0.2s;
-}
-
-.btn-reverse-calc:hover {
-  background: #d0e8ff;
-  border-color: #2277ee;
-}
+/* Button styles now in shared buttons.css
+   btn-close-los: use btn-icon btn-danger
+   btn-expand-chart: use btn-icon btn-primary
+   btn-reverse-calc: use btn-icon btn-primary */
 
 .freq-input::-webkit-inner-spin-button,
 .freq-input::-webkit-outer-spin-button {
@@ -219,20 +141,5 @@
   -moz-appearance: textfield;
 }
 
-.btn-erp {
-  background: #e7f3ff;
-  color: #3388ff;
-  border: 1px solid #3388ff;
-  padding: 4px 10px;
-  font-size: 11px;
-  border-radius: 3px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.btn-erp:hover {
-  background: #d0e8ff;
-  border-color: #2277ee;
-}
+/* ERP button styles now in shared buttons.css
+   Use: btn-small btn-primary */
