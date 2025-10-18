@@ -11,6 +11,8 @@ interface PathAnalysisPanelProps {
   onClose?: () => void;
   onHoverPoint?: (index: number | null) => void;
   onReverseCalculation?: () => void;
+  onRFAnalysisToggle?: () => void;
+  showRFAnalysis?: boolean;
   currentName1?: string;
   currentName2?: string;
   isLoading?: boolean;
@@ -65,6 +67,8 @@ export default function PathAnalysisPanel({
   onClose,
   onHoverPoint,
   onReverseCalculation,
+  onRFAnalysisToggle,
+  showRFAnalysis,
   currentName1,
   currentName2,
   isLoading = false
@@ -227,11 +231,24 @@ export default function PathAnalysisPanel({
   return (
     <div className={`los-panel ${isExpanded ? 'panel-expanded' : ''}`}>
       <div className="los-header">
-        <h3>Line of Sight Analysis</h3>
+        <h3>LOS Analysis</h3>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <div className={`los-status ${los.isBlocked ? 'los-blocked' : 'los-clear'}`}>
             {los.isBlocked ? 'BLOCKED' : 'CLEAR'}
           </div>
+          {onRFAnalysisToggle && (
+            <button
+              className="btn-icon btn-primary"
+              onClick={onRFAnalysisToggle}
+              title={showRFAnalysis ? "Hide RF analysis" : "Show RF analysis"}
+              style={{
+                background: showRFAnalysis ? '#e3f2fd' : undefined,
+                border: showRFAnalysis ? '2px solid #2196F3' : undefined
+              }}
+            >
+              📡
+            </button>
+          )}
           <button
             className="btn-icon btn-primary"
             onClick={() => setIsExpanded(!isExpanded)}

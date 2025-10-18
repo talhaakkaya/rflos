@@ -491,9 +491,6 @@ function App() {
         hoveredPathPoint={result && hoveredPathIndex !== null ? result.pathPoints[hoveredPathIndex] : null}
         onHelpClick={() => setIsHelpOpen(true)}
         resetZoomTrigger={resetZoomTrigger}
-        onRFAnalysisToggle={() => setShowRFAnalysis(!showRFAnalysis)}
-        showRFAnalysis={showRFAnalysis}
-        hasResult={result !== null}
       />
 
       {isPanelVisible ? (
@@ -532,6 +529,8 @@ function App() {
         }}
         onHoverPoint={(index) => setHoveredPathIndex(index)}
         onReverseCalculation={handleReverseCalculation}
+        onRFAnalysisToggle={() => setShowRFAnalysis(!showRFAnalysis)}
+        showRFAnalysis={showRFAnalysis}
         currentName1={points.find(p => p.id === (selectedLine?.fromId || losFromId))?.name}
         currentName2={points.find(p => p.id === (selectedLine?.toId || losToId))?.name}
         isLoading={isLoading}
