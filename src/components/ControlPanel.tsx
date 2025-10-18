@@ -56,7 +56,7 @@ export default function ControlPanel({
       onMouseDown={handlePanelMouseDown}
     >
       <div className="panel-header" style={{ cursor: 'grab' }}>
-        <h2>RF Path Analysis</h2>
+        <h2>Station Setup</h2>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button
             className="btn-icon btn-primary"

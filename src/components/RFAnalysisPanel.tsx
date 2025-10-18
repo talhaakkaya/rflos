@@ -1,5 +1,6 @@
 import type { PathResult } from '../types';
 import './LOSPanel.css';
+import { useDraggable } from '../hooks/useDraggable';
 
 interface RFAnalysisPanelProps {
   result: PathResult | null;
@@ -22,6 +23,11 @@ export default function RFAnalysisPanel({
   currentName1,
   isLoading = false
 }: RFAnalysisPanelProps) {
+  const { position, isDragging, handleMouseDown } = useDraggable({
+    x: 50,
+    y: 20
+  });
+
   if (!result) return null;
 
   const { fspl, diffraction, kFactor, name1 } = result;
@@ -29,15 +35,33 @@ export default function RFAnalysisPanel({
   // Use current names if provided, otherwise fall back to result names
   const displayName1 = currentName1 || name1;
 
+  const handlePanelMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('.los-header')) {
+      handleMouseDown(e);
+    }
+  };
+
   return (
-    <div className="los-panel">
-      <div className="los-header">
+    <div
+      className="los-panel"
+      style={{
+        position: 'absolute',
+        inset: `${position.y}px auto auto ${position.x}px`,
+        cursor: isDragging ? 'grabbing' : 'auto',
+        zIndex: 1100
+      }}
+      onMouseDown={handlePanelMouseDown}
+    >
+      <div className="los-header" style={{ cursor: 'grab' }}>
         <h3>RF Analysis</h3>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           {onClose && (
             <button
               className="btn-icon btn-danger"
-              onClick={onClose}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
               title="Close RF analysis"
             >
               ✕
@@ -55,14 +79,20 @@ export default function RFAnalysisPanel({
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
             <button
               className={`btn-freq btn-freq-default ${frequency >= 144 && frequency <= 148 ? 'active' : ''}`}
-              onClick={() => onFrequencyChange(145.5)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onFrequencyChange(145.5);
+              }}
               style={{ fontSize: '12px', padding: '4px 8px' }}
             >
               2m
             </button>
             <button
               className={`btn-freq btn-freq-default ${frequency >= 420 && frequency <= 450 ? 'active' : ''}`}
-              onClick={() => onFrequencyChange(433.5)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onFrequencyChange(433.5);
+              }}
               style={{ fontSize: '12px', padding: '4px 8px' }}
             >
               70cm
@@ -114,7 +144,10 @@ export default function RFAnalysisPanel({
               </div>
               {onOpenERPCalculator && (
                 <button
-                  onClick={onOpenERPCalculator}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenERPCalculator();
+                  }}
                   className="btn-small btn-primary"
                   title="Open ERP/Link Budget Calculator"
                 >
@@ -186,7 +219,10 @@ export default function RFAnalysisPanel({
               </div>
               {onOpenAdvancedSettings && (
                 <button
-                  onClick={onOpenAdvancedSettings}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenAdvancedSettings();
+                  }}
                   className="btn-small btn-primary"
                   title="Open Line of Sight Settings"
                 >
