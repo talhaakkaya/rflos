@@ -399,14 +399,30 @@ function App() {
       // Handle single object or array
       const items = Array.isArray(data) ? data : [data];
 
+      // Helper function to check if a point is duplicate
+      const isDuplicate = (lat: number, lon: number, name: string): boolean => {
+        return points.some(p =>
+          p.lat === lat && p.lon === lon && p.name === name
+        );
+      };
+
       items.forEach((item, index) => {
         if (item.latitude && item.longitude) {
+          const lat = parseFloat(item.latitude);
+          const lon = parseFloat(item.longitude);
+          const name = item.callsign || item.name || `Point ${String.fromCharCode(65 + points.length + index)}`;
+
+          // Skip if duplicate (same lat, lon, and name)
+          if (isDuplicate(lat, lon, name)) {
+            return;
+          }
+
           const newId = (Math.max(...points.map(p => parseInt(p.id)), 0) + index + 1).toString();
           importedPoints.push({
             id: newId,
-            lat: parseFloat(item.latitude),
-            lon: parseFloat(item.longitude),
-            name: item.callsign || item.name || `Point ${String.fromCharCode(65 + points.length + index)}`,
+            lat,
+            lon,
+            name,
             height: item.height || 10
           });
         }
