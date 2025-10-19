@@ -136,8 +136,8 @@ A web-based RF (Radio Frequency) path analysis tool that calculates line of sigh
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd los-calculator
+git clone https://github.com/talhaakkaya/rflos
+cd rflos
 
 # Install dependencies
 npm install
