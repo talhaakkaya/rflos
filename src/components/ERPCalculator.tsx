@@ -143,8 +143,12 @@ export default function ERPCalculator({
       return `${dBm.toFixed(2)} dBm (${watts.toFixed(2)} W)`;
     } else if (watts >= 0.001) {
       return `${dBm.toFixed(2)} dBm (${(watts * 1000).toFixed(2)} mW)`;
-    } else {
+    } else if (watts >= 0.000001) {
       return `${dBm.toFixed(2)} dBm (${(watts * 1000000).toFixed(2)} µW)`;
+    } else if (watts >= 0.000000001) {
+      return `${dBm.toFixed(2)} dBm (${(watts * 1000000000).toFixed(2)} nW)`;
+    } else {
+      return `${dBm.toFixed(2)} dBm (${watts.toExponential(2)} W)`;
     }
   };
 
