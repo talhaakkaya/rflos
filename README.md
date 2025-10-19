@@ -264,7 +264,7 @@ This application uses the free [Open-Elevation API](https://open-elevation.com/)
 src/
 ├── components/
 │   ├── ControlPanel.tsx           # Station Setup panel (input controls and point management)
-│   ├── LOSPanel.tsx                # Line of Sight results display and elevation chart
+│   ├── LOSPanel.tsx               # Line of Sight results display and elevation chart
 │   ├── RFAnalysisPanel.tsx        # RF Analysis panel (draggable) - frequency, FSPL, diffraction, K-factor
 │   ├── ERPCalculator.tsx          # ERP/Link Budget calculator modal
 │   ├── AdvancedSettingsModal.tsx  # K-factor and LOS settings modal
