@@ -3,6 +3,7 @@ import type { Point } from '../types';
 import { useDraggable } from '../hooks/useDraggable';
 import { useState, useEffect } from 'react';
 import { latLonToGridLocator, gridLocatorToLatLon, validateGridLocator, formatGridLocator } from '../utils/gridLocator';
+import { searchLocation, formatResultDisplay, type GeocodeResult } from '../utils/geocoding';
 
 interface ControlPanelProps {
   points: Point[];
@@ -47,6 +48,13 @@ export default function ControlPanel({
 
   // Track previous coordinates to detect marker drags vs typing
   const [prevCoords, setPrevCoords] = useState<Record<string, { lat: number; lon: number }>>({});
+
+  // Track search mode for each point
+  const [searchMode, setSearchMode] = useState<Record<string, boolean>>({});
+  const [searchQuery, setSearchQuery] = useState<Record<string, string>>({});
+  const [searchResults, setSearchResults] = useState<Record<string, GeocodeResult[]>>({});
+  const [isSearching, setIsSearching] = useState<Record<string, boolean>>({});
+  const [searchError, setSearchError] = useState<Record<string, string | null>>({});
 
   // Sync grid locators when points change (from drag or other updates)
   useEffect(() => {
@@ -108,6 +116,63 @@ export default function ControlPanel({
   // Get current input mode for a point (default to lat/lon)
   const getInputMode = (pointId: string): 'latlon' | 'grid' => {
     return inputMode[pointId] || 'latlon';
+  };
+
+  // Toggle search mode for a point
+  const toggleSearchMode = (pointId: string) => {
+    const isCurrentlyOpen = searchMode[pointId];
+    setSearchMode(prev => ({
+      ...prev,
+      [pointId]: !isCurrentlyOpen
+    }));
+
+    // Reset search state when closing
+    if (isCurrentlyOpen) {
+      setSearchQuery(prev => ({ ...prev, [pointId]: '' }));
+      setSearchResults(prev => ({ ...prev, [pointId]: [] }));
+      setSearchError(prev => ({ ...prev, [pointId]: null }));
+    }
+  };
+
+  // Handle search execution
+  const handleSearch = async (pointId: string) => {
+    const query = searchQuery[pointId];
+    if (!query || query.trim().length === 0) {
+      return;
+    }
+
+    setIsSearching(prev => ({ ...prev, [pointId]: true }));
+    setSearchError(prev => ({ ...prev, [pointId]: null }));
+
+    try {
+      const results = await searchLocation(query, 5);
+      setSearchResults(prev => ({ ...prev, [pointId]: results }));
+
+      if (results.length === 0) {
+        setSearchError(prev => ({ ...prev, [pointId]: 'No locations found' }));
+      }
+    } catch (error) {
+      console.error('Search failed:', error);
+      setSearchError(prev => ({ ...prev, [pointId]: 'Search failed. Please try again.' }));
+      setSearchResults(prev => ({ ...prev, [pointId]: [] }));
+    } finally {
+      setIsSearching(prev => ({ ...prev, [pointId]: false }));
+    }
+  };
+
+  // Handle search result selection
+  const handleSelectResult = (pointId: string, result: GeocodeResult) => {
+    const lat = parseFloat(result.lat);
+    const lon = parseFloat(result.lon);
+
+    // Update point coordinates
+    onPointUpdate(pointId, { lat, lon });
+
+    // Close search
+    setSearchMode(prev => ({ ...prev, [pointId]: false }));
+    setSearchQuery(prev => ({ ...prev, [pointId]: '' }));
+    setSearchResults(prev => ({ ...prev, [pointId]: [] }));
+    setSearchError(prev => ({ ...prev, [pointId]: null }));
   };
 
   return (
@@ -253,6 +318,19 @@ export default function ControlPanel({
               </span>
               <button
                 className="btn-icon btn-primary"
+                onClick={() => toggleSearchMode(point.id)}
+                title={searchMode[point.id] ? "Close search" : "Search location"}
+                style={{
+                  fontSize: '14px',
+                  padding: '2px 6px',
+                  background: searchMode[point.id] ? '#e3f2fd' : undefined,
+                  border: searchMode[point.id] ? '2px solid #2196F3' : undefined
+                }}
+              >
+                🔍
+              </button>
+              <button
+                className="btn-icon btn-primary"
                 onClick={() => toggleInputMode(point.id)}
                 title={getInputMode(point.id) === 'latlon' ? "Switch to grid locator" : "Switch to lat/lon"}
                 style={{ fontSize: '14px', padding: '2px 6px' }}
@@ -260,6 +338,73 @@ export default function ControlPanel({
                 {getInputMode(point.id) === 'latlon' ? '🌐' : '📍'}
               </button>
             </div>
+
+            {/* Search Interface (shown when search mode is active) */}
+            {searchMode[point.id] && (
+              <div style={{ marginBottom: '8px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+                <div style={{ display: 'flex', gap: '5px', marginBottom: '5px' }}>
+                  <input
+                    type="text"
+                    placeholder="Search location..."
+                    value={searchQuery[point.id] || ''}
+                    onChange={(e) => setSearchQuery(prev => ({ ...prev, [point.id]: e.target.value }))}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSearch(point.id);
+                      }
+                    }}
+                    className="input-data"
+                    style={{ flex: 1 }}
+                  />
+                  <button
+                    className="btn-small btn-primary"
+                    onClick={() => handleSearch(point.id)}
+                    disabled={isSearching[point.id] || !searchQuery[point.id]?.trim()}
+                  >
+                    {isSearching[point.id] ? '...' : 'Search'}
+                  </button>
+                </div>
+
+                {/* Search Results */}
+                {searchResults[point.id] && searchResults[point.id].length > 0 && (
+                  <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: 'white' }}>
+                    {searchResults[point.id].map((result) => (
+                      <div
+                        key={result.place_id}
+                        onClick={() => handleSelectResult(point.id, result)}
+                        style={{
+                          padding: '8px',
+                          cursor: 'pointer',
+                          borderBottom: '1px solid #eee',
+                          fontSize: '12px',
+                          transition: 'background-color 0.2s',
+                          color: '#333'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0f0f0'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                        title={result.display_name}
+                      >
+                        {formatResultDisplay(result, 60)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Error Message */}
+                {searchError[point.id] && (
+                  <div style={{ color: '#dc3545', fontSize: '11px', marginTop: '5px' }}>
+                    {searchError[point.id]}
+                  </div>
+                )}
+
+                {/* Help Text */}
+                {!searchResults[point.id]?.length && !searchError[point.id] && !isSearching[point.id] && (
+                  <div style={{ fontSize: '10px', color: '#999', marginTop: '5px' }}>
+                    Enter a city, address, or landmark
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Conditional Input: Lat/Lon OR Grid Locator */}
             {getInputMode(point.id) === 'latlon' ? (
