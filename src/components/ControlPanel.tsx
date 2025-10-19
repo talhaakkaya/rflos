@@ -1,7 +1,7 @@
 import './ControlPanel.css';
 import type { Point } from '../types';
 import { useDraggable } from '../hooks/useDraggable';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { latLonToGridLocator, gridLocatorToLatLon, validateGridLocator, formatGridLocator } from '../utils/gridLocator';
 import { searchLocation, formatResultDisplay, type GeocodeResult } from '../utils/geocoding';
 
@@ -49,6 +49,9 @@ export default function ControlPanel({
   // Track previous coordinates to detect marker drags vs typing
   const [prevCoords, setPrevCoords] = useState<Record<string, { lat: number; lon: number }>>({});
 
+  // Track when we're updating coordinates from grid input to prevent circular updates
+  const isUpdatingFromGridRef = useRef(false);
+
   // Track search mode for each point
   const [searchMode, setSearchMode] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState<Record<string, string>>({});
@@ -58,6 +61,12 @@ export default function ControlPanel({
 
   // Sync grid locators when points change (from drag or other updates)
   useEffect(() => {
+    // Skip update if we're currently updating from grid input to prevent circular updates
+    if (isUpdatingFromGridRef.current) {
+      isUpdatingFromGridRef.current = false;
+      return;
+    }
+
     const newGridInputs: Record<string, string> = {};
     const newPrevCoords: Record<string, { lat: number; lon: number }> = {};
 
@@ -108,6 +117,8 @@ export default function ControlPanel({
     if (formatted) {
       const coords = gridLocatorToLatLon(formatted);
       if (coords) {
+        // Set flag to prevent circular update in useEffect
+        isUpdatingFromGridRef.current = true;
         onPointUpdate(pointId, { lat: coords.lat, lon: coords.lon });
       }
     }
