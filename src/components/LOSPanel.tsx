@@ -6,7 +6,7 @@ import './LOSPanel.css';
 
 Chart.register(...registerables);
 
-interface PathAnalysisPanelProps {
+interface LOSPanelProps {
   result: PathResult | null;
   onClose?: () => void;
   onHoverPoint?: (index: number | null) => void;
@@ -62,7 +62,7 @@ const CompassSVG = ({ bearing, size = 60 }: { bearing: number; size?: number }) 
   );
 };
 
-export default function PathAnalysisPanel({
+export default function LOSPanel({
   result,
   onClose,
   onHoverPoint,
@@ -72,7 +72,7 @@ export default function PathAnalysisPanel({
   currentName1,
   currentName2,
   isLoading = false
-}: PathAnalysisPanelProps) {
+}: LOSPanelProps) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const onHoverPointRef = useRef(onHoverPoint);

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import ControlPanel from './components/ControlPanel';
 import MapView from './components/MapView/MapView';
-import PathAnalysisPanel from './components/PathAnalysisPanel';
+import LOSPanel from './components/LOSPanel';
 import RFAnalysisPanel from './components/RFAnalysisPanel';
 import HelpModal from './components/HelpModal';
 import ERPCalculator from './components/ERPCalculator';
@@ -12,6 +12,7 @@ import { calculateDistance } from './hooks/usePathCalculation';
 import { useLOSCalculation } from './hooks/useLOSCalculation';
 import { decodeStateFromURL, updateURL } from './hooks/useURLState';
 import { comparePointGeometry } from './utils/pointComparison';
+import { gridLocatorToLatLon } from './utils/gridLocator';
 import type { Point, PathResult, SegmentDistance } from './types';
 import './App.css';
 
@@ -417,9 +418,30 @@ function App() {
       };
 
       items.forEach((item, index) => {
+        let lat: number | null = null;
+        let lon: number | null = null;
+
+        // Priority 1: Use latitude/longitude if both exist
         if (item.latitude && item.longitude) {
-          const lat = parseFloat(item.latitude);
-          const lon = parseFloat(item.longitude);
+          lat = parseFloat(item.latitude);
+          lon = parseFloat(item.longitude);
+        }
+        // Priority 2: Use grid_square if lat/lon not available
+        else {
+          // Check for various grid locator field names
+          const gridField = item.grid_square || item.gridsquare || item.grid || item.locator;
+
+          if (gridField) {
+            const coords = gridLocatorToLatLon(gridField);
+            if (coords) {
+              lat = coords.lat;
+              lon = coords.lon;
+            }
+          }
+        }
+
+        // Only proceed if we have valid coordinates
+        if (lat !== null && lon !== null) {
           const name = item.callsign || item.name || `Point ${String.fromCharCode(65 + points.length + index)}`;
 
           // Skip if duplicate (same lat, lon, and name)
@@ -520,7 +542,7 @@ function App() {
       )}
 
       {/* Main Path Analysis Panel - always shown when result exists */}
-      <PathAnalysisPanel
+      <LOSPanel
         result={result}
         onClose={() => {
           setSelectedLine(null);
