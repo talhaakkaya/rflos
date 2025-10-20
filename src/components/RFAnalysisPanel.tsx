@@ -1,6 +1,7 @@
 import type { PathResult } from '../types';
 import './LOSPanel.css';
 import { useDraggable } from '../hooks/useDraggable';
+import { X, Zap, Mountain, Info, Check, Globe, Settings } from 'lucide-react';
 
 interface RFAnalysisPanelProps {
   result: PathResult | null;
@@ -64,7 +65,7 @@ export default function RFAnalysisPanel({
               }}
               title="Close RF analysis"
             >
-              ✕
+              <X size={18} />
             </button>
           )}
         </div>
@@ -151,7 +152,7 @@ export default function RFAnalysisPanel({
                   className="btn-small btn-primary"
                   title="Open ERP/Link Budget Calculator"
                 >
-                  🔌 ERP Calculator
+                  <Zap size={14} style={{ marginRight: '4px', display: 'inline-block', verticalAlign: 'middle' }} /> ERP Calculator
                 </button>
               )}
             </div>
@@ -167,8 +168,8 @@ export default function RFAnalysisPanel({
         {/* Knife-Edge Diffraction Section */}
         {diffraction && diffraction.obstacles.length > 0 && (
           <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #ddd' }}>
-            <div className="los-detail" style={{ color: '#ff6b00', fontWeight: 'bold', marginBottom: '6px' }}>
-              ⛰️ Knife-Edge Diffraction Analysis
+            <div className="los-detail" style={{ color: '#ff6b00', fontWeight: 'bold', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Mountain size={16} /> Knife-Edge Diffraction Analysis
             </div>
             <div className="los-detail">
               <strong>Obstacles Detected:</strong> {diffraction.obstacles.length}
@@ -193,8 +194,8 @@ export default function RFAnalysisPanel({
               </>
             )}
             {diffraction.obstacles.length > 1 && (
-              <div className="los-detail" style={{ fontSize: '11px', color: '#999', marginTop: '6px' }}>
-                ℹ️ Multiple obstacles detected. Loss includes {diffraction.obstacles.length} knife-edge diffractions.
+              <div className="los-detail" style={{ fontSize: '11px', color: '#999', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Info size={14} /> Multiple obstacles detected. Loss includes {diffraction.obstacles.length} knife-edge diffractions.
               </div>
             )}
             <div className="los-detail" style={{ fontSize: '11px', color: '#666', marginTop: '6px' }}>
@@ -204,8 +205,8 @@ export default function RFAnalysisPanel({
         )}
         {diffraction && diffraction.obstacles.length === 0 && !result.los.isBlocked && (
           <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #ddd' }}>
-            <div className="los-detail" style={{ color: '#28a745', fontSize: '12px' }}>
-              ✓ No significant diffraction - Clear line of sight
+            <div className="los-detail" style={{ color: '#28a745', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Check size={16} /> No significant diffraction - Clear line of sight
             </div>
           </div>
         )}
@@ -214,8 +215,8 @@ export default function RFAnalysisPanel({
         {kFactor && (
           <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #ddd' }}>
             <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div className="los-detail" style={{ color: '#6a5acd', fontWeight: 'bold', margin: 0 }}>
-                🌐 Atmospheric Refraction
+              <div className="los-detail" style={{ color: '#6a5acd', fontWeight: 'bold', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Globe size={16} /> Atmospheric Refraction
               </div>
               {onOpenAdvancedSettings && (
                 <button
@@ -226,7 +227,7 @@ export default function RFAnalysisPanel({
                   className="btn-small btn-primary"
                   title="Open Line of Sight Settings"
                 >
-                  ⚙️ Settings
+                  <Settings size={14} style={{ marginRight: '4px', display: 'inline-block', verticalAlign: 'middle' }} /> Settings
                 </button>
               )}
             </div>

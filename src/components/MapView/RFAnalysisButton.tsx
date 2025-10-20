@@ -1,3 +1,5 @@
+import { Radio } from 'lucide-react';
+
 interface RFAnalysisButtonProps {
   onClick: () => void;
   isActive: boolean;
@@ -26,7 +28,8 @@ export default function RFAnalysisButton({ onClick, isActive, disabled = false }
         justifyContent: 'center',
         boxShadow: '0 1px 5px rgba(0,0,0,0.4)',
         transition: 'background 0.2s, border 0.2s',
-        opacity: disabled ? 0.5 : 1
+        opacity: disabled ? 0.5 : 1,
+        color: disabled ? '#999' : isActive ? '#2196F3' : '#555'
       }}
       onMouseEnter={(e) => {
         if (!disabled && !isActive) {
@@ -40,7 +43,7 @@ export default function RFAnalysisButton({ onClick, isActive, disabled = false }
       }}
       title={disabled ? "Calculate a path first" : isActive ? "Hide RF analysis" : "Show RF analysis"}
     >
-      📡
+      <Radio size={18} />
     </button>
   );
 }

@@ -3,6 +3,7 @@ import { Chart, registerables } from 'chart.js';
 import type { PathResult } from '../types';
 import { getCompassDirection, getClearanceStatus } from '../utils/formatting';
 import './LOSPanel.css';
+import { Radio, ChevronDown, ChevronUp, ArrowLeftRight, X, AlertTriangle } from 'lucide-react';
 
 Chart.register(...registerables);
 
@@ -246,7 +247,7 @@ export default function LOSPanel({
                 border: showRFAnalysis ? '2px solid #2196F3' : undefined
               }}
             >
-              📡
+              <Radio size={18} />
             </button>
           )}
           <button
@@ -254,7 +255,7 @@ export default function LOSPanel({
             onClick={() => setIsExpanded(!isExpanded)}
             title={isExpanded ? "Collapse chart" : "Expand chart"}
           >
-            {isExpanded ? '⬇' : '⬆'}
+            {isExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
           </button>
           {onReverseCalculation && (
             <button
@@ -262,7 +263,7 @@ export default function LOSPanel({
               onClick={onReverseCalculation}
               title="Reverse calculation direction"
             >
-              ⇅
+              <ArrowLeftRight size={18} />
             </button>
           )}
           {onClose && (
@@ -271,7 +272,7 @@ export default function LOSPanel({
               onClick={onClose}
               title="Close analysis"
             >
-              ✕
+              <X size={18} />
             </button>
           )}
         </div>
@@ -374,8 +375,8 @@ export default function LOSPanel({
               {getClearanceStatus(result.fresnelZone.minClearance).text} - {(result.fresnelZone.radius * 0.6).toFixed(1)}m needed for 60%
             </div>
             {result.fresnelZone.minClearance < 60 && (
-              <div className="los-detail" style={{ fontSize: '11px', color: '#ff8c00', marginTop: '4px' }}>
-                ⚠️ Minimum clearance at {result.fresnelZone.minClearanceDistance.toFixed(2)} km
+              <div className="los-detail" style={{ fontSize: '11px', color: '#ff8c00', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <AlertTriangle size={14} /> Minimum clearance at {result.fresnelZone.minClearanceDistance.toFixed(2)} km
               </div>
             )}
           </>

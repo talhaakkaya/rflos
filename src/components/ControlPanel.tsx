@@ -4,6 +4,7 @@ import { useDraggable } from '../hooks/useDraggable';
 import { useState, useEffect, useRef } from 'react';
 import { latLonToGridLocator, gridLocatorToLatLon, validateGridLocator, formatGridLocator } from '../utils/gridLocator';
 import { searchLocation, formatResultDisplay, type GeocodeResult } from '../utils/geocoding';
+import { Eye, Tag, Target, Ruler, Home, X, Download, Search, Globe, MapPin } from 'lucide-react';
 
 interface ControlPanelProps {
   points: Point[];
@@ -208,7 +209,7 @@ export default function ControlPanel({
             }}
             title={hideLabels ? "Show distance labels" : "Hide distance labels"}
           >
-            {hideLabels ? '👁️' : '🏷️'}
+            {hideLabels ? <Eye size={18} /> : <Tag size={18} />}
           </button>
           <button
             className="btn-icon btn-primary"
@@ -218,7 +219,7 @@ export default function ControlPanel({
             }}
             title={hideLines ? "Show all lines" : "Hide lines (keep Point A only)"}
           >
-            {hideLines ? '📍' : '📐'}
+            {hideLines ? <Target size={18} /> : <Ruler size={18} />}
           </button>
           <button
             className="btn-icon btn-primary"
@@ -228,7 +229,7 @@ export default function ControlPanel({
             }}
             title="Reset to home"
           >
-            🏠
+            <Home size={18} />
           </button>
           <button
             className="btn-icon btn-danger"
@@ -238,7 +239,7 @@ export default function ControlPanel({
             }}
             title="Hide panel"
           >
-            ✕
+            <X size={18} />
           </button>
         </div>
       </div>
@@ -249,11 +250,11 @@ export default function ControlPanel({
           <h3>Points</h3>
           <div style={{ display: 'flex', gap: '5px' }}>
             <button className="btn-small btn-primary" onClick={() => setShowImportDialog(true)} disabled={isAddingPoint}>
-              📥 Import JSON
+              <Download size={14} style={{ marginRight: '4px', display: 'inline-block', verticalAlign: 'middle' }} /> Import JSON
             </button>
             {isAddingPoint ? (
               <button className="btn-small btn-danger" onClick={onCancelAddPoint}>
-                ✕ Cancel
+                <X size={14} style={{ marginRight: '4px', display: 'inline-block', verticalAlign: 'middle' }} /> Cancel
               </button>
             ) : (
               <button className="btn-small btn-primary" onClick={onAddPoint}>
@@ -317,7 +318,7 @@ export default function ControlPanel({
                   }}
                   title="Remove point"
                 >
-                  ×
+                  <X size={16} />
                 </button>
               )}
             </div>
@@ -338,7 +339,7 @@ export default function ControlPanel({
                   border: searchMode[point.id] ? '2px solid #2196F3' : undefined
                 }}
               >
-                🔍
+                <Search size={16} />
               </button>
               <button
                 className="btn-icon btn-primary"
@@ -346,7 +347,7 @@ export default function ControlPanel({
                 title={getInputMode(point.id) === 'latlon' ? "Switch to grid locator" : "Switch to lat/lon"}
                 style={{ fontSize: '14px', padding: '2px 6px' }}
               >
-                {getInputMode(point.id) === 'latlon' ? '🌐' : '📍'}
+                {getInputMode(point.id) === 'latlon' ? <Globe size={16} /> : <MapPin size={16} />}
               </button>
             </div>
 

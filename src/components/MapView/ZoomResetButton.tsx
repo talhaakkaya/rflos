@@ -1,6 +1,7 @@
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import type { Point } from '../../types';
+import { Crosshair } from 'lucide-react';
 
 interface ZoomResetButtonProps {
   points: Point[];
@@ -35,13 +36,15 @@ export default function ZoomResetButton({ points }: ZoomResetButtonProps) {
         alignItems: 'center',
         justifyContent: 'center',
         boxShadow: '0 1px 5px rgba(0,0,0,0.4)',
-        transition: 'background 0.2s'
+        transition: 'background 0.2s',
+        color: '#555',
+        flexShrink: 0
       }}
       onMouseEnter={(e) => e.currentTarget.style.background = '#f4f4f4'}
       onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
       title="Fit all points in view"
     >
-      🎯
+      <Crosshair size={18} style={{ minWidth: '18px', minHeight: '18px' }} />
     </button>
   );
 }
