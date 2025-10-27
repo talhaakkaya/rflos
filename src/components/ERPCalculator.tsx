@@ -10,6 +10,7 @@ import {
   MODULATION_TYPES
 } from '../utils/linkBudget';
 import type { ModulationType } from '../utils/linkBudget';
+import { X } from 'lucide-react';
 
 interface ERPCalculatorProps {
   isOpen: boolean;
@@ -157,7 +158,7 @@ export default function ERPCalculator({
       <div className="modal-content-wide" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Link Budget Calculator</h2>
-          <button className="btn-icon-lg btn-danger-solid" onClick={onClose}>✕</button>
+          <button className="btn-icon-lg btn-danger-solid" onClick={onClose}><X size={20} /></button>
         </div>
 
         <div className="modal-body-wide">

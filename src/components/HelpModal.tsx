@@ -1,4 +1,5 @@
 import './HelpModal.css';
+import { X, Map, Radio, BarChart3, Ruler, Plug, Globe, Settings, Lightbulb } from 'lucide-react';
 
 interface HelpModalProps {
   isOpen: boolean;
@@ -13,12 +14,12 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>How to Use LOS Calculator</h2>
-          <button className="btn-icon-lg btn-danger-solid" onClick={onClose}>✕</button>
+          <button className="btn-icon-lg btn-danger-solid" onClick={onClose}><X size={20} /></button>
         </div>
 
         <div className="modal-body">
           <section className="help-section">
-            <h3>🗺️ Getting Started</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Map size={20} /> Getting Started</h3>
             <ul>
               <li><strong>Add Points:</strong> Click "+ Add Point" then click anywhere on the map to place markers</li>
               <li><strong>Move Points:</strong> Drag any marker to reposition it</li>
@@ -28,7 +29,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
           </section>
 
           <section className="help-section">
-            <h3>📡 Analyze a Path</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Radio size={20} /> Analyze a Path</h3>
             <ul>
               <li><strong>Select Line:</strong> Click any blue line or distance label on the map</li>
               <li><strong>Auto-Calculate:</strong> Analysis starts automatically when you select a line</li>
@@ -38,7 +39,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
           </section>
 
           <section className="help-section">
-            <h3>📊 Understanding the Chart</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><BarChart3 size={20} /> Understanding the Chart</h3>
             <ul>
               <li><strong>Brown Area:</strong> Terrain elevation along the path</li>
               <li><strong>Green/Red Line:</strong> Line of sight (green = clear, red = blocked)</li>
@@ -49,7 +50,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
           </section>
 
           <section className="help-section">
-            <h3>📐 RF Analysis Metrics</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Ruler size={20} /> RF Analysis Metrics</h3>
             <ul>
               <li><strong>CLEAR/BLOCKED:</strong> Whether terrain obstructs the path (in Path Analysis panel)</li>
               <li><strong>Free Space Path Loss (FSPL):</strong> Signal loss in dB (lower is better)</li>
@@ -61,9 +62,9 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
           </section>
 
           <section className="help-section">
-            <h3>🔌 ERP Calculator & Link Budget</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Plug size={20} /> ERP Calculator & Link Budget</h3>
             <ul>
-              <li><strong>Access:</strong> Click "🔌 ERP Calculator" in RF Analysis panel</li>
+              <li><strong>Access:</strong> Click "ERP Calculator" in RF Analysis panel</li>
               <li><strong>Configure:</strong> Set TX power, antenna gain, and cable loss for both stations</li>
               <li><strong>Modulation:</strong> Choose FM, NFM, Digital (P25/DMR/D-Star), SSB, or CW</li>
               <li><strong>Results:</strong> View ERP, received power, link margin, and fade margin</li>
@@ -72,9 +73,9 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
           </section>
 
           <section className="help-section">
-            <h3>🌐 K-Factor (Atmospheric Refraction)</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Globe size={20} /> K-Factor (Atmospheric Refraction)</h3>
             <ul>
-              <li><strong>Access:</strong> Click "⚙️ Settings" in RF Analysis panel</li>
+              <li><strong>Access:</strong> Click "Settings" in RF Analysis panel</li>
               <li><strong>Standard:</strong> 4/3 (1.333) for normal atmospheric conditions</li>
               <li><strong>Inversion:</strong> 1.5 for enhanced propagation (longer range)</li>
               <li><strong>Effect:</strong> Higher K-factor extends radio horizon and improves clearance</li>
@@ -83,19 +84,19 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
           </section>
 
           <section className="help-section">
-            <h3>⚙️ Configuration</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Settings size={20} /> Configuration</h3>
             <ul>
               <li><strong>Antenna Heights:</strong> Set tower/antenna height for each point in Station Setup panel</li>
               <li><strong>Point Names:</strong> Label your points (e.g., "Base Station")</li>
               <li><strong>Draggable Panels:</strong> Drag Station Setup and RF Analysis panels anywhere on screen</li>
-              <li><strong>Hide Labels:</strong> 🏷️ button to toggle distance labels</li>
-              <li><strong>Hide Lines:</strong> 📐 button to show only Point A connections</li>
-              <li><strong>Reset View:</strong> 🎯 button to zoom to fit all points</li>
+              <li><strong>Hide Labels:</strong> Label button to toggle distance labels</li>
+              <li><strong>Hide Lines:</strong> Lines button to show only Point A connections</li>
+              <li><strong>Reset View:</strong> Target button to zoom to fit all points</li>
             </ul>
           </section>
 
           <section className="help-section">
-            <h3>💡 Pro Tips</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Lightbulb size={20} /> Pro Tips</h3>
             <ul>
               <li>Terrain obstructions can often be cleared by increasing antenna heights</li>
               <li>2m band has better propagation than 70cm for same conditions</li>

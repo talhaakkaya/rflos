@@ -152,6 +152,28 @@ export default function LOSPanel({
       });
     }
 
+    // Add obstacles as red dots if available
+    if (result.diffraction?.obstacles && result.diffraction.obstacles.length > 0) {
+      // Create sparse array filled with null, with obstacle values at correct indices
+      const obstacleData = new Array(result.distances.length).fill(null);
+      result.diffraction.obstacles.forEach(obstacle => {
+        obstacleData[obstacle.index] = obstacle.terrainHeight;
+      });
+
+      datasets.push({
+        label: `Obstacles (${result.diffraction.obstacles.length})`,
+        data: obstacleData,
+        borderColor: 'rgba(220, 53, 69, 0.6)',
+        backgroundColor: 'rgba(220, 53, 69, 0.6)',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointStyle: 'circle',
+        pointBorderWidth: 0,
+        showLine: false,
+        order: 0 // Draw on top
+      });
+    }
+
     // Create new chart
     chartInstance.current = new Chart(ctx, {
       type: 'line',
@@ -367,8 +389,9 @@ export default function LOSPanel({
             </div>
             <div className="los-detail">
               <strong>Fresnel Clearance:</strong>{' '}
-              <span style={{ color: getClearanceStatus(result.fresnelZone.minClearance).color, fontWeight: 'bold' }}>
-                {result.fresnelZone.minClearanceMeters.toFixed(1)}m / {result.fresnelZone.radius.toFixed(1)}m ({result.fresnelZone.minClearance.toFixed(0)}%) {getClearanceStatus(result.fresnelZone.minClearance).emoji}
+              <span style={{ color: getClearanceStatus(result.fresnelZone.minClearance).color, fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span>{result.fresnelZone.minClearanceMeters.toFixed(1)}m / {result.fresnelZone.radius.toFixed(1)}m ({result.fresnelZone.minClearance.toFixed(0)}%)</span>
+                {getClearanceStatus(result.fresnelZone.minClearance).icon}
               </span>
             </div>
             <div className="los-detail" style={{ fontSize: '11px', color: getClearanceStatus(result.fresnelZone.minClearance).color, marginTop: '2px' }}>

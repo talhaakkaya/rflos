@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './AdvancedSettingsModal.css';
 import { getKFactorDescription } from '../utils/atmospheric';
+import { X } from 'lucide-react';
 
 interface AdvancedSettingsModalProps {
   isOpen: boolean;
@@ -42,7 +43,7 @@ export default function AdvancedSettingsModal({
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Line of Sight Settings</h2>
-          <button className="btn-icon-lg btn-danger-solid" onClick={onClose}>✕</button>
+          <button className="btn-icon-lg btn-danger-solid" onClick={onClose}><X size={20} /></button>
         </div>
 
         <div className="modal-body">

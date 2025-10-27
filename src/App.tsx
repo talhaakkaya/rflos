@@ -14,6 +14,7 @@ import { decodeStateFromURL, updateURL } from './hooks/useURLState';
 import { comparePointGeometry } from './utils/pointComparison';
 import { gridLocatorToLatLon } from './utils/gridLocator';
 import type { Point, PathResult, SegmentDistance } from './types';
+import { Menu } from 'lucide-react';
 import './App.css';
 
 function App() {
@@ -537,7 +538,7 @@ function App() {
           onClick={() => setIsPanelVisible(true)}
           title="Show control panel"
         >
-          ☰
+          <Menu size={20} />
         </button>
       )}
 
