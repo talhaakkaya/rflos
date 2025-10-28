@@ -8,6 +8,7 @@ interface AppState {
   hideLines: boolean;
   isPanelVisible: boolean;
   isLOSPanelOpen: boolean;
+  frequency?: number;
 }
 
 /**
@@ -32,6 +33,11 @@ export function encodeStateToURL(state: AppState): string {
   params.set('hl', state.hideLines ? '1' : '0');
   params.set('pv', state.isPanelVisible ? '1' : '0');
   params.set('los', state.isLOSPanelOpen ? '1' : '0');
+
+  // Encode frequency if present
+  if (state.frequency !== undefined) {
+    params.set('freq', state.frequency.toString());
+  }
 
   return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
 }
@@ -81,6 +87,14 @@ export function decodeStateFromURL(): Partial<AppState> | null {
     state.isPanelVisible = params.has('pv') ? params.get('pv') === '1' : true;
     state.isLOSPanelOpen = params.has('los') ? params.get('los') === '1' : true;
 
+    // Decode frequency (default 145.5 MHz if not present)
+    if (params.has('freq')) {
+      const freq = parseFloat(params.get('freq')!);
+      if (!isNaN(freq) && freq > 0) {
+        state.frequency = freq;
+      }
+    }
+
     console.log('Successfully decoded state from URL:', state);
     return state;
   } catch (error) {
@@ -116,6 +130,11 @@ export function updateURL(state: AppState) {
     params.set('hl', state.hideLines ? '1' : '0');
     params.set('pv', state.isPanelVisible ? '1' : '0');
     params.set('los', state.isLOSPanelOpen ? '1' : '0');
+
+    // Encode frequency if present
+    if (state.frequency !== undefined) {
+      params.set('freq', state.frequency.toString());
+    }
 
     const queryString = params.toString();
     console.log('Query string:', queryString);

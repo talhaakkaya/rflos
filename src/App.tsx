@@ -38,7 +38,8 @@ function App() {
         selectedLine: { fromId: '1', toId: '2' },
         hideLines: false,
         isPanelVisible: true,
-        isLOSPanelOpen: true
+        isLOSPanelOpen: true,
+        frequency: 145.500
       };
     }
 
@@ -50,7 +51,8 @@ function App() {
       selectedLine: urlState.selectedLine ?? null,
       hideLines: urlState.hideLines || false,
       isPanelVisible: urlState.isPanelVisible ?? true,
-      isLOSPanelOpen: urlState.isLOSPanelOpen ?? true
+      isLOSPanelOpen: urlState.isLOSPanelOpen ?? true,
+      frequency: urlState.frequency || 145.500
     };
   };
 
@@ -71,7 +73,7 @@ function App() {
   const [hideLabels, setHideLabels] = useState<boolean>(false);
   const [isAddingPoint, setIsAddingPoint] = useState<boolean>(false);
   const [hoveredPathIndex, setHoveredPathIndex] = useState<number | null>(null);
-  const [frequency, setFrequency] = useState<number>(145.5); // MHz - default to 2m band
+  const [frequency, setFrequency] = useState<number>(initial.frequency); // MHz - loaded from URL or default to 2m band
   const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
   const [isERPCalculatorOpen, setIsERPCalculatorOpen] = useState<boolean>(false);
   const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState<boolean>(false);
@@ -108,12 +110,12 @@ function App() {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       // Set URL to initial state on first render
-      updateURL({ points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen });
+      updateURL({ points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen, frequency });
       return;
     }
-    console.log('App state changed - updating URL:', { points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen });
-    updateURL({ points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen });
-  }, [points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen]);
+    console.log('App state changed - updating URL:', { points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen, frequency });
+    updateURL({ points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen, frequency });
+  }, [points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen, frequency]);
 
   // Auto-calculate LOS on mount with saved losFromId and losToId (only if panel should be open)
   useEffect(() => {
@@ -134,7 +136,8 @@ function App() {
         kFactor
       );
     }
-  }, [losFromId, losToId, calculateLOS, isLOSPanelOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [losFromId, losToId, isLOSPanelOpen, frequency, kFactor]);
 
   // Auto-calculate segment distances when points coordinates change
   useEffect(() => {
@@ -144,12 +147,18 @@ function App() {
 
   // Auto-recalculate when points coordinates/heights change (debounced)
   useEffect(() => {
+    // Skip initial mount - let the mount effect handle first calculation
+    // Only run this effect after we have an initial result
+    if (!hasCalculatedOnMount.current || !result) {
+      return;
+    }
+
     // Determine which line to calculate
     const fromId = selectedLine?.fromId || losFromId;
     const toId = selectedLine?.toId || losToId;
 
-    // Skip if no line is selected and no previous result
-    if (!fromId || !toId || (!selectedLine && !result)) {
+    // Skip if no line is selected
+    if (!fromId || !toId) {
       return;
     }
 
@@ -381,6 +390,7 @@ function App() {
     setSelectedLine({ fromId: '1', toId: '2' });
     setIsLOSPanelOpen(true);
     setResult(null);
+    setFrequency(145.500);
 
     // Reset zoom trigger
     setResetZoomTrigger(prev => prev + 1);
@@ -398,7 +408,7 @@ function App() {
       (error) => {
         console.error('Reset calculation failed:', error);
       },
-      frequency,
+      145.500,
       kFactor
     );
   };
