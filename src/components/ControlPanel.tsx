@@ -4,7 +4,7 @@ import { useDraggable } from '../hooks/useDraggable';
 import { useState, useEffect, useRef } from 'react';
 import { latLonToGridLocator, gridLocatorToLatLon, validateGridLocator, formatGridLocator } from '../utils/gridLocator';
 import { searchLocation, formatResultDisplay, type GeocodeResult } from '../utils/geocoding';
-import { Eye, Tag, Ruler, Home, X, Download, Search, Globe, MapPin, MapPinned } from 'lucide-react';
+import { Eye, Tag, Ruler, Home, X, Download, Search, Globe, MapPin, MapPinned, Target } from 'lucide-react';
 
 interface ControlPanelProps {
   points: Point[];
