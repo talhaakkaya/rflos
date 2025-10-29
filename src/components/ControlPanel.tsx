@@ -4,7 +4,7 @@ import { useDraggable } from '../hooks/useDraggable';
 import { useState, useEffect, useRef } from 'react';
 import { latLonToGridLocator, gridLocatorToLatLon, validateGridLocator, formatGridLocator } from '../utils/gridLocator';
 import { searchLocation, formatResultDisplay, type GeocodeResult } from '../utils/geocoding';
-import { Eye, Tag, Target, Ruler, Home, X, Download, Search, Globe, MapPin } from 'lucide-react';
+import { Eye, Tag, Ruler, Home, X, Download, Search, Globe, MapPin, MapPinned } from 'lucide-react';
 
 interface ControlPanelProps {
   points: Point[];
@@ -59,6 +59,10 @@ export default function ControlPanel({
   const [searchResults, setSearchResults] = useState<Record<string, GeocodeResult[]>>({});
   const [isSearching, setIsSearching] = useState<Record<string, boolean>>({});
   const [searchError, setSearchError] = useState<Record<string, string | null>>({});
+
+  // Track geolocation for each point
+  const [geoLocationLoading, setGeoLocationLoading] = useState<Record<string, boolean>>({});
+  const [geoLocationError, setGeoLocationError] = useState<Record<string, string | null>>({});
 
   // Sync grid locators when points change (from drag or other updates)
   useEffect(() => {
@@ -185,6 +189,55 @@ export default function ControlPanel({
     setSearchQuery(prev => ({ ...prev, [pointId]: '' }));
     setSearchResults(prev => ({ ...prev, [pointId]: [] }));
     setSearchError(prev => ({ ...prev, [pointId]: null }));
+  };
+
+  // Handle get my location
+  const handleGetMyLocation = (pointId: string) => {
+    // Check if geolocation is supported
+    if (!navigator.geolocation) {
+      setGeoLocationError(prev => ({ ...prev, [pointId]: 'Geolocation is not supported by your browser' }));
+      return;
+    }
+
+    // Clear previous error
+    setGeoLocationError(prev => ({ ...prev, [pointId]: null }));
+    setGeoLocationLoading(prev => ({ ...prev, [pointId]: true }));
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        // Update point coordinates
+        onPointUpdate(pointId, { lat, lon });
+
+        // Clear loading state
+        setGeoLocationLoading(prev => ({ ...prev, [pointId]: false }));
+      },
+      (error) => {
+        let errorMessage = 'Unable to get your location';
+
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Location permission denied';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Location information unavailable';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Location request timed out';
+            break;
+        }
+
+        setGeoLocationError(prev => ({ ...prev, [pointId]: errorMessage }));
+        setGeoLocationLoading(prev => ({ ...prev, [pointId]: false }));
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
   };
 
   return (
@@ -330,6 +383,21 @@ export default function ControlPanel({
               </span>
               <button
                 className="btn-icon btn-primary"
+                onClick={() => handleGetMyLocation(point.id)}
+                title="Get my current location"
+                disabled={geoLocationLoading[point.id]}
+                style={{
+                  fontSize: '14px',
+                  padding: '2px 6px',
+                  background: geoLocationLoading[point.id] ? '#e3f2fd' : undefined,
+                  border: geoLocationLoading[point.id] ? '2px solid #2196F3' : undefined,
+                  opacity: geoLocationLoading[point.id] ? 0.7 : 1
+                }}
+              >
+                {geoLocationLoading[point.id] ? '...' : <MapPinned size={16} />}
+              </button>
+              <button
+                className="btn-icon btn-primary"
                 onClick={() => toggleSearchMode(point.id)}
                 title={searchMode[point.id] ? "Close search" : "Search location"}
                 style={{
@@ -415,6 +483,13 @@ export default function ControlPanel({
                     Enter a city, address, or landmark
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Geolocation Error Message */}
+            {geoLocationError[point.id] && (
+              <div style={{ color: '#dc3545', fontSize: '11px', marginBottom: '5px', padding: '5px', backgroundColor: '#ffebee', borderRadius: '4px' }}>
+                {geoLocationError[point.id]}
               </div>
             )}
 
