@@ -86,7 +86,7 @@ export async function fetchElevationData(points: PathPoint[]): Promise<number[]>
   const locations = points.map(p => ({latitude: p.lat, longitude: p.lon}));
 
   try {
-    const response = await fetch('https://api.open-elevation.com/api/v1/lookup', {
+    const response = await fetch('https://elevation.qso.app/api/v1/lookup', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({locations})
