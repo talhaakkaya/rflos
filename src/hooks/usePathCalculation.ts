@@ -92,10 +92,37 @@ export async function fetchElevationData(points: PathPoint[]): Promise<number[]>
       body: JSON.stringify({locations})
     });
 
+    // Check status code and provide specific error messages
+    if (!response.ok) {
+      switch (response.status) {
+        case 400:
+          throw new Error('Invalid coordinates provided');
+        case 429:
+          throw new Error('Rate limit exceeded. Please wait a moment and try again');
+        case 500:
+        case 502:
+        case 503:
+        case 504:
+          throw new Error('Elevation service is temporarily unavailable');
+        default:
+          throw new Error(`Elevation API error: ${response.status} ${response.statusText}`);
+      }
+    }
+
     const data: ElevationAPIResponse = await response.json();
+
+    // Validate response structure
+    if (!data.results || !Array.isArray(data.results)) {
+      throw new Error('Elevation API returned invalid data structure');
+    }
+
     return data.results.map(r => r.elevation);
   } catch (error) {
     console.error('Error fetching elevation:', error);
+    // Re-throw with more context if it's a network error
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Network error: Unable to reach elevation API');
+    }
     throw error;
   }
 }

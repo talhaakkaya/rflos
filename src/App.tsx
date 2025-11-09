@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import ControlPanel from './components/ControlPanel';
 import MapView from './components/MapView/MapView';
 import LOSPanel from './components/LOSPanel';
@@ -56,7 +56,7 @@ function App() {
     };
   };
 
-  const initial = initialState();
+  const initial = useMemo(() => initialState(), []);
 
   // State (all stored in URL params)
   const [points, setPoints] = useState<Point[]>(initial.points);
@@ -101,9 +101,7 @@ function App() {
   }, [points]);
 
   const { calculateLOS, isLoading } = useLOSCalculation(points);
-  const hasCalculatedOnMount = useRef(false);
   const isFirstRender = useRef(true);
-  const recalculateTimeoutRef = useRef<number | null>(null);
 
   // Update URL when state changes (skip first render since we just loaded from URL)
   useEffect(() => {
@@ -117,12 +115,22 @@ function App() {
     updateURL({ points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen, frequency });
   }, [points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen, frequency]);
 
-  // Auto-calculate LOS on mount with saved losFromId and losToId (only if panel should be open)
+  // Auto-calculate segment distances when points coordinates change
   useEffect(() => {
-    if (!hasCalculatedOnMount.current && isLOSPanelOpen && losFromId && losToId) {
-      hasCalculatedOnMount.current = true;
+    calculateSegmentDistances();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pointsGeometry]);
 
-      // Trigger calculation for the saved points
+  // Unified calculation effect - handles all calculation triggers
+  // Runs when: page loads, line clicked, marker dragged, frequency changed
+  useEffect(() => {
+    // Only calculate if panel is open and we have valid points
+    if (!isLOSPanelOpen || !losFromId || !losToId) {
+      return;
+    }
+
+    // Debounce for 300ms to avoid excessive calculations while dragging
+    const timeoutId = setTimeout(() => {
       calculateLOS(
         losFromId,
         losToId,
@@ -130,66 +138,16 @@ function App() {
           setResult(result);
         },
         (error) => {
-          console.error('Auto-calculation failed:', error);
-        },
-        frequency,
-        kFactor
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [losFromId, losToId, isLOSPanelOpen, frequency, kFactor]);
-
-  // Auto-calculate segment distances when points coordinates change
-  useEffect(() => {
-    calculateSegmentDistances();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pointsGeometry]);
-
-  // Auto-recalculate when points coordinates/heights change (debounced)
-  useEffect(() => {
-    // Skip initial mount - let the mount effect handle first calculation
-    // Only run this effect after we have an initial result
-    if (!hasCalculatedOnMount.current || !result) {
-      return;
-    }
-
-    // Determine which line to calculate
-    const fromId = selectedLine?.fromId || losFromId;
-    const toId = selectedLine?.toId || losToId;
-
-    // Skip if no line is selected
-    if (!fromId || !toId) {
-      return;
-    }
-
-    // Clear any pending timeout
-    if (recalculateTimeoutRef.current) {
-      clearTimeout(recalculateTimeoutRef.current);
-    }
-
-    // Debounce for 300ms to avoid excessive calculations while dragging
-    recalculateTimeoutRef.current = setTimeout(() => {
-      calculateLOS(
-        fromId,
-        toId,
-        (result) => {
-          setResult(result);
-        },
-        (error) => {
-          console.error('Auto-recalculation failed:', error);
+          console.error('Calculation failed:', error);
         },
         frequency,
         kFactor
       );
     }, 300);
 
-    return () => {
-      if (recalculateTimeoutRef.current) {
-        clearTimeout(recalculateTimeoutRef.current);
-      }
-    };
+    return () => clearTimeout(timeoutId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pointsGeometry, frequency]);
+  }, [losFromId, losToId, pointsGeometry, frequency, kFactor, isLOSPanelOpen]);
 
   // Calculate distances between all pairs of points
   const calculateSegmentDistances = () => {
@@ -243,27 +201,14 @@ function App() {
     setLosFromId(clickedPoint.id);
     setLosToId(reorderedPoints[1].id);
 
-    // Only recalculate if LOS panel is already open
+    // Update selected line if panel is open
     if (isLOSPanelOpen && (result || selectedLine)) {
       setSelectedLine({ fromId: clickedPoint.id, toId: reorderedPoints[1].id });
-
-      // Trigger new calculation
-      calculateLOS(
-        clickedPoint.id,
-        reorderedPoints[1].id,
-        (result) => {
-          setResult(result);
-        },
-        (error) => {
-          console.error('Marker click calculation failed:', error);
-        },
-        frequency,
-        kFactor
-      );
     }
+    // Unified effect will handle the calculation automatically
   };
 
-  const handleLineClick = async (fromId: string, toId: string) => {
+  const handleLineClick = (fromId: string, toId: string) => {
     // Check if clicking the already selected line - deselect it
     const isAlreadySelected = selectedLine &&
       ((selectedLine.fromId === fromId && selectedLine.toId === toId) ||
@@ -277,25 +222,12 @@ function App() {
       return;
     }
 
-    // Select new line (keep old result visible with opacity until new calculation completes)
+    // Select new line
     setSelectedLine({ fromId, toId });
     setLosFromId(fromId);
     setLosToId(toId);
     setIsLOSPanelOpen(true);
-
-    // Automatically calculate LOS for the clicked line
-    await calculateLOS(
-      fromId,
-      toId,
-      (result) => {
-        setResult(result);
-      },
-      (error) => {
-        alert('Error calculating path: ' + error);
-      },
-      frequency,
-      kFactor
-    );
+    // Unified effect will handle the calculation automatically
   };
 
 
@@ -351,7 +283,7 @@ function App() {
     }
   };
 
-  const handleReverseCalculation = async () => {
+  const handleReverseCalculation = () => {
     // Find the two points being analyzed
     const fromId = selectedLine?.fromId || losFromId;
     const toId = selectedLine?.toId || losToId;
@@ -366,23 +298,10 @@ function App() {
     if (selectedLine) {
       setSelectedLine({ fromId: toId, toId: fromId });
     }
-
-    // Recalculate with reversed direction
-    await calculateLOS(
-      toId,
-      fromId,
-      (result) => {
-        setResult(result);
-      },
-      (error) => {
-        console.error('Reverse calculation failed:', error);
-      },
-      frequency,
-      kFactor
-    );
+    // Unified effect will handle the calculation automatically
   };
 
-  const handleReset = async () => {
+  const handleReset = () => {
     // Reset to defaults
     setPoints(defaultPoints);
     setLosFromId('1');
@@ -397,20 +316,7 @@ function App() {
 
     // Clear URL params
     window.history.replaceState({}, '', window.location.pathname);
-
-    // Trigger calculation for default line (like on page load)
-    await calculateLOS(
-      '1',
-      '2',
-      (result) => {
-        setResult(result);
-      },
-      (error) => {
-        console.error('Reset calculation failed:', error);
-      },
-      145.500,
-      kFactor
-    );
+    // Unified effect will handle the calculation automatically
   };
 
   const handleImportJSON = (jsonText: string) => {
@@ -487,25 +393,7 @@ function App() {
     kFactor: number;
   }) => {
     setKFactor(settings.kFactor);
-
-    // Trigger recalculation if we have an active path
-    const fromId = selectedLine?.fromId || losFromId;
-    const toId = selectedLine?.toId || losToId;
-
-    if (fromId && toId && (result || selectedLine)) {
-      calculateLOS(
-        fromId,
-        toId,
-        (result) => {
-          setResult(result);
-        },
-        (error) => {
-          console.error('Advanced settings recalculation failed:', error);
-        },
-        frequency,
-        settings.kFactor
-      );
-    }
+    // Unified effect will handle the calculation automatically
   };
 
   return (
