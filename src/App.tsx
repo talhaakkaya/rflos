@@ -11,9 +11,8 @@ import Footer from './components/Footer';
 import { calculateDistance } from './hooks/usePathCalculation';
 import { useLOSCalculation } from './hooks/useLOSCalculation';
 import { decodeStateFromURL, updateURL } from './hooks/useURLState';
-import { comparePointGeometry } from './utils/pointComparison';
 import { gridLocatorToLatLon } from './utils/gridLocator';
-import type { Point, PathResult, SegmentDistance } from './types';
+import type { Point, SegmentDistance } from './types';
 import { Menu } from 'lucide-react';
 import './App.css';
 
@@ -68,7 +67,6 @@ function App() {
   const [isLOSPanelOpen, setIsLOSPanelOpen] = useState<boolean>(initial.isLOSPanelOpen);
 
   // Temporary state (not saved)
-  const [result, setResult] = useState<PathResult | null>(null);
   const [segmentDistances, setSegmentDistances] = useState<SegmentDistance[]>([]);
   const [hideLabels, setHideLabels] = useState<boolean>(false);
   const [isAddingPoint, setIsAddingPoint] = useState<boolean>(false);
@@ -83,24 +81,29 @@ function App() {
   // Advanced LOS settings
   const [kFactor, setKFactor] = useState<number>(4/3);
 
-  // Create a stable reference that only changes when geometry actually changes
-  const pointsGeometryRef = useRef<Array<{ id: string; lat: number; lon: number; height: number }>>([]);
-  const [pointsGeometry, setPointsGeometry] = useState<Array<{ id: string; lat: number; lon: number; height: number }>>([]);
+  // Track geometry for segment distance calculations
+  const pointsGeometry = useMemo(() =>
+    points.map(p => ({ id: p.id, lat: p.lat, lon: p.lon, height: p.height })),
+    [points]
+  );
 
-  // Update pointsGeometry only when actual geometry changes
+  // Use React Query for LOS calculation - automatically handles caching, loading, errors
+  const { result, isLoading, error } = useLOSCalculation({
+    fromId: losFromId,
+    toId: losToId,
+    points,
+    frequency,
+    kFactor,
+    enabled: isLOSPanelOpen && !!losFromId && !!losToId
+  });
+
+  // Log errors
   useEffect(() => {
-    const newGeometry = points.map(p => ({ id: p.id, lat: p.lat, lon: p.lon, height: p.height }));
-
-    // Deep compare to see if geometry actually changed
-    const geometryChanged = comparePointGeometry(newGeometry, pointsGeometryRef.current);
-
-    if (geometryChanged) {
-      pointsGeometryRef.current = newGeometry;
-      setPointsGeometry(newGeometry);
+    if (error) {
+      console.error('Calculation failed:', error);
     }
-  }, [points]);
+  }, [error]);
 
-  const { calculateLOS, isLoading } = useLOSCalculation(points);
   const isFirstRender = useRef(true);
 
   // Update URL when state changes (skip first render since we just loaded from URL)
@@ -120,34 +123,6 @@ function App() {
     calculateSegmentDistances();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pointsGeometry]);
-
-  // Unified calculation effect - handles all calculation triggers
-  // Runs when: page loads, line clicked, marker dragged, frequency changed
-  useEffect(() => {
-    // Only calculate if panel is open and we have valid points
-    if (!isLOSPanelOpen || !losFromId || !losToId) {
-      return;
-    }
-
-    // Debounce for 300ms to avoid excessive calculations while dragging
-    const timeoutId = setTimeout(() => {
-      calculateLOS(
-        losFromId,
-        losToId,
-        (result) => {
-          setResult(result);
-        },
-        (error) => {
-          console.error('Calculation failed:', error);
-        },
-        frequency,
-        kFactor
-      );
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [losFromId, losToId, pointsGeometry, frequency, kFactor, isLOSPanelOpen]);
 
   // Calculate distances between all pairs of points
   const calculateSegmentDistances = () => {
@@ -215,9 +190,8 @@ function App() {
        (selectedLine.fromId === toId && selectedLine.toId === fromId));
 
     if (isAlreadySelected) {
-      // Deselect: clear selection and results
+      // Deselect: clear selection
       setSelectedLine(null);
-      setResult(null);
       setIsLOSPanelOpen(false);
       return;
     }
@@ -276,9 +250,8 @@ function App() {
       setLosToId(remainingPoints[1].id);
     }
 
-    // Clear result and selection if the removed point was involved
+    // Clear selection if the removed point was involved
     if (selectedLine && (selectedLine.fromId === id || selectedLine.toId === id)) {
-      setResult(null);
       setSelectedLine(null);
     }
   };
@@ -308,7 +281,6 @@ function App() {
     setLosToId('2');
     setSelectedLine({ fromId: '1', toId: '2' });
     setIsLOSPanelOpen(true);
-    setResult(null);
     setFrequency(145.500);
 
     // Reset zoom trigger
@@ -440,22 +412,23 @@ function App() {
         </button>
       )}
 
-      {/* Main Path Analysis Panel - always shown when result exists */}
-      <LOSPanel
-        result={result}
-        onClose={() => {
-          setSelectedLine(null);
-          setResult(null);
-          setIsLOSPanelOpen(false);
-        }}
-        onHoverPoint={(index) => setHoveredPathIndex(index)}
-        onReverseCalculation={handleReverseCalculation}
-        onRFAnalysisToggle={() => setShowRFAnalysis(!showRFAnalysis)}
-        showRFAnalysis={showRFAnalysis}
-        currentName1={points.find(p => p.id === (selectedLine?.fromId || losFromId))?.name}
-        currentName2={points.find(p => p.id === (selectedLine?.toId || losToId))?.name}
-        isLoading={isLoading}
-      />
+      {/* Main Path Analysis Panel - shown when panel is open */}
+      {isLOSPanelOpen && (
+        <LOSPanel
+          result={result}
+          onClose={() => {
+            setSelectedLine(null);
+            setIsLOSPanelOpen(false);
+          }}
+          onHoverPoint={(index) => setHoveredPathIndex(index)}
+          onReverseCalculation={handleReverseCalculation}
+          onRFAnalysisToggle={() => setShowRFAnalysis(!showRFAnalysis)}
+          showRFAnalysis={showRFAnalysis}
+          currentName1={points.find(p => p.id === (selectedLine?.fromId || losFromId))?.name}
+          currentName2={points.find(p => p.id === (selectedLine?.toId || losToId))?.name}
+          isLoading={isLoading}
+        />
+      )}
 
       {/* RF Analysis Panel - toggleable */}
       {showRFAnalysis && (

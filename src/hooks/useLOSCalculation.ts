@@ -1,52 +1,53 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { calculateDistance, generatePathPoints, fetchElevationData, calculateLineOfSight, calculateBearing } from './usePathCalculation';
+import { useMemo } from 'react';
+import { calculateDistance, generatePathPoints, calculateLineOfSight, calculateBearing } from './usePathCalculation';
 import { calculateFSPL, calculateFresnelZone } from '../utils/rfCalculations';
 import { detectObstacles, calculateMultipleObstacleLoss, findMainObstacle } from '../utils/diffraction';
-import { comparePointGeometry } from '../utils/pointComparison';
+import { useElevationQuery } from './useElevationQuery';
 import type { Point, PathResult } from '../types';
 
-export function useLOSCalculation(points: Point[]) {
-  const [isLoading, setIsLoading] = useState(false);
+interface LOSCalculationParams {
+  fromId: string;
+  toId: string;
+  points: Point[];
+  frequency?: number;
+  kFactor?: number;
+  enabled?: boolean;
+}
 
-  // Keep current points in a ref so we can access names without triggering recalculation
-  const pointsRef = useRef(points);
-  useEffect(() => {
-    pointsRef.current = points;
-  }, [points]);
+export function useLOSCalculation({
+  fromId,
+  toId,
+  points,
+  frequency,
+  kFactor = 4/3,
+  enabled = true
+}: LOSCalculationParams) {
+  const fromPoint = points.find(p => p.id === fromId);
+  const toPoint = points.find(p => p.id === toId);
 
-  // Track geometry with deep comparison
-  const pointsGeometryRef = useRef<Array<{ id: string; lat: number; lon: number; height: number }>>([]);
-  const [pointsGeometry, setPointsGeometry] = useState<Array<{ id: string; lat: number; lon: number; height: number }>>([]);
+  // Generate path points (pure calculation, no side effects)
+  const pathPoints = useMemo(() => {
+    if (!fromPoint || !toPoint) return [];
 
-  useEffect(() => {
-    const newGeometry = points.map(p => ({ id: p.id, lat: p.lat, lon: p.lon, height: p.height }));
+    return generatePathPoints(
+      fromPoint.lat,
+      fromPoint.lon,
+      toPoint.lat,
+      toPoint.lon,
+      50
+    );
+  }, [fromPoint?.lat, fromPoint?.lon, toPoint?.lat, toPoint?.lon]);
 
-    // Deep compare to see if geometry actually changed
-    const geometryChanged = comparePointGeometry(newGeometry, pointsGeometryRef.current);
+  // Fetch elevation data with React Query (cached!)
+  const {
+    data: elevations,
+    isLoading,
+    error
+  } = useElevationQuery(pathPoints, enabled && !!fromPoint && !!toPoint);
 
-    if (geometryChanged) {
-      pointsGeometryRef.current = newGeometry;
-      setPointsGeometry(newGeometry);
-    }
-  }, [points]);
-
-  const calculateLOS = useCallback(async (
-    fromId: string,
-    toId: string,
-    onSuccess: (result: PathResult) => void,
-    onError?: (error: string) => void,
-    frequency?: number,
-    kFactor: number = 4/3
-  ) => {
-    const fromPoint = pointsRef.current.find(p => p.id === fromId);
-    const toPoint = pointsRef.current.find(p => p.id === toId);
-
-    if (!fromPoint || !toPoint) {
-      onError?.('Invalid points selected');
-      return null;
-    }
-
-    setIsLoading(true);
+  // Calculate result when elevation data is available
+  const result = useMemo((): PathResult | null => {
+    if (!fromPoint || !toPoint || !elevations) return null;
 
     try {
       // Calculate distance
@@ -56,18 +57,6 @@ export function useLOSCalculation(points: Point[]) {
         toPoint.lat,
         toPoint.lon
       );
-
-      // Generate path points
-      const pathPoints = generatePathPoints(
-        fromPoint.lat,
-        fromPoint.lon,
-        toPoint.lat,
-        toPoint.lon,
-        50
-      );
-
-      // Fetch elevation data
-      const elevations = await fetchElevationData(pathPoints);
 
       // Calculate distances for each point
       const distances = pathPoints.map((p) =>
@@ -141,7 +130,7 @@ export function useLOSCalculation(points: Point[]) {
       const elevationAngle = Math.atan2(elevation2WithHeight - elevation1WithHeight, distanceInMeters) * 180 / Math.PI;
       const reverseElevationAngle = Math.atan2(elevation1WithHeight - elevation2WithHeight, distanceInMeters) * 180 / Math.PI;
 
-      const result: PathResult = {
+      return {
         distance,
         elevations,
         distances,
@@ -159,19 +148,17 @@ export function useLOSCalculation(points: Point[]) {
         elevationAngle,
         reverseElevationAngle,
         diffraction,
-        kFactor // Store k-factor used for this calculation
+        kFactor
       };
-
-      onSuccess(result);
-      return result;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      onError?.(errorMessage);
+    } catch (err) {
+      console.error('LOS calculation error:', err);
       return null;
-    } finally {
-      setIsLoading(false);
     }
-  }, [pointsGeometry]); // Only recreate when geometry changes, not names
+  }, [fromPoint, toPoint, elevations, pathPoints, frequency, kFactor]);
 
-  return { calculateLOS, isLoading };
+  return {
+    result,
+    isLoading,
+    error: error ? (error instanceof Error ? error.message : 'Unknown error occurred') : null
+  };
 }
