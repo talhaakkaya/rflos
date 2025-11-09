@@ -8,7 +8,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 2,
-      staleTime: Infinity, // Elevation data never goes stale
+      staleTime: Infinity,
       refetchOnWindowFocus: false,
     },
   },

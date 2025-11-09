@@ -17,18 +17,15 @@ import { Menu } from 'lucide-react';
 import './App.css';
 
 function App() {
-  // Default values
   const defaultPoints: Point[] = [
     { id: '1', lat: 41.038702, lon: 28.881802, name: 'Point A', height: 10 },
     { id: '2', lat: 41.0600, lon: 28.9850, name: 'Point B', height: 10 },
   ];
 
-  // Initialize state from URL or defaults
   const initialState = () => {
     const urlState = decodeStateFromURL();
     console.log('Initializing state from URL:', urlState);
 
-    // If no URL state at all, use full defaults
     if (!urlState) {
       return {
         points: defaultPoints,
@@ -42,7 +39,6 @@ function App() {
       };
     }
 
-    // URL state exists, use it (respecting null values)
     return {
       points: urlState.points || defaultPoints,
       losFromId: urlState.losFromId || '1',
@@ -57,7 +53,6 @@ function App() {
 
   const initial = useMemo(() => initialState(), []);
 
-  // State (all stored in URL params)
   const [points, setPoints] = useState<Point[]>(initial.points);
   const [losFromId, setLosFromId] = useState<string>(initial.losFromId);
   const [losToId, setLosToId] = useState<string>(initial.losToId);
@@ -66,28 +61,23 @@ function App() {
   const [isPanelVisible, setIsPanelVisible] = useState<boolean>(initial.isPanelVisible);
   const [isLOSPanelOpen, setIsLOSPanelOpen] = useState<boolean>(initial.isLOSPanelOpen);
 
-  // Temporary state (not saved)
   const [segmentDistances, setSegmentDistances] = useState<SegmentDistance[]>([]);
   const [hideLabels, setHideLabels] = useState<boolean>(false);
   const [isAddingPoint, setIsAddingPoint] = useState<boolean>(false);
   const [hoveredPathIndex, setHoveredPathIndex] = useState<number | null>(null);
-  const [frequency, setFrequency] = useState<number>(initial.frequency); // MHz - loaded from URL or default to 2m band
+  const [frequency, setFrequency] = useState<number>(initial.frequency);
   const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
   const [isERPCalculatorOpen, setIsERPCalculatorOpen] = useState<boolean>(false);
   const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState<boolean>(false);
   const [resetZoomTrigger, setResetZoomTrigger] = useState<number>(0);
   const [showRFAnalysis, setShowRFAnalysis] = useState<boolean>(false);
-
-  // Advanced LOS settings
   const [kFactor, setKFactor] = useState<number>(4/3);
 
-  // Track geometry for segment distance calculations
   const pointsGeometry = useMemo(() =>
     points.map(p => ({ id: p.id, lat: p.lat, lon: p.lon, height: p.height })),
     [points]
   );
 
-  // Use React Query for LOS calculation - automatically handles caching, loading, errors
   const { result, isLoading, error } = useLOSCalculation({
     fromId: losFromId,
     toId: losToId,
@@ -97,7 +87,6 @@ function App() {
     enabled: isLOSPanelOpen && !!losFromId && !!losToId
   });
 
-  // Log errors
   useEffect(() => {
     if (error) {
       console.error('Calculation failed:', error);
@@ -106,11 +95,9 @@ function App() {
 
   const isFirstRender = useRef(true);
 
-  // Update URL when state changes (skip first render since we just loaded from URL)
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      // Set URL to initial state on first render
       updateURL({ points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen, frequency });
       return;
     }
@@ -118,13 +105,11 @@ function App() {
     updateURL({ points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen, frequency });
   }, [points, losFromId, losToId, selectedLine, hideLines, isPanelVisible, isLOSPanelOpen, frequency]);
 
-  // Auto-calculate segment distances when points coordinates change
   useEffect(() => {
     calculateSegmentDistances();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pointsGeometry]);
 
-  // Calculate distances between all pairs of points
   const calculateSegmentDistances = () => {
     const distances: SegmentDistance[] = [];
     for (let i = 0; i < points.length; i++) {
@@ -149,59 +134,47 @@ function App() {
     setPoints(points.map(p =>
       p.id === id ? { ...p, lat, lon: lng } : p
     ));
-    // Don't clear result/selectedLine - let auto-recalculate handle it
   };
 
   const handleMarkerClick = (id: string) => {
-    // If clicking the first point, do nothing (it's already the "from" point)
     if (points[0].id === id) {
       return;
     }
 
-    // Find the clicked point
     const clickedPoint = points.find(p => p.id === id);
     if (!clickedPoint) {
       return;
     }
 
-    // Reorder: move clicked point to the front
     const reorderedPoints = [
       clickedPoint,
       ...points.filter(p => p.id !== id)
     ];
 
     setPoints(reorderedPoints);
-
-    // Update LOS IDs to use the new first point
     setLosFromId(clickedPoint.id);
     setLosToId(reorderedPoints[1].id);
 
-    // Update selected line if panel is open
     if (isLOSPanelOpen && (result || selectedLine)) {
       setSelectedLine({ fromId: clickedPoint.id, toId: reorderedPoints[1].id });
     }
-    // Unified effect will handle the calculation automatically
   };
 
   const handleLineClick = (fromId: string, toId: string) => {
-    // Check if clicking the already selected line - deselect it
     const isAlreadySelected = selectedLine &&
       ((selectedLine.fromId === fromId && selectedLine.toId === toId) ||
        (selectedLine.fromId === toId && selectedLine.toId === fromId));
 
     if (isAlreadySelected) {
-      // Deselect: clear selection
       setSelectedLine(null);
       setIsLOSPanelOpen(false);
       return;
     }
 
-    // Select new line
     setSelectedLine({ fromId, toId });
     setLosFromId(fromId);
     setLosToId(toId);
     setIsLOSPanelOpen(true);
-    // Unified effect will handle the calculation automatically
   };
 
 
@@ -243,21 +216,17 @@ function App() {
     const remainingPoints = points.filter(p => p.id !== id);
     setPoints(remainingPoints);
 
-    // Update LOS selection if removed point was selected
     if (losFromId === id || losToId === id) {
-      // Reset both to first two points if removed point was involved
       setLosFromId(remainingPoints[0].id);
       setLosToId(remainingPoints[1].id);
     }
 
-    // Clear selection if the removed point was involved
     if (selectedLine && (selectedLine.fromId === id || selectedLine.toId === id)) {
       setSelectedLine(null);
     }
   };
 
   const handleReverseCalculation = () => {
-    // Find the two points being analyzed
     const fromId = selectedLine?.fromId || losFromId;
     const toId = selectedLine?.toId || losToId;
 
@@ -265,30 +234,22 @@ function App() {
       return;
     }
 
-    // Swap the calculation direction
     setLosFromId(toId);
     setLosToId(fromId);
     if (selectedLine) {
       setSelectedLine({ fromId: toId, toId: fromId });
     }
-    // Unified effect will handle the calculation automatically
   };
 
   const handleReset = () => {
-    // Reset to defaults
     setPoints(defaultPoints);
     setLosFromId('1');
     setLosToId('2');
     setSelectedLine({ fromId: '1', toId: '2' });
     setIsLOSPanelOpen(true);
     setFrequency(145.500);
-
-    // Reset zoom trigger
     setResetZoomTrigger(prev => prev + 1);
-
-    // Clear URL params
     window.history.replaceState({}, '', window.location.pathname);
-    // Unified effect will handle the calculation automatically
   };
 
   const handleImportJSON = (jsonText: string) => {
@@ -296,10 +257,8 @@ function App() {
       const data = JSON.parse(jsonText);
       const importedPoints: Point[] = [];
 
-      // Handle single object or array
       const items = Array.isArray(data) ? data : [data];
 
-      // Helper function to check if a point is duplicate
       const isDuplicate = (lat: number, lon: number, name: string): boolean => {
         return points.some(p =>
           p.lat === lat && p.lon === lon && p.name === name
@@ -310,14 +269,11 @@ function App() {
         let lat: number | null = null;
         let lon: number | null = null;
 
-        // Priority 1: Use latitude/longitude if both exist
         if (item.latitude && item.longitude) {
           lat = parseFloat(item.latitude);
           lon = parseFloat(item.longitude);
         }
-        // Priority 2: Use grid_square if lat/lon not available
         else {
-          // Check for various grid locator field names
           const gridField = item.grid_square || item.gridsquare || item.grid || item.locator;
 
           if (gridField) {
@@ -329,11 +285,9 @@ function App() {
           }
         }
 
-        // Only proceed if we have valid coordinates
         if (lat !== null && lon !== null) {
           const name = item.callsign || item.name || `Point ${String.fromCharCode(65 + points.length + index)}`;
 
-          // Skip if duplicate (same lat, lon, and name)
           if (isDuplicate(lat, lon, name)) {
             return;
           }
@@ -365,7 +319,6 @@ function App() {
     kFactor: number;
   }) => {
     setKFactor(settings.kFactor);
-    // Unified effect will handle the calculation automatically
   };
 
   return (
@@ -412,7 +365,6 @@ function App() {
         </button>
       )}
 
-      {/* Main Path Analysis Panel - shown when panel is open */}
       {isLOSPanelOpen && (
         <LOSPanel
           result={result}
@@ -430,7 +382,6 @@ function App() {
         />
       )}
 
-      {/* RF Analysis Panel - toggleable */}
       {showRFAnalysis && (
         <RFAnalysisPanel
           result={result}

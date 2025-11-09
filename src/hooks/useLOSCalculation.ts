@@ -25,7 +25,6 @@ export function useLOSCalculation({
   const fromPoint = points.find(p => p.id === fromId);
   const toPoint = points.find(p => p.id === toId);
 
-  // Generate path points (pure calculation, no side effects)
   const pathPoints = useMemo(() => {
     if (!fromPoint || !toPoint) return [];
 
@@ -38,19 +37,16 @@ export function useLOSCalculation({
     );
   }, [fromPoint?.lat, fromPoint?.lon, toPoint?.lat, toPoint?.lon]);
 
-  // Fetch elevation data with React Query (cached!)
   const {
     data: elevations,
     isLoading,
     error
   } = useElevationQuery(pathPoints, enabled && !!fromPoint && !!toPoint);
 
-  // Calculate result when elevation data is available
   const result = useMemo((): PathResult | null => {
     if (!fromPoint || !toPoint || !elevations) return null;
 
     try {
-      // Calculate distance
       const distance = calculateDistance(
         fromPoint.lat,
         fromPoint.lon,
@@ -58,12 +54,10 @@ export function useLOSCalculation({
         toPoint.lon
       );
 
-      // Calculate distances for each point
       const distances = pathPoints.map((p) =>
         calculateDistance(fromPoint.lat, fromPoint.lon, p.lat, p.lon)
       );
 
-      // Calculate line of sight
       const los = calculateLineOfSight(
         distances,
         elevations,
@@ -72,16 +66,13 @@ export function useLOSCalculation({
         kFactor
       );
 
-      // Calculate RF metrics if frequency is provided
       let fspl: number | undefined;
       let fresnelZone: PathResult['fresnelZone'] | undefined;
       let diffraction: PathResult['diffraction'] | undefined;
 
       if (frequency) {
-        // Calculate Free Space Path Loss
         fspl = calculateFSPL(distance, frequency);
 
-        // Calculate Fresnel Zone
         fresnelZone = calculateFresnelZone(
           distances,
           elevations,
@@ -90,7 +81,6 @@ export function useLOSCalculation({
           frequency
         );
 
-        // Calculate knife-edge diffraction
         const obstacles = detectObstacles(
           distances,
           elevations,
@@ -107,7 +97,6 @@ export function useLOSCalculation({
         };
       }
 
-      // Calculate bearing/azimuth
       const bearing = calculateBearing(
         fromPoint.lat,
         fromPoint.lon,
@@ -121,7 +110,6 @@ export function useLOSCalculation({
         fromPoint.lon
       );
 
-      // Calculate elevation angles (vertical takeoff angle)
       const elevation1WithHeight = elevations[0] + fromPoint.height;
       const elevation2WithHeight = elevations[elevations.length - 1] + toPoint.height;
       const distanceInMeters = distance * 1000;

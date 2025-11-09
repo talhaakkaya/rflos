@@ -1,4 +1,3 @@
-// Types
 export interface PathPoint {
   lat: number;
   lon: number;
@@ -23,7 +22,6 @@ interface ElevationAPIResponse {
   results: ElevationAPIResult[];
 }
 
-// Calculate distance using Haversine formula
 export function calculateDistance(
   lat1: number,
   lon1: number,
@@ -40,14 +38,12 @@ export function calculateDistance(
   return R * c;
 }
 
-// Calculate bearing (azimuth) from point 1 to point 2
 export function calculateBearing(
   lat1: number,
   lon1: number,
   lat2: number,
   lon2: number
 ): number {
-  // Convert to radians
   const φ1 = lat1 * Math.PI / 180;
   const φ2 = lat2 * Math.PI / 180;
   const Δλ = (lon2 - lon1) * Math.PI / 180;
@@ -63,7 +59,6 @@ export function calculateBearing(
   return bearing;
 }
 
-// Generate points along the path
 export function generatePathPoints(
   lat1: number,
   lon1: number,
@@ -81,7 +76,6 @@ export function generatePathPoints(
   return points;
 }
 
-// Fetch elevation data from Open-Elevation API
 export async function fetchElevationData(points: PathPoint[]): Promise<number[]> {
   const locations = points.map(p => ({latitude: p.lat, longitude: p.lon}));
 
@@ -92,7 +86,6 @@ export async function fetchElevationData(points: PathPoint[]): Promise<number[]>
       body: JSON.stringify({locations})
     });
 
-    // Check status code and provide specific error messages
     if (!response.ok) {
       switch (response.status) {
         case 400:
@@ -111,7 +104,6 @@ export async function fetchElevationData(points: PathPoint[]): Promise<number[]>
 
     const data: ElevationAPIResponse = await response.json();
 
-    // Validate response structure
     if (!data.results || !Array.isArray(data.results)) {
       throw new Error('Elevation API returned invalid data structure');
     }
@@ -119,7 +111,6 @@ export async function fetchElevationData(points: PathPoint[]): Promise<number[]>
     return data.results.map(r => r.elevation);
   } catch (error) {
     console.error('Error fetching elevation:', error);
-    // Re-throw with more context if it's a network error
     if (error instanceof TypeError && error.message.includes('fetch')) {
       throw new Error('Network error: Unable to reach elevation API');
     }
@@ -127,7 +118,6 @@ export async function fetchElevationData(points: PathPoint[]): Promise<number[]>
   }
 }
 
-// Calculate line of sight with Earth's curvature
 export function calculateLineOfSight(
   distances: number[],
   elevations: number[],
@@ -145,11 +135,8 @@ export function calculateLineOfSight(
   // k = 4/3 is standard, but can range from 1.0 (no refraction) to 5+ (ducting)
   const earthRadius = 6371 * kFactor; // km
 
-  // Calculate LOS line with Earth's curvature
   for (let i = 0; i < n; i++) {
     const fraction = i / (n - 1);
-
-    // Straight-line elevation at this point
     const straightLineElev = startElev + (endElev - startElev) * fraction;
 
     // Earth's curvature offset: h = d1 * d2 / (2 * R)
@@ -162,7 +149,6 @@ export function calculateLineOfSight(
     losLine.push(straightLineElev - curvatureOffset);
   }
 
-  // Check for obstructions
   let isBlocked = false;
   let blockDistance: number | null = null;
   let maxObstacle = 0;

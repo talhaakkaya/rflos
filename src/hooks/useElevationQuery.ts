@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchElevationData, type PathPoint } from './usePathCalculation';
 
-// Generate a stable cache key from path points
 function getElevationCacheKey(points: PathPoint[]): string {
   // Round to 6 decimal places for cache key stability
   return points
@@ -17,6 +16,6 @@ export function useElevationQuery(pathPoints: PathPoint[], enabled: boolean = tr
     queryFn: () => fetchElevationData(pathPoints),
     enabled: enabled && pathPoints.length > 0,
     staleTime: Infinity, // Elevation data never changes
-    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
+    gcTime: 1000 * 60 * 30,
   });
 }
