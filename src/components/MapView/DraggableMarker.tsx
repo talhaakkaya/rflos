@@ -44,6 +44,8 @@ export default function DraggableMarker({ point, useRedIcon, onDragEnd, onClick 
         const { lat, lng } = marker.getLatLng();
         onDragEnd(point.id, lat, lng);
       }
+      // Reset drag position so future clicks work correctly
+      dragStartPos.current = null;
     },
     click() {
       // Only trigger onClick if marker wasn't dragged
