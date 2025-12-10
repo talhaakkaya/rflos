@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { calculateDistance, generatePathPoints, calculateLineOfSight, calculateBearing } from './usePathCalculation';
+import { calculateDistance, generatePathPoints, calculateLineOfSight, calculateBearing, calculateRadioHorizon } from './usePathCalculation';
 import { calculateFSPL, calculateFresnelZone } from '../utils/rfCalculations';
 import { detectObstacles, calculateMultipleObstacleLoss, findMainObstacle } from '../utils/diffraction';
 import { useElevationQuery } from './useElevationQuery';
@@ -114,9 +114,26 @@ export function useLOSCalculation({
       const elevation2WithHeight = elevations[elevations.length - 1] + toPoint.height;
       const distanceInMeters = distance * 1000;
 
+      // Calculate elevation angles accounting for Earth's curvature
+      // curvatureDrop = d² / (2 × K × R)
+      const effectiveRadius = kFactor * 6371000; // meters
+      const curvatureDrop = (distanceInMeters * distanceInMeters) / (2 * effectiveRadius);
+
+      // Effective height of target from observer's perspective
+      const target2EffectiveHeight = elevation2WithHeight - curvatureDrop;
+      const target1EffectiveHeight = elevation1WithHeight - curvatureDrop;
+
       // Positive angle = point up, negative = point down
-      const elevationAngle = Math.atan2(elevation2WithHeight - elevation1WithHeight, distanceInMeters) * 180 / Math.PI;
-      const reverseElevationAngle = Math.atan2(elevation1WithHeight - elevation2WithHeight, distanceInMeters) * 180 / Math.PI;
+      const elevationAngle = Math.atan2(target2EffectiveHeight - elevation1WithHeight, distanceInMeters) * 180 / Math.PI;
+      const reverseElevationAngle = Math.atan2(target1EffectiveHeight - elevation2WithHeight, distanceInMeters) * 180 / Math.PI;
+
+      // Calculate radio horizon using total height above sea level (ground + antenna)
+      const radioHorizon = calculateRadioHorizon(
+        elevation1WithHeight,  // ground elevation + antenna height
+        elevation2WithHeight,  // ground elevation + antenna height
+        distance,
+        kFactor
+      );
 
       return {
         distance,
@@ -136,7 +153,8 @@ export function useLOSCalculation({
         elevationAngle,
         reverseElevationAngle,
         diffraction,
-        kFactor
+        kFactor,
+        radioHorizon
       };
     } catch (err) {
       console.error('LOS calculation error:', err);

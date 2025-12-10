@@ -114,7 +114,8 @@ A web-based RF (Radio Frequency) path analysis tool that calculates line of sigh
 - **Visual Selection Feedback**: Selected lines, markers, and labels highlight in red
 - **Color-Coded Results**:
   - Green "CLEAR" status for unobstructed paths
-  - Red "BLOCKED" status with obstruction details
+  - Red "BLOCKED" status when terrain obstructs the path
+  - Orange "BEYOND HORIZON" status when path exceeds radio horizon (Earth's curvature limit)
 - **Point Cards**: Each point has its own card with name, coordinates, and height configuration
 
 ## Technology Stack
@@ -319,25 +320,36 @@ The application performs the following calculations:
    - Critical for paths over ~5km where curvature becomes significant
    - Visualized on map with curved polylines
 
-6. **Obstruction Check**: Compares terrain elevation vs. curved LOS line at each sample point
+6. **Cumulative Angle Visibility**: More accurate than simple LOS line intersection
+   - Calculates curvature drop: `h = d² / (2 × K × R)`
+   - Effective terrain height: `effectiveHeight = terrain - curvatureDrop`
+   - Angle from observer: `angle = atan2(effectiveHeight - observerHeight, distance)`
+   - Tracks cumulative max angle (horizon) - if target angle < horizon angle, blocked
+   - 0.005° tolerance for elevation data precision
+   - Distinguishes between terrain blockage vs Earth's curvature (radio horizon)
 
-7. **Antenna Bearing (Azimuth)**:
+7. **Radio Horizon**: Maximum theoretical LOS distance based on height above sea level
+   - Formula: `d = 4.12 × √(K × h)` where h is total height (ground + antenna) in meters
+   - Combined range: `d_total = d_A + d_B`
+   - Uses effective Earth radius with K-factor for atmospheric refraction
+
+8. **Antenna Bearing (Azimuth)**:
    - Formula: `θ = atan2(sin(Δλ)×cos(φ2), cos(φ1)×sin(φ2) - sin(φ1)×cos(φ2)×cos(Δλ))`
    - Converts to 0-360° range and cardinal directions (N, NE, E, etc.)
    - Calculated bidirectionally for both endpoints
 
-8. **Elevation Angle (Vertical)**:
-   - Formula: `angle = atan2(Δh, d) × 180/π`
-   - Δh = height difference (including antenna heights)
-   - d = horizontal distance in meters
+9. **Elevation Angle (Vertical)**:
+   - Accounts for Earth's curvature: `effectiveHeight = targetHeight - curvatureDrop`
+   - Formula: `angle = atan2(effectiveHeight - observerHeight, distance)`
+   - curvatureDrop = d² / (2 × K × R)
    - Positive angle = point antenna up, negative = point down
 
-9. **Free Space Path Loss (FSPL)**:
-   - Formula: `FSPL(dB) = 20×log₁₀(d_km) + 20×log₁₀(f_MHz) + 32.45`
-   - Calculates signal attenuation in free space
-   - Used for link budget planning
+10. **Free Space Path Loss (FSPL)**:
+    - Formula: `FSPL(dB) = 20×log₁₀(d_km) + 20×log₁₀(f_MHz) + 32.45`
+    - Calculates signal attenuation in free space
+    - Used for link budget planning
 
-10. **First Fresnel Zone**:
+11. **First Fresnel Zone**:
     - Formula: `radius = √((λ × d1 × d2) / (d1 + d2))`
     - Where λ = wavelength, d1 = distance to point, d2 = distance from point
     - Calculates clearance zone needed for optimal RF propagation
@@ -345,7 +357,7 @@ The application performs the following calculations:
     - Status thresholds: ≥100% Excellent, ≥60% Good, ≥20% Marginal, ≥0% Poor, <0% Obstructed
     - 60% clearance (0.6 × radius) recommended for reliable communications
 
-11. **Knife-Edge Diffraction** (ITU-R P.526):
+12. **Knife-Edge Diffraction** (ITU-R P.526):
     - **Fresnel-Kirchhoff parameter**: `v = h × √(2(d1 + d2) / (λ × d1 × d2))`
       - h = obstacle height above LOS line (m)
       - d1, d2 = distances from transmitter/receiver to obstacle (m)
@@ -354,7 +366,7 @@ The application performs the following calculations:
     - **Multi-obstacle**: Uses primary obstacle loss + weighted secondary obstacles
     - Detects obstacles within 5m below LOS line for near-grazing cases
 
-12. **K-Factor (Atmospheric Refraction)**:
+13. **K-Factor (Atmospheric Refraction)**:
     - Effective Earth radius: `R_eff = k × R_earth`
     - Standard atmosphere: k = 4/3 (1.333)
     - Subrefractive: k < 1.2 (signal bends away from Earth)
@@ -362,7 +374,7 @@ The application performs the following calculations:
     - Ducting: k > 1.6 (extreme range extension)
     - Affects LOS horizon and path clearance calculations
 
-13. **Link Budget (ERP Calculator)**:
+14. **Link Budget (ERP Calculator)**:
     - **ERP (Effective Radiated Power)**: `ERP = P_tx + G_ant - L_cable` (dBm)
     - **Received Power**: `P_rx = ERP - FSPL + G_rx - L_cable_rx` (dBm)
     - **Link Margin**: `Margin = P_rx - Sensitivity` (dB)

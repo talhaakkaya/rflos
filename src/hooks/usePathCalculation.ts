@@ -10,6 +10,15 @@ export interface LineOfSightResult {
   maxObstacle: number;
   startElev: number;
   endElev: number;
+  // Cumulative angle visibility (more accurate)
+  visibility: {
+    isVisible: boolean;           // True if endpoint is visible from start
+    blockedAtDistance: number | null;  // Distance where first blockage occurs
+    blockedByIndex: number | null;     // Index of the blocking terrain point
+    horizonAngle: number;         // Final horizon angle from observer (degrees)
+    targetAngle: number;          // Angle to target point (degrees)
+    blockedByTerrain: boolean;    // True if blocked by terrain, false if only by Earth's curvature
+  };
 }
 
 interface ElevationAPIResult {
@@ -118,6 +127,120 @@ export async function fetchElevationData(points: PathPoint[]): Promise<number[]>
   }
 }
 
+export interface RadioHorizonResult {
+  horizon1: number;        // Radio horizon distance from point A (km)
+  horizon2: number;        // Radio horizon distance from point B (km)
+  combined: number;        // Total theoretical LOS range (km)
+  exceedsHorizon: boolean; // True if path distance > combined horizon
+  excess: number;          // How much path exceeds horizon (km), 0 if within range
+}
+
+export function calculateRadioHorizon(
+  height1: number,  // Total height above sea level at point A (ground + antenna) in meters
+  height2: number,  // Total height above sea level at point B (ground + antenna) in meters
+  distance: number, // Path distance (km)
+  kFactor: number = 4/3
+): RadioHorizonResult {
+  // Radio horizon formula: d = 4.12 × √(k × h) where h is height above sea level in meters, d is in km
+  // The k-factor accounts for atmospheric refraction (standard 4/3)
+  const horizon1 = 4.12 * Math.sqrt(kFactor * height1);
+  const horizon2 = 4.12 * Math.sqrt(kFactor * height2);
+  const combined = horizon1 + horizon2;
+  const exceedsHorizon = distance > combined;
+  const excess = exceedsHorizon ? distance - combined : 0;
+
+  return {
+    horizon1,
+    horizon2,
+    combined,
+    exceedsHorizon,
+    excess
+  };
+}
+
+/**
+ * Cumulative angle visibility calculation (accurate method)
+ *
+ * Algorithm:
+ * 1. curvatureDrop = d² / (2 × K × R)
+ * 2. effectiveHeight = terrainElevation - curvatureDrop
+ * 3. angle = atan2(effectiveHeight - observerHeight, distance)
+ * 4. Track cumulativeMaxAngle as we scan from observer outward
+ * 5. Target is visible if targetAngle >= cumulativeMaxAngle
+ */
+export function calculateCumulativeAngleVisibility(
+  distances: number[],
+  elevations: number[],
+  height1: number,
+  height2: number,
+  kFactor: number = 4/3
+): {
+  isVisible: boolean;
+  blockedAtDistance: number | null;
+  blockedByIndex: number | null;
+  horizonAngle: number;
+  targetAngle: number;
+  blockedByTerrain: boolean;
+} {
+  const earthRadius = 6371000;
+  const effectiveRadius = kFactor * earthRadius;
+  const observerHeight = elevations[0] + height1;
+
+  // Calculate target angle (including antenna height at target)
+  const targetDistanceM = distances[distances.length - 1] * 1000;
+  const targetCurvatureDrop = (targetDistanceM * targetDistanceM) / (2 * effectiveRadius);
+  const targetTotalHeight = elevations[elevations.length - 1] + height2;
+  const targetEffectiveHeight = targetTotalHeight - targetCurvatureDrop;
+  const targetAngle = Math.atan2(targetEffectiveHeight - observerHeight, targetDistanceM) * (180 / Math.PI);
+
+  // Scan path and track cumulative max angle (horizon)
+  let cumulativeMaxAngle = -90;
+  let horizonIndex = -1;
+
+  for (let i = 1; i < distances.length - 1; i++) {
+    const distanceM = distances[i] * 1000;
+    const curvatureDrop = (distanceM * distanceM) / (2 * effectiveRadius);
+    const effectiveHeight = elevations[i] - curvatureDrop;
+    const angle = Math.atan2(effectiveHeight - observerHeight, distanceM) * (180 / Math.PI);
+
+    if (angle > cumulativeMaxAngle) {
+      cumulativeMaxAngle = angle;
+      horizonIndex = i;
+    }
+  }
+
+  // Target is visible if its angle is >= the cumulative horizon angle
+  // 0.005° tolerance for elevation data precision
+  const isVisible = targetAngle >= cumulativeMaxAngle - 0.005;
+
+  let blockedAtDistance: number | null = null;
+  let blockedByIndex: number | null = null;
+  let blockedByTerrain = false;
+
+  if (!isVisible) {
+    blockedAtDistance = horizonIndex > 0 ? distances[horizonIndex] : null;
+    blockedByIndex = horizonIndex > 0 ? horizonIndex : null;
+
+    // Determine if blocked by terrain or just Earth's curvature
+    if (horizonIndex > 0) {
+      const baselineElev = Math.min(elevations[0], elevations[elevations.length - 1]);
+      const horizonElev = elevations[horizonIndex];
+
+      // It's terrain if the horizon point is significantly above baseline
+      blockedByTerrain = horizonElev > baselineElev + 10;
+    }
+  }
+
+  return {
+    isVisible,
+    blockedAtDistance,
+    blockedByIndex,
+    horizonAngle: cumulativeMaxAngle,
+    targetAngle,
+    blockedByTerrain
+  };
+}
+
 export function calculateLineOfSight(
   distances: number[],
   elevations: number[],
@@ -164,12 +287,22 @@ export function calculateLineOfSight(
     }
   }
 
+  // Calculate visibility using cumulative angle method
+  const visibility = calculateCumulativeAngleVisibility(
+    distances,
+    elevations,
+    height1,
+    height2,
+    kFactor
+  );
+
   return {
     losLine,
     isBlocked,
     blockDistance,
     maxObstacle,
     startElev,
-    endElev
+    endElev,
+    visibility
   };
 }

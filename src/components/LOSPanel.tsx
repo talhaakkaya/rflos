@@ -256,8 +256,8 @@ export default function LOSPanel({
       <div className="los-header">
         <h3>LOS Analysis</h3>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <div className={`los-status ${los.isBlocked ? 'los-blocked' : 'los-clear'}`}>
-            {los.isBlocked ? 'BLOCKED' : 'CLEAR'}
+          <div className={`los-status ${!los.visibility.isVisible ? (los.visibility.blockedByTerrain ? 'los-blocked' : 'los-horizon') : 'los-clear'}`}>
+            {!los.visibility.isVisible ? (los.visibility.blockedByTerrain ? 'BLOCKED' : 'BEYOND HORIZON') : 'CLEAR'}
           </div>
           {onRFAnalysisToggle && (
             <button
@@ -365,13 +365,40 @@ export default function LOSPanel({
           <strong>Distance:</strong> {distance.toFixed(2)} km
         </div>
 
-        {los.isBlocked ? (
+        {/* Radio Horizon Information */}
+        {result.radioHorizon && (
+          <>
+            <hr style={{ margin: '12px 0', border: 'none', borderTop: '1px solid #ddd' }} />
+            <div className="los-detail">
+              <strong>Radio Horizon:</strong>
+            </div>
+            <div className="los-detail" style={{ marginLeft: '12px', fontSize: '12px', color: '#555' }}>
+              <div>{displayName1}: {result.radioHorizon.horizon1.toFixed(1)} km</div>
+              <div>{displayName2}: {result.radioHorizon.horizon2.toFixed(1)} km</div>
+              <div style={{ marginTop: '4px' }}>
+                <strong>Combined Range:</strong> {result.radioHorizon.combined.toFixed(1)} km
+              </div>
+            </div>
+            {result.radioHorizon.exceedsHorizon ? (
+              <div className="los-detail" style={{ color: '#ff8c00', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <AlertTriangle size={14} />
+                <span>Path exceeds radio horizon by {result.radioHorizon.excess.toFixed(1)} km</span>
+              </div>
+            ) : (
+              <div className="los-detail" style={{ color: 'green', fontSize: '12px', marginTop: '4px' }}>
+                Path is within radio horizon range
+              </div>
+            )}
+          </>
+        )}
+
+        {!los.visibility.isVisible ? (
           <>
             <div className="los-detail">
-              <strong>Blocked at:</strong> {los.blockDistance?.toFixed(2)} km
+              <strong>Blocked at:</strong> {los.visibility.blockedAtDistance?.toFixed(2)} km
             </div>
-            <div className="los-detail">
-              <strong>Obstacle height:</strong> {los.maxObstacle.toFixed(1)} m above LOS
+            <div className="los-detail" style={{ fontSize: '11px', color: '#666' }}>
+              Target angle: {los.visibility.targetAngle.toFixed(3)}° | Horizon angle: {los.visibility.horizonAngle.toFixed(3)}°
             </div>
           </>
         ) : (

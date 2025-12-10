@@ -40,6 +40,13 @@ export interface PathResult {
     mainObstacle: Obstacle | null; // Most significant obstacle
   };
   kFactor?: number; // K-factor used for earth curvature and atmospheric refraction
+  radioHorizon?: {
+    horizon1: number;        // Radio horizon distance from point A (km)
+    horizon2: number;        // Radio horizon distance from point B (km)
+    combined: number;        // Total theoretical LOS range (km)
+    exceedsHorizon: boolean; // True if path distance > combined horizon
+    excess: number;          // How much path exceeds horizon (km), 0 if within range
+  };
 }
 
 export interface SegmentDistance {
