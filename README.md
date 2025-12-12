@@ -329,9 +329,9 @@ The application performs the following calculations:
    - Distinguishes between terrain blockage vs Earth's curvature (radio horizon)
 
 7. **Radio Horizon**: Maximum theoretical LOS distance based on height above sea level
-   - Formula: `d = 4.12 × √(K × h)` where h is total height (ground + antenna) in meters
+   - Formula: `d = √(2 × K × R × h)` where h is total height (ground + antenna), R is Earth radius
    - Combined range: `d_total = d_A + d_B`
-   - Uses effective Earth radius with K-factor for atmospheric refraction
+   - Derived from Earth geometry with K-factor for atmospheric refraction
 
 8. **Antenna Bearing (Azimuth)**:
    - Formula: `θ = atan2(sin(Δλ)×cos(φ2), cos(φ1)×sin(φ2) - sin(φ1)×cos(φ2)×cos(Δλ))`

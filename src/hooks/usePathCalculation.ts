@@ -141,10 +141,11 @@ export function calculateRadioHorizon(
   distance: number, // Path distance (km)
   kFactor: number = 4/3
 ): RadioHorizonResult {
-  // Radio horizon formula: d = 4.12 × √(k × h) where h is height above sea level in meters, d is in km
-  // The k-factor accounts for atmospheric refraction (standard 4/3)
-  const horizon1 = 4.12 * Math.sqrt(kFactor * height1);
-  const horizon2 = 4.12 * Math.sqrt(kFactor * height2);
+  // Radio horizon formula: d = √(2 × K × R × h)
+  // Derived from Earth geometry with atmospheric refraction
+  const earthRadius = 6371; // km
+  const horizon1 = Math.sqrt(2 * kFactor * earthRadius * (height1 / 1000)); // h converted to km
+  const horizon2 = Math.sqrt(2 * kFactor * earthRadius * (height2 / 1000)); // h converted to km
   const combined = horizon1 + horizon2;
   const exceedsHorizon = distance > combined;
   const excess = exceedsHorizon ? distance - combined : 0;
