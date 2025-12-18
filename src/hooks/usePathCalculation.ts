@@ -223,12 +223,18 @@ export function calculateCumulativeAngleVisibility(
     blockedByIndex = horizonIndex > 0 ? horizonIndex : null;
 
     // Determine if blocked by terrain or just Earth's curvature
+    // Compare actual horizon angle vs what it would be over flat terrain
     if (horizonIndex > 0) {
       const baselineElev = Math.min(elevations[0], elevations[elevations.length - 1]);
-      const horizonElev = elevations[horizonIndex];
+      const horizonDistanceM = distances[horizonIndex] * 1000;
+      const horizonCurvatureDrop = (horizonDistanceM * horizonDistanceM) / (2 * effectiveRadius);
 
-      // It's terrain if the horizon point is significantly above baseline
-      blockedByTerrain = horizonElev > baselineElev + 10;
+      // What would the angle be if terrain was flat at baseline?
+      const flatEffectiveHeight = baselineElev - horizonCurvatureDrop;
+      const flatAngle = Math.atan2(flatEffectiveHeight - observerHeight, horizonDistanceM) * (180 / Math.PI);
+
+      // If actual horizon angle is higher than flat angle, terrain is causing the blockage
+      blockedByTerrain = cumulativeMaxAngle > flatAngle + 0.01;
     }
   }
 
